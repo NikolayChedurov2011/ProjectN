@@ -1,5 +1,7 @@
 # Visual Studio 2015 user specific files
 .vs/
+.run/
+.idea/
 
 # Compiled Object files
 *.slo
@@ -40,6 +42,7 @@
 *.sdf
 *.VC.db
 *.VC.opendb
+*.vsconfig
 
 # Precompiled Assets
 SourceArt/**/*.png
@@ -51,6 +54,7 @@ Plugins/**/Binaries/*
 
 # Builds
 Build/*
+Builds/
 
 # Whitelist PakBlacklist-<BuildConfiguration>.txt files
 !Build/*/
