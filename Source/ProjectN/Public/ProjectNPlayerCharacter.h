@@ -1,0 +1,46 @@
+// N Chedurov All Rights Reserved
+
+#pragma once
+
+#include "CoreMinimal.h"
+#include "ProjectNCharacter_Base.h"
+#include "ProjectNPlayerCharacter.generated.h"
+
+class UDataAsset_InputConfig;
+class USpringArmComponent;
+class UCameraComponent;
+struct FInputActionValue;
+
+UCLASS()
+class PROJECTN_API AProjectNPlayerCharacter : public AProjectNCharacter_Base
+{
+	GENERATED_BODY()
+
+public:
+	AProjectNPlayerCharacter();
+
+protected:
+	virtual void BeginPlay() override;
+	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+
+private:
+	
+#pragma region Components
+	
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Camera", meta=(AllowPrivateAccess=true))
+	USpringArmComponent* SpringArm = nullptr;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Camera", meta=(AllowPrivateAccess=true))
+	UCameraComponent* CameraComponent = nullptr;
+	
+#pragma endregion
+
+#pragma region Inputs
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="CharacterData", meta=(AllowPrivateAccess=true))
+	UDataAsset_InputConfig* InputConfigDataAsset = nullptr;
+
+	void Input_Move(const FInputActionValue& ActionValue);
+	void Input_Look(const FInputActionValue& ActionValue);
+	
+#pragma endregion
+};
