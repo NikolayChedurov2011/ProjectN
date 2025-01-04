@@ -42,7 +42,7 @@ protected:
 	virtual void OnRep_PlayerState() override;
 
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "GAS")
-	TSubclassOf<UGameplayEffect> DefaultAttributeSetEffect;
+	TSubclassOf<UGameplayEffect> DefaultEffectToSetAttribute;
 
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "GAS")
 	TArray<TSubclassOf<UGameplayAbility>> DefaultAbilities;

@@ -73,12 +73,12 @@ void AProjectNPlayerCharacter::OnRep_PlayerState()
 
 void AProjectNPlayerCharacter::InitializeAttributes()
 {
-	if (GetLocalRole() == ROLE_Authority && ProjectN_AttributeSet && DefaultAttributeSetEffect)
+	if (GetLocalRole() == ROLE_Authority && ProjectN_AttributeSet && DefaultEffectToSetAttribute)
 	{
 		FGameplayEffectContextHandle EffectContext = ProjectN_AbilitySystemComponent->MakeEffectContext();
 		EffectContext.AddSourceObject(this);
 
-		ApplyGamePlayEffectToSelf(DefaultAttributeSetEffect, EffectContext);
+		ApplyGamePlayEffectToSelf(DefaultEffectToSetAttribute, EffectContext);
 	}
 }
 
