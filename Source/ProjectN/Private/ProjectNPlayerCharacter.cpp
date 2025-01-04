@@ -9,6 +9,11 @@
 #include "Components/Input/ProjectNInputComponent.h"
 #include "ProjectNGameplayTags.h"
 
+#include "AbilitySystemComponent.h"
+#include "AbilitySystemBlueprintLibrary.h"
+#include "AbilitySystem/ProjectN_AbilitySystemComponent.h"
+#include "AbilitySystem/Attribute/ProjectN_AttributeSet.h"
+
 AProjectNPlayerCharacter::AProjectNPlayerCharacter()
 {
 	bUseControllerRotationPitch = false;
@@ -28,11 +33,96 @@ AProjectNPlayerCharacter::AProjectNPlayerCharacter()
 	GetCharacterMovement()->RotationRate = FRotator(0.f, 500.f, 0.f);
 	GetCharacterMovement()->MaxWalkSpeed = 400.f;
 	GetCharacterMovement()->BrakingDecelerationWalking = 2000.f;
+
+	ProjectN_AbilitySystemComponent = CreateDefaultSubobject<UProjectN_AbilitySystemComponent>(TEXT("ProjectN Ability System Component"));
+	ProjectN_AbilitySystemComponent->SetIsReplicated(true);
+	ProjectN_AbilitySystemComponent->SetReplicationMode(EGameplayEffectReplicationMode::Mixed);
+
+	ProjectN_AttributeSet = CreateDefaultSubobject<UProjectN_AttributeSet>(TEXT("ProjectN Attribute Set"));
+}
+
+UAbilitySystemComponent* AProjectNPlayerCharacter::GetAbilitySystemComponent() const
+{
+	return ProjectN_AbilitySystemComponent;
 }
 
 void AProjectNPlayerCharacter::BeginPlay()
 {
 	Super::BeginPlay();
+}
+
+void AProjectNPlayerCharacter::PossessedBy(AController* NewController)
+{
+	Super::PossessedBy(NewController);
+
+	ProjectN_AbilitySystemComponent->InitAbilityActorInfo(this, this);
+	
+	InitializeAttributes();
+	GiveAbilities();
+	ApplyStartupEffects();
+}
+
+void AProjectNPlayerCharacter::OnRep_PlayerState()
+{
+	Super::OnRep_PlayerState();
+
+	ProjectN_AbilitySystemComponent->InitAbilityActorInfo(this, this);
+
+	InitializeAttributes();
+}
+
+void AProjectNPlayerCharacter::InitializeAttributes()
+{
+	if (GetLocalRole() == ROLE_Authority && ProjectN_AttributeSet && DefaultAttributeSetEffect)
+	{
+		FGameplayEffectContextHandle EffectContext = ProjectN_AbilitySystemComponent->MakeEffectContext();
+		EffectContext.AddSourceObject(this);
+
+		ApplyGamePlayEffectToSelf(DefaultAttributeSetEffect, EffectContext);
+	}
+}
+
+void AProjectNPlayerCharacter::GiveAbilities()
+{
+	if (HasAuthority() && ProjectN_AbilitySystemComponent)
+	{
+		for (auto DefaultAbility : DefaultAbilities)
+		{
+			ProjectN_AbilitySystemComponent->GiveAbility(FGameplayAbilitySpec(DefaultAbility));
+		}
+	}
+}
+
+void AProjectNPlayerCharacter::ApplyStartupEffects()
+{
+	if (HasAuthority() && ProjectN_AbilitySystemComponent)
+	{
+		FGameplayEffectContextHandle EffectContext = ProjectN_AbilitySystemComponent->MakeEffectContext();
+		EffectContext.AddSourceObject(this);
+
+		for (auto DefaultEffect : DefaultEffects)
+		{
+			ApplyGamePlayEffectToSelf(DefaultEffect, EffectContext);
+		}
+	}
+}
+
+bool AProjectNPlayerCharacter::ApplyGamePlayEffectToSelf(TSubclassOf<UGameplayEffect> Effect, const FGameplayEffectContextHandle& InEffectContext)
+{
+	if (!Effect.Get())
+	{
+		return false;
+	}
+
+	FGameplayEffectSpecHandle SpecHandle = ProjectN_AbilitySystemComponent->MakeOutgoingSpec(Effect, 1,InEffectContext);
+	if (SpecHandle.IsValid())
+	{
+		FActiveGameplayEffectHandle ActiveGameplayEffectHandle = ProjectN_AbilitySystemComponent->ApplyGameplayEffectSpecToSelf(*SpecHandle.Data.Get());
+
+		return ActiveGameplayEffectHandle.WasSuccessfullyApplied();
+	}
+	
+	return true;
 }
 
 void AProjectNPlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
