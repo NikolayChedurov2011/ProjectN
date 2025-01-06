@@ -13,8 +13,12 @@
 #include "AbilitySystemBlueprintLibrary.h"
 #include "AbilitySystem/ProjectN_AbilitySystemComponent.h"
 #include "AbilitySystem/Attribute/ProjectN_AttributeSet.h"
+#include "Components/ProjectN_MovementComponent.h"
+#include "DataAssets/ProjectNCharacterDataAsset.h"
 
-AProjectNPlayerCharacter::AProjectNPlayerCharacter()
+#include "Net/UnrealNetwork.h"
+
+AProjectNPlayerCharacter::AProjectNPlayerCharacter(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer.SetDefaultSubobjectClass<UProjectN_MovementComponent>(ACharacter::CharacterMovementComponentName))
 {
 	bUseControllerRotationPitch = false;
 	bUseControllerRotationRoll = false;
@@ -22,7 +26,7 @@ AProjectNPlayerCharacter::AProjectNPlayerCharacter()
 	
 	SpringArm = CreateDefaultSubobject<USpringArmComponent>(TEXT("Spring Arm Component"));
 	SpringArm->SetupAttachment(GetRootComponent());
-	SpringArm->TargetArmLength = 300.f;
+	SpringArm->TargetArmLength = 600.f;
 	SpringArm->bUsePawnControlRotation = true;
 	
 	CameraComponent = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera Component"));
@@ -34,18 +38,36 @@ AProjectNPlayerCharacter::AProjectNPlayerCharacter()
 	GetCharacterMovement()->MaxWalkSpeed = 400.f;
 	GetCharacterMovement()->BrakingDecelerationWalking = 2000.f;
 
+	ProjectN_AttributeSet = CreateDefaultSubobject<UProjectN_AttributeSet>(TEXT("ProjectN Attribute Set"));
+	
 	ProjectN_AbilitySystemComponent = CreateDefaultSubobject<UProjectN_AbilitySystemComponent>(TEXT("ProjectN Ability System Component"));
 	ProjectN_AbilitySystemComponent->SetIsReplicated(true);
 	ProjectN_AbilitySystemComponent->SetReplicationMode(EGameplayEffectReplicationMode::Mixed);
-
-	ProjectN_AttributeSet = CreateDefaultSubobject<UProjectN_AttributeSet>(TEXT("ProjectN Attribute Set"));
+	ProjectN_AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(ProjectN_AttributeSet->GetMaxMovementSpeedAttribute()).AddUObject(this, &AProjectNPlayerCharacter::OnMaxMovementSpeedChanged);
 }
 
-UAbilitySystemComponent* AProjectNPlayerCharacter::GetAbilitySystemComponent() const
+void AProjectNPlayerCharacter::GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const
 {
-	return ProjectN_AbilitySystemComponent;
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(AProjectNPlayerCharacter, CharacterData);
 }
 
+/*
+ *** Character initialize
+ */
+
+//First in initialization order
+void AProjectNPlayerCharacter::PostInitializeComponents()
+{
+	Super::PostInitializeComponents();
+
+	if (IsValid(CharacterDataAsset))
+	{
+		SetCharacterData(CharacterDataAsset->CharacterData);
+	}
+}
+//Second in initialization order
 void AProjectNPlayerCharacter::BeginPlay()
 {
 	Super::BeginPlay();
@@ -57,7 +79,6 @@ void AProjectNPlayerCharacter::PossessedBy(AController* NewController)
 
 	ProjectN_AbilitySystemComponent->InitAbilityActorInfo(this, this);
 	
-	InitializeAttributes();
 	GiveAbilities();
 	ApplyStartupEffects();
 }
@@ -67,26 +88,51 @@ void AProjectNPlayerCharacter::OnRep_PlayerState()
 	Super::OnRep_PlayerState();
 
 	ProjectN_AbilitySystemComponent->InitAbilityActorInfo(this, this);
-
-	InitializeAttributes();
 }
+/*
+ *
+ */
 
-void AProjectNPlayerCharacter::InitializeAttributes()
+/*
+ *** Main Get and Set functions
+ */
+UAbilitySystemComponent* AProjectNPlayerCharacter::GetAbilitySystemComponent() const
 {
-	if (GetLocalRole() == ROLE_Authority && ProjectN_AttributeSet && DefaultEffectToSetAttribute)
-	{
-		FGameplayEffectContextHandle EffectContext = ProjectN_AbilitySystemComponent->MakeEffectContext();
-		EffectContext.AddSourceObject(this);
-
-		ApplyGamePlayEffectToSelf(DefaultEffectToSetAttribute, EffectContext);
-	}
+	return ProjectN_AbilitySystemComponent;
 }
 
+FCharacterData AProjectNPlayerCharacter::GetCharacterData() const
+{
+	return  CharacterData;
+}
+
+void AProjectNPlayerCharacter::SetCharacterData(const FCharacterData& NewCharacterData)
+{
+	CharacterData = NewCharacterData;
+	InitFromCharacterData(CharacterData);
+}
+
+void AProjectNPlayerCharacter::OnRep_CharacterData()
+{
+	InitFromCharacterData(CharacterData, true);
+}
+
+void AProjectNPlayerCharacter::InitFromCharacterData(const FCharacterData& InCharacterData, bool bFromReplication)
+{
+	
+}
+/*
+ *
+ */
+
+/*
+ *** Give startup gameplay abilities and effects + ApplyGamePlayEffectToSelf function
+ */
 void AProjectNPlayerCharacter::GiveAbilities()
 {
 	if (HasAuthority() && ProjectN_AbilitySystemComponent)
 	{
-		for (auto DefaultAbility : DefaultAbilities)
+		for (auto DefaultAbility : CharacterData.Abilities)
 		{
 			ProjectN_AbilitySystemComponent->GiveAbility(FGameplayAbilitySpec(DefaultAbility));
 		}
@@ -100,7 +146,7 @@ void AProjectNPlayerCharacter::ApplyStartupEffects()
 		FGameplayEffectContextHandle EffectContext = ProjectN_AbilitySystemComponent->MakeEffectContext();
 		EffectContext.AddSourceObject(this);
 
-		for (auto DefaultEffect : DefaultEffects)
+		for (auto DefaultEffect : CharacterData.Effects)
 		{
 			ApplyGamePlayEffectToSelf(DefaultEffect, EffectContext);
 		}
@@ -124,7 +170,13 @@ bool AProjectNPlayerCharacter::ApplyGamePlayEffectToSelf(TSubclassOf<UGameplayEf
 	
 	return true;
 }
+/*
+ *
+ */
 
+/*
+ *** Setup InputComponent + implement move and look functions
+ */
 void AProjectNPlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	checkf(InputConfigDataAsset, TEXT("Forgot to assign valid data asset"));
@@ -174,4 +226,11 @@ void AProjectNPlayerCharacter::Input_Look(const FInputActionValue& ActionValue)
 	{
 		AddControllerPitchInput(LookAxisVector.Y);
 	}
+}
+/*
+ *
+ */
+void AProjectNPlayerCharacter::OnMaxMovementSpeedChanged(const FOnAttributeChangeData& Data)
+{
+	GetCharacterMovement()->MaxWalkSpeed = Data.NewValue;
 }

@@ -6,6 +6,7 @@
 #include "ProjectNCharacter_Base.h"
 #include "Abilities/GameplayAbility.h"
 #include "AbilitySystemInterface.h"
+#include "ProjectN/ProjectNTypes.h"
 #include "ProjectNPlayerCharacter.generated.h"
 
 class UDataAsset_InputConfig;
@@ -24,37 +25,48 @@ class PROJECTN_API AProjectNPlayerCharacter : public AProjectNCharacter_Base, pu
 	GENERATED_BODY()
 
 public:
-	AProjectNPlayerCharacter();
+	AProjectNPlayerCharacter(const FObjectInitializer& ObjectInitializer);
+	virtual void PostInitializeComponents() override;
 
 	bool ApplyGamePlayEffectToSelf(TSubclassOf<UGameplayEffect> Effect, const FGameplayEffectContextHandle& InEffectContext);
 
 	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override;
 
+	UFUNCTION(BlueprintCallable)
+	FORCEINLINE FCharacterData GetCharacterData() const;
+
+	UFUNCTION(BlueprintCallable)
+	FORCEINLINE void SetCharacterData(const FCharacterData& NewCharacterData);
+
 protected:
 	virtual void BeginPlay() override;
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+	
+	void GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const;
+	void OnMaxMovementSpeedChanged(const FOnAttributeChangeData& Data);
 
-	void InitializeAttributes();
 	void GiveAbilities();
 	void ApplyStartupEffects();
 
 	virtual void PossessedBy(AController* NewController) override;
 	virtual void OnRep_PlayerState() override;
 
-	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "GAS")
-	TSubclassOf<UGameplayEffect> DefaultEffectToSetAttribute;
-
-	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "GAS")
-	TArray<TSubclassOf<UGameplayAbility>> DefaultAbilities;
-
-	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "GAS")
-	TArray<TSubclassOf<UGameplayEffect>> DefaultEffects;
-
 	UPROPERTY(EditDefaultsOnly)
 	UProjectN_AbilitySystemComponent* ProjectN_AbilitySystemComponent;
 
 	UPROPERTY(Transient)
 	UProjectN_AttributeSet* ProjectN_AttributeSet;
+
+	UPROPERTY(ReplicatedUsing = OnRep_CharacterData)
+	FCharacterData CharacterData;
+
+	UFUNCTION()
+	void OnRep_CharacterData();
+
+	virtual void InitFromCharacterData(const FCharacterData& InCharacterData, bool bFromReplication = false);
+
+	UPROPERTY(EditDefaultsOnly)
+	class UProjectNCharacterDataAsset* CharacterDataAsset;
 	
 private:
 	

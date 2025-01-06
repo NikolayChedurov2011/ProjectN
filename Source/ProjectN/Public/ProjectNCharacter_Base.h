@@ -12,5 +12,5 @@ class PROJECTN_API AProjectNCharacter_Base : public ACharacter
 	GENERATED_BODY()
 
 public:
-	AProjectNCharacter_Base();
+	AProjectNCharacter_Base(const FObjectInitializer& ObjectInitializer);
 };
