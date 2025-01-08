@@ -14,7 +14,7 @@ class UProjectN_AttributeSet;
 class UGamePlayEffect;
 class UGameplayAbility;
 
-UCLASS()
+UCLASS(Abstract)
 class PROJECTN_API AProjectNCharacter_Base : public ACharacter, public IAbilitySystemInterface
 {
 	GENERATED_BODY()
@@ -51,7 +51,7 @@ protected:
 	UProjectN_AbilitySystemComponent* ProjectN_AbilitySystemComponent;
 	
 	UPROPERTY(EditDefaultsOnly)
-	class UProjectNCharacterDataAsset* CharacterDataAsset;
+	class UProjectN_CharacterDataAsset* CharacterDataAsset;
 
 	UPROPERTY(ReplicatedUsing = OnRep_CharacterData)
 	FCharacterData CharacterData;

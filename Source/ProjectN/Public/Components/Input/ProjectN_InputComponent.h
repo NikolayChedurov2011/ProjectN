@@ -5,13 +5,13 @@
 #include "CoreMinimal.h"
 #include "EnhancedInputComponent.h"
 #include "DataAssets/InputConfig/DataAsset_InputConfig.h"
-#include "ProjectNInputComponent.generated.h"
+#include "ProjectN_InputComponent.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class PROJECTN_API UProjectNInputComponent : public UEnhancedInputComponent
+class PROJECTN_API UProjectN_InputComponent : public UEnhancedInputComponent
 {
 	GENERATED_BODY()
 
@@ -22,7 +22,7 @@ public:
 };
 
 template <class UserObject, typename CallbackFunc>
-inline void UProjectNInputComponent::BindNativeInputAction(const UDataAsset_InputConfig* InInputConfig,	const FGameplayTag& InInputTag, ETriggerEvent TriggerEvent, UserObject* ContextObject, CallbackFunc Func)
+inline void UProjectN_InputComponent::BindNativeInputAction(const UDataAsset_InputConfig* InInputConfig,	const FGameplayTag& InInputTag, ETriggerEvent TriggerEvent, UserObject* ContextObject, CallbackFunc Func)
 {
 	checkf(InInputConfig, TEXT("Input config data asset is null."));
 

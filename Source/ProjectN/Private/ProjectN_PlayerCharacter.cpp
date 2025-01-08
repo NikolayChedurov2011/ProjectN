@@ -1,17 +1,17 @@
 // N Chedurov All Rights Reserved
 
-#include "ProjectNPlayerCharacter.h"
+#include "ProjectN_PlayerCharacter.h"
 #include "Camera/CameraComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "EnhancedInputSubsystems.h"
 #include "DataAssets/InputConfig/DataAsset_InputConfig.h"
-#include "Components/Input/ProjectNInputComponent.h"
-#include "ProjectNGameplayTags.h"
+#include "Components/Input/ProjectN_InputComponent.h"
+#include "ProjectN_GameplayTags.h"
 
 #include "Components/ProjectN_MovementComponent.h"
 
 
-AProjectNPlayerCharacter::AProjectNPlayerCharacter(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer.SetDefaultSubobjectClass<UProjectN_MovementComponent>(ACharacter::CharacterMovementComponentName))
+AProjectN_PlayerCharacter::AProjectN_PlayerCharacter(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer.SetDefaultSubobjectClass<UProjectN_MovementComponent>(ACharacter::CharacterMovementComponentName))
 {
 	bUseControllerRotationPitch = false;
 	bUseControllerRotationRoll = false;
@@ -35,7 +35,7 @@ AProjectNPlayerCharacter::AProjectNPlayerCharacter(const FObjectInitializer& Obj
 /*
  *** Setup InputComponent + implement move and look functions
  */
-void AProjectNPlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
+void AProjectN_PlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	checkf(InputConfigDataAsset, TEXT("Forgot to assign valid data asset"));
 	
@@ -45,13 +45,13 @@ void AProjectNPlayerCharacter::SetupPlayerInputComponent(UInputComponent* Player
 	check(EnhancedInputSubsystem);
 
 	EnhancedInputSubsystem->AddMappingContext(InputConfigDataAsset->DefaultMappingContext, 0);
-	UProjectNInputComponent* ProjectNInputComponent = CastChecked<UProjectNInputComponent>(PlayerInputComponent);
+	UProjectN_InputComponent* ProjectNInputComponent = CastChecked<UProjectN_InputComponent>(PlayerInputComponent);
 
 	ProjectNInputComponent->BindNativeInputAction(InputConfigDataAsset, ProjectNGameplayTags::InputTag_Move, ETriggerEvent::Triggered, this, &ThisClass::Input_Move);
 	ProjectNInputComponent->BindNativeInputAction(InputConfigDataAsset, ProjectNGameplayTags::InputTag_Look, ETriggerEvent::Triggered, this, &ThisClass::Input_Look);
 }
 
-void AProjectNPlayerCharacter::Input_Move(const FInputActionValue& ActionValue)
+void AProjectN_PlayerCharacter::Input_Move(const FInputActionValue& ActionValue)
 {
 	const FVector2d MovementVector = ActionValue.Get<FVector2d>();
 	const FRotator MovementRotation(0.f, Controller->GetControlRotation().Yaw, 0.f);
@@ -71,7 +71,7 @@ void AProjectNPlayerCharacter::Input_Move(const FInputActionValue& ActionValue)
 	}
 }
 
-void AProjectNPlayerCharacter::Input_Look(const FInputActionValue& ActionValue)
+void AProjectN_PlayerCharacter::Input_Look(const FInputActionValue& ActionValue)
 {
 	const FVector2d LookAxisVector = ActionValue.Get<FVector2d>();
 

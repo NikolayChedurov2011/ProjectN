@@ -3,7 +3,7 @@
 #include "ProjectNCharacter_Base.h"
 #include "AbilitySystem/Attribute/ProjectN_AttributeSet.h"
 #include "AbilitySystem/ProjectN_AbilitySystemComponent.h"
-#include "DataAssets/ProjectNCharacterDataAsset.h"
+#include "DataAssets/ProjectN_CharacterDataAsset.h"
 #include "Net/UnrealNetwork.h"
 
 #include "GameFramework/CharacterMovementComponent.h"

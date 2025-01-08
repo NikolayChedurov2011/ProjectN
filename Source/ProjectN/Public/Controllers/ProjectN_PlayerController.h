@@ -4,13 +4,13 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/PlayerController.h"
-#include "ProjectNPlayerController.generated.h"
+#include "ProjectN_PlayerController.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class PROJECTN_API AProjectNPlayerController : public APlayerController
+class PROJECTN_API AProjectN_PlayerController : public APlayerController
 {
 	GENERATED_BODY()
 	

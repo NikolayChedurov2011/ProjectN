@@ -4,13 +4,13 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/GameModeBase.h"
-#include "ProjectNGameModeBase.generated.h"
+#include "ProjectN_GameModeBase.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class PROJECTN_API AProjectNGameModeBase : public AGameModeBase
+class PROJECTN_API AProjectN_GameModeBase : public AGameModeBase
 {
 	GENERATED_BODY()
 	

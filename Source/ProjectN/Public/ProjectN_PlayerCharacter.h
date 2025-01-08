@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "ProjectNCharacter_Base.h"
-#include "ProjectNPlayerCharacter.generated.h"
+#include "ProjectN_PlayerCharacter.generated.h"
 
 class UDataAsset_InputConfig;
 class USpringArmComponent;
@@ -13,12 +13,12 @@ class UCameraComponent;
 struct FInputActionValue;
 
 UCLASS()
-class PROJECTN_API AProjectNPlayerCharacter : public AProjectNCharacter_Base
+class PROJECTN_API AProjectN_PlayerCharacter : public AProjectNCharacter_Base
 {
 	GENERATED_BODY()
 
 public:
-	AProjectNPlayerCharacter(const FObjectInitializer& ObjectInitializer);
+	AProjectN_PlayerCharacter(const FObjectInitializer& ObjectInitializer);
 
 protected:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;

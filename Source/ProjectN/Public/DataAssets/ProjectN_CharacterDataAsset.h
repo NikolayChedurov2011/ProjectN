@@ -5,13 +5,13 @@
 #include "CoreMinimal.h"
 #include "Engine/DataAsset.h"
 #include "ProjectN/ProjectNTypes.h"
-#include "ProjectNCharacterDataAsset.generated.h"
+#include "ProjectN_CharacterDataAsset.generated.h"
 
 /**
  * 
  */
 UCLASS(BlueprintType, Blueprintable)
-class PROJECTN_API UProjectNCharacterDataAsset : public UDataAsset
+class PROJECTN_API UProjectN_CharacterDataAsset : public UDataAsset
 {
 	GENERATED_BODY()
 
