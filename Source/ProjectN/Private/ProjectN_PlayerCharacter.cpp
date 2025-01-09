@@ -7,11 +7,9 @@
 #include "DataAssets/InputConfig/DataAsset_InputConfig.h"
 #include "Components/Input/ProjectN_InputComponent.h"
 #include "ProjectN_GameplayTags.h"
+#include "ProjectN_PlayerState.h"
 
-#include "Components/ProjectN_MovementComponent.h"
-
-
-AProjectN_PlayerCharacter::AProjectN_PlayerCharacter(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer.SetDefaultSubobjectClass<UProjectN_MovementComponent>(ACharacter::CharacterMovementComponentName))
+AProjectN_PlayerCharacter::AProjectN_PlayerCharacter(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
 {
 	bUseControllerRotationPitch = false;
 	bUseControllerRotationRoll = false;
@@ -25,12 +23,52 @@ AProjectN_PlayerCharacter::AProjectN_PlayerCharacter(const FObjectInitializer& O
 	CameraComponent = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera Component"));
 	CameraComponent->SetupAttachment(SpringArm, USpringArmComponent::SocketName);
 	CameraComponent->bUsePawnControlRotation = false;
-
-	GetCharacterMovement()->bOrientRotationToMovement = true;
-	GetCharacterMovement()->RotationRate = FRotator(0.f, 500.f, 0.f);
-	GetCharacterMovement()->MaxWalkSpeed = 400.f;
-	GetCharacterMovement()->BrakingDecelerationWalking = 2000.f;
 }
+
+/*
+ *** Character initialize
+ */
+void AProjectN_PlayerCharacter::PossessedBy(AController* NewController)
+{
+	Super::PossessedBy(NewController);
+	
+	// Init ability actor info for the Server
+	InitAbilityActorInfo();
+}
+
+void AProjectN_PlayerCharacter::OnRep_PlayerState()
+{
+	Super::OnRep_PlayerState();
+	
+	// Init ability actor info for the Client
+	InitAbilityActorInfo();
+	OnCharacterInitAbilityEnd();
+}
+
+void AProjectN_PlayerCharacter::InitAbilityActorInfo()
+{
+	AProjectN_PlayerState* ProjectN_PlayerState = GetPlayerState<AProjectN_PlayerState>();
+	check(ProjectN_PlayerState);
+	
+	ProjectN_AbilitySystemComponent = Cast<UProjectN_AbilitySystemComponent>(ProjectN_PlayerState->GetAbilitySystemComponent());
+	ProjectN_AttributeSet = ProjectN_PlayerState->GetAttributeSet();
+	GetAbilitySystemComponent()->InitAbilityActorInfo(ProjectN_PlayerState, this);
+
+	Super::InitAbilityActorInfo();
+}
+
+void AProjectN_PlayerCharacter::OnCharacterInitAbilityEnd_Implementation()
+{
+	if (HasAuthority())
+	{
+		GiveAbilities();
+		ApplyStartupEffects();
+	}
+}
+
+/*
+ *
+ */
 
 /*
  *** Setup InputComponent + implement move and look functions

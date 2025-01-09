@@ -19,9 +19,15 @@ class PROJECTN_API AProjectN_PlayerCharacter : public AProjectNCharacter_Base
 
 public:
 	AProjectN_PlayerCharacter(const FObjectInitializer& ObjectInitializer);
+	virtual void PossessedBy(AController* NewController) override;
+	virtual void OnRep_PlayerState() override;
 
 protected:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+	virtual void InitAbilityActorInfo() override;
+
+	UFUNCTION(Server, Reliable)
+	void OnCharacterInitAbilityEnd();
 
 private:
 	

@@ -1,26 +1,22 @@
 // N Chedurov All Rights Reserved
 
 #include "ProjectNCharacter_Base.h"
+
 #include "AbilitySystem/Attribute/ProjectN_AttributeSet.h"
-#include "AbilitySystem/ProjectN_AbilitySystemComponent.h"
 #include "DataAssets/ProjectN_CharacterDataAsset.h"
+#include "Components/ProjectN_MovementComponent.h"
 #include "Net/UnrealNetwork.h"
 
-#include "GameFramework/CharacterMovementComponent.h"
-
-AProjectNCharacter_Base::AProjectNCharacter_Base(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
+AProjectNCharacter_Base::AProjectNCharacter_Base(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer.SetDefaultSubobjectClass<UProjectN_MovementComponent>(ACharacter::CharacterMovementComponentName))
 {
 	PrimaryActorTick.bCanEverTick = false;
 	PrimaryActorTick.bStartWithTickEnabled = false;
 
 	GetMesh()->bReceivesDecals = false;
 
-	ProjectN_AttributeSet = CreateDefaultSubobject<UProjectN_AttributeSet>(TEXT("ProjectN Attribute Set"));
-
-	ProjectN_AbilitySystemComponent = CreateDefaultSubobject<UProjectN_AbilitySystemComponent>(TEXT("ProjectN Ability System Component"));
-	ProjectN_AbilitySystemComponent->SetIsReplicated(true);
-	ProjectN_AbilitySystemComponent->SetReplicationMode(EGameplayEffectReplicationMode::Mixed);
-	ProjectN_AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(ProjectN_AttributeSet->GetMaxMovementSpeedAttribute()).AddUObject(this, &AProjectNCharacter_Base::OnMaxMovementSpeedChanged);
+	GetCharacterMovement()->bOrientRotationToMovement = true;
+	GetCharacterMovement()->RotationRate = FRotator(0.f, 500.f, 0.f);
+	GetCharacterMovement()->BrakingDecelerationWalking = 2000.f;
 }
 
 void AProjectNCharacter_Base::GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const
@@ -74,18 +70,16 @@ void AProjectNCharacter_Base::BeginPlay()
 void AProjectNCharacter_Base::PossessedBy(AController* NewController)
 {
 	Super::PossessedBy(NewController);
-
-	ProjectN_AbilitySystemComponent->InitAbilityActorInfo(this, this);
-	
-	GiveAbilities();
-	ApplyStartupEffects();
 }
 
 void AProjectNCharacter_Base::OnRep_PlayerState()
 {
 	Super::OnRep_PlayerState();
+}
 
-	ProjectN_AbilitySystemComponent->InitAbilityActorInfo(this, this);
+void AProjectNCharacter_Base::InitAbilityActorInfo()
+{
+	GetAbilitySystemComponent()->GetGameplayAttributeValueChangeDelegate(GetAttributeSet()->GetMaxMovementSpeedAttribute()).AddUObject(this, &AProjectNCharacter_Base::OnMaxMovementSpeedChanged);
 }
 /*
  *
@@ -96,40 +90,40 @@ void AProjectNCharacter_Base::OnRep_PlayerState()
  */
 void AProjectNCharacter_Base::GiveAbilities()
 {
-	if (HasAuthority() && ProjectN_AbilitySystemComponent)
+	if (HasAuthority() && GetAbilitySystemComponent())
 	{
-		for (auto DefaultAbility : CharacterData.Abilities)
+		for (const TSubclassOf DefaultAbility : CharacterData.Abilities)
 		{
-			ProjectN_AbilitySystemComponent->GiveAbility(FGameplayAbilitySpec(DefaultAbility));
+			GetAbilitySystemComponent()->GiveAbility(FGameplayAbilitySpec(DefaultAbility));
 		}
 	}
 }
 
 void AProjectNCharacter_Base::ApplyStartupEffects()
 {
-	if (HasAuthority() && ProjectN_AbilitySystemComponent)
+	if (HasAuthority() && GetAbilitySystemComponent())
 	{
-		FGameplayEffectContextHandle EffectContext = ProjectN_AbilitySystemComponent->MakeEffectContext();
+		FGameplayEffectContextHandle EffectContext = GetAbilitySystemComponent()->MakeEffectContext();
 		EffectContext.AddSourceObject(this);
 
-		for (auto DefaultEffect : CharacterData.Effects)
+		for (const TSubclassOf DefaultEffect : CharacterData.Effects)
 		{
 			ApplyGamePlayEffectToSelf(DefaultEffect, EffectContext);
 		}
 	}
 }
 
-bool AProjectNCharacter_Base::ApplyGamePlayEffectToSelf(TSubclassOf<UGameplayEffect> Effect, const FGameplayEffectContextHandle& InEffectContext) const
+bool AProjectNCharacter_Base::ApplyGamePlayEffectToSelf(const TSubclassOf<UGameplayEffect> Effect, const FGameplayEffectContextHandle& InEffectContext) const
 {
 	if (!Effect.Get())
 	{
 		return false;
 	}
 
-	FGameplayEffectSpecHandle SpecHandle = ProjectN_AbilitySystemComponent->MakeOutgoingSpec(Effect, 1,InEffectContext);
+	const FGameplayEffectSpecHandle SpecHandle = GetAbilitySystemComponent()->MakeOutgoingSpec(Effect, 1,InEffectContext);
 	if (SpecHandle.IsValid())
 	{
-		FActiveGameplayEffectHandle ActiveGameplayEffectHandle = ProjectN_AbilitySystemComponent->ApplyGameplayEffectSpecToSelf(*SpecHandle.Data.Get());
+		const FActiveGameplayEffectHandle ActiveGameplayEffectHandle = GetAbilitySystemComponent()->ApplyGameplayEffectSpecToSelf(*SpecHandle.Data.Get());
 
 		return ActiveGameplayEffectHandle.WasSuccessfullyApplied();
 	}
