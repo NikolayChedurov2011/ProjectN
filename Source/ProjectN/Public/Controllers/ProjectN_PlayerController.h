@@ -13,5 +13,10 @@ UCLASS()
 class PROJECTN_API AProjectN_PlayerController : public APlayerController
 {
 	GENERATED_BODY()
-	
+
+public:
+	AProjectN_PlayerController();
+
+protected:
+	virtual void BeginPlay() override;
 };

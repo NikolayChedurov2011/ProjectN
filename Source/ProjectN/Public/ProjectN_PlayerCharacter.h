@@ -9,6 +9,7 @@
 class UDataAsset_InputConfig;
 class USpringArmComponent;
 class UCameraComponent;
+class AProjectN_PlayerCameraManager;
 
 struct FInputActionValue;
 

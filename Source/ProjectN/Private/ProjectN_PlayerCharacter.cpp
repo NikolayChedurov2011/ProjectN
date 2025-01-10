@@ -1,13 +1,15 @@
 // N Chedurov All Rights Reserved
 
 #include "ProjectN_PlayerCharacter.h"
-#include "Camera/CameraComponent.h"
-#include "GameFramework/SpringArmComponent.h"
+//#include "Camera/CameraComponent.h"
+//#include "GameFramework/SpringArmComponent.h"
 #include "EnhancedInputSubsystems.h"
 #include "DataAssets/InputConfig/DataAsset_InputConfig.h"
 #include "Components/Input/ProjectN_InputComponent.h"
 #include "ProjectN_GameplayTags.h"
+#include "ProjectN_PlayerCameraManager.h"
 #include "ProjectN_PlayerState.h"
+#include "Camera/CameraComponent.h"
 
 AProjectN_PlayerCharacter::AProjectN_PlayerCharacter(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
 {
@@ -15,14 +17,14 @@ AProjectN_PlayerCharacter::AProjectN_PlayerCharacter(const FObjectInitializer& O
 	bUseControllerRotationRoll = false;
 	bUseControllerRotationYaw = false;
 	
-	SpringArm = CreateDefaultSubobject<USpringArmComponent>(TEXT("Spring Arm Component"));
-	SpringArm->SetupAttachment(GetRootComponent());
-	SpringArm->TargetArmLength = 600.f;
-	SpringArm->bUsePawnControlRotation = true;
+	//SpringArm = CreateDefaultSubobject<USpringArmComponent>(TEXT("Spring Arm Component"));
+	//SpringArm->SetupAttachment(GetRootComponent());
+	//SpringArm->TargetArmLength = 600.f;
+	//SpringArm->bUsePawnControlRotation = true;
 	
-	CameraComponent = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera Component"));
-	CameraComponent->SetupAttachment(SpringArm, USpringArmComponent::SocketName);
-	CameraComponent->bUsePawnControlRotation = false;
+	//CameraComponent = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera Component"));
+	//CameraComponent->SetupAttachment(SpringArm, USpringArmComponent::SocketName);
+	//CameraComponent->bUsePawnControlRotation = false;
 }
 
 /*
@@ -92,18 +94,21 @@ void AProjectN_PlayerCharacter::SetupPlayerInputComponent(UInputComponent* Playe
 void AProjectN_PlayerCharacter::Input_Move(const FInputActionValue& ActionValue)
 {
 	const FVector2d MovementVector = ActionValue.Get<FVector2d>();
+	
 	const FRotator MovementRotation(0.f, Controller->GetControlRotation().Yaw, 0.f);
 
 	if(MovementVector.Y != 0.f)
 	{
-		const FVector ForwardDirection = MovementRotation.RotateVector(FVector::ForwardVector);
+		//const FVector ForwardDirection = MovementRotation.RotateVector(FVector::ForwardVector);
+		const FVector ForwardDirection = FRotationMatrix(MovementRotation).GetUnitAxis(EAxis::X);
 
 		AddMovementInput(ForwardDirection, MovementVector.Y);
 	}
 
 	if(MovementVector.X != 0.f)
 	{
-		const FVector RightDirection = MovementRotation.RotateVector(FVector::RightVector);
+		//const FVector RightDirection = MovementRotation.RotateVector(FVector::RightVector);
+		const FVector RightDirection = FRotationMatrix(MovementRotation).GetUnitAxis(EAxis::Y);
 
 		AddMovementInput(RightDirection, MovementVector.X);
 	}
