@@ -14,9 +14,9 @@ AProjectNCharacter_Base::AProjectNCharacter_Base(const FObjectInitializer& Objec
 
 	GetMesh()->bReceivesDecals = false;
 
-	//GetCharacterMovement()->bOrientRotationToMovement = true;
-	//GetCharacterMovement()->RotationRate = FRotator(0.f, 500.f, 0.f);
-	//GetCharacterMovement()->BrakingDecelerationWalking = 2000.f;
+	GetCharacterMovement()->bOrientRotationToMovement = true;
+	GetCharacterMovement()->RotationRate = FRotator(0.f, 550.f, 0.f);
+	GetCharacterMovement()->BrakingDecelerationWalking = 2000.f;
 }
 
 void AProjectNCharacter_Base::GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const

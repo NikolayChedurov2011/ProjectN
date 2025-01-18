@@ -34,9 +34,9 @@ private:
 	
 #pragma region Components
 	
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Camera", meta=(AllowPrivateAccess=true))
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Camera", meta=(AllowPrivateAccess=true))
 	USpringArmComponent* SpringArm = nullptr;
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Camera", meta=(AllowPrivateAccess=true))
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Camera", meta=(AllowPrivateAccess=true))
 	UCameraComponent* CameraComponent = nullptr;
 	
 #pragma endregion

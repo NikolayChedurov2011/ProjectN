@@ -12,11 +12,11 @@ void AProjectN_PlayerController::BeginPlay()
 {
 	Super::BeginPlay();
 
-	bShowMouseCursor = true;
-	DefaultMouseCursor = EMouseCursor::Default;
+	bShowMouseCursor = false;
+	//DefaultMouseCursor = EMouseCursor::Default;
 	
-	FInputModeGameAndUI InputModeData;
-	InputModeData.SetLockMouseToViewportBehavior(EMouseLockMode::DoNotLock);
-	InputModeData.SetHideCursorDuringCapture(false);
-	SetInputMode(InputModeData);
+	//FInputModeGameAndUI InputModeData;
+	//InputModeData.SetLockMouseToViewportBehavior(EMouseLockMode::DoNotLock);
+	//InputModeData.SetHideCursorDuringCapture(false);
+	//SetInputMode(InputModeData);
 }
