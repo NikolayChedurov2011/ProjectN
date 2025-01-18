@@ -93,24 +93,37 @@ void AProjectN_PlayerCharacter::SetupPlayerInputComponent(UInputComponent* Playe
 
 void AProjectN_PlayerCharacter::Input_Move(const FInputActionValue& ActionValue)
 {
+	const FVector NoZVector(1.f, 1.f, 0.f);
 	const FVector2d MovementVector = ActionValue.Get<FVector2d>();
+
+	// Getting rotator
+	const FRotator CameraRot = Cast<APlayerController>(Controller)->PlayerCameraManager->GetCameraRotation();
 	
-	const FRotator MovementRotation(0.f, Controller->GetControlRotation().Yaw, 0.f);
+	// Get forward vector from rotator and normalize it
+	FVector MovementForwardVector = CameraRot.Vector() * NoZVector;
+	MovementForwardVector.Normalize();
+	
+	// Get right vector from rotator and normalize it
+	FVector MovementRightVector = FRotationMatrix(CameraRot).GetScaledAxis(EAxis::Y) * NoZVector;
+	MovementRightVector.Normalize();
+	
+	
+	//const FRotator MovementRotation(0.f, Controller->GetControlRotation().Yaw, 0.f);
 
 	if(MovementVector.Y != 0.f)
 	{
 		//const FVector ForwardDirection = MovementRotation.RotateVector(FVector::ForwardVector);
-		const FVector ForwardDirection = FRotationMatrix(MovementRotation).GetUnitAxis(EAxis::X);
+		//const FVector ForwardDirection = (MovementForwardVector * NoZVector).Normalize();
 
-		AddMovementInput(ForwardDirection, MovementVector.Y);
+		AddMovementInput(MovementForwardVector, MovementVector.Y);
 	}
 
 	if(MovementVector.X != 0.f)
 	{
 		//const FVector RightDirection = MovementRotation.RotateVector(FVector::RightVector);
-		const FVector RightDirection = FRotationMatrix(MovementRotation).GetUnitAxis(EAxis::Y);
+		//const FVector RightDirection = FRotationMatrix(MovementRotation).GetUnitAxis(EAxis::Y);
 
-		AddMovementInput(RightDirection, MovementVector.X);
+		AddMovementInput(MovementRightVector, MovementVector.X);
 	}
 }
 

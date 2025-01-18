@@ -13,7 +13,7 @@ class AProjectN_PlayerCameraManager;
 
 struct FInputActionValue;
 
-UCLASS()
+UCLASS(Abstract)
 class PROJECTN_API AProjectN_PlayerCharacter : public AProjectNCharacter_Base
 {
 	GENERATED_BODY()

@@ -8,16 +8,11 @@
 
 class UCameraComponent;
 
-UCLASS()
+UCLASS(Abstract)
 class PROJECTN_API AProjectN_PlayerCameraManager : public APlayerCameraManager
 {
 	GENERATED_BODY()
 	
 public:
 	AProjectN_PlayerCameraManager();
-	
-	UCameraComponent* GetCameraComponent() const;
-	
-protected:
-	TObjectPtr<UCameraComponent> CameraComponent;
 };

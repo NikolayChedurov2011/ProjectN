@@ -9,7 +9,7 @@
 /**
  * 
  */
-UCLASS()
+UCLASS(Abstract)
 class PROJECTN_API AProjectN_GameModeBase : public AGameModeBase
 {
 	GENERATED_BODY()
