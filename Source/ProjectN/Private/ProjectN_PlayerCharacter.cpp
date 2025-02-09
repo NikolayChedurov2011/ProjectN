@@ -42,6 +42,7 @@ void AProjectN_PlayerCharacter::OnRep_PlayerState()
 	
 	// Init ability actor info for the Client
 	InitAbilityActorInfo();
+	//Send RPS from Client to Server when it's ready
 	OnCharacterInitAbilityEnd();
 }
 
