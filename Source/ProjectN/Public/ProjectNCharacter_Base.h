@@ -16,7 +16,6 @@ class UProjectN_AttributeSet;
 UCLASS(Abstract)
 class PROJECTN_API AProjectNCharacter_Base : public ACharacter, public IAbilitySystemInterface
 {
-	friend class AProjectN_PlayerState;
 	GENERATED_BODY()
 
 public:
@@ -50,10 +49,12 @@ protected:
 
 	UPROPERTY()
 	TObjectPtr<UProjectN_AbilitySystemComponent> ProjectN_AbilitySystemComponent;
-	
+
+	// Set default data from Default
 	UPROPERTY(EditDefaultsOnly)
 	class UProjectN_CharacterDataAsset* CharacterDataAsset;
 
+	// Save data from CharacterDataAsset when character init
 	UPROPERTY(ReplicatedUsing = OnRep_CharacterData)
 	FCharacterData CharacterData;
 

@@ -7,7 +7,7 @@
 #include "Net/Serialization/FastArraySerializer.h"
 #include "InventoryItemsRecord.generated.h"
 
-//Record of item that used to manage item while its equipped
+// List of items
 USTRUCT(BlueprintType)
 struct FInventoryItem : public FFastArraySerializerItem
 {
@@ -33,10 +33,11 @@ public:
 
 	void AddItem(const TSubclassOf<UItemStaticClass> ItemStaticDataClass);
 	void RemoveItem(const TSubclassOf<UItemStaticClass> ItemStaticDataClass);
+	TArray<FInventoryItem>& GetItemsRef() { return Items; }
 
 protected:
 
-	UPROPERTY()
+	UPROPERTY(EditDefaultsOnly)
 	TArray<FInventoryItem> Items;
 };
 

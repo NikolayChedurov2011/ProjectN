@@ -4,6 +4,8 @@
 
 #include "AbilitySystem/Attribute/ProjectN_AttributeSet.h"
 #include "AbilitySystem/ProjectN_AbilitySystemComponent.h"
+#include "Inventory/ProjectN_InventoryComponent.h"
+#include "Net/UnrealNetwork.h"
 
 AProjectN_PlayerState::AProjectN_PlayerState()
 {
@@ -14,6 +16,15 @@ AProjectN_PlayerState::AProjectN_PlayerState()
 	ProjectN_AbilitySystemComponent = CreateDefaultSubobject<UProjectN_AbilitySystemComponent>(TEXT("ProjectN Ability System Component"));
 	ProjectN_AbilitySystemComponent->SetIsReplicated(true);
 	ProjectN_AbilitySystemComponent->SetReplicationMode(EGameplayEffectReplicationMode::Mixed);
+
+	ProjectN_InventoryComponent = CreateDefaultSubobject<UProjectN_InventoryComponent>(TEXT("ProjectN Inventory Component"));
+	ProjectN_InventoryComponent->SetIsReplicated(true);
+}
+
+void AProjectN_PlayerState::GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+	DOREPLIFETIME(AProjectN_PlayerState, ProjectN_InventoryComponent);
 }
 
 /*

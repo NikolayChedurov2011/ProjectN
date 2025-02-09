@@ -15,5 +15,5 @@ class PROJECTN_API UProjectNStatics : public UBlueprintFunctionLibrary
 public:
 
 	UFUNCTION(BlueprintCallable, BlueprintPure)
-	static const UItemStaticClass* GetItemStaticData(TSubclassOf<UItemStaticClass> ItemDataClass);
+	static const UItemStaticClass* GetItemStaticData(const TSubclassOf<UItemStaticClass> ItemDataClass);
 };
