@@ -30,7 +30,7 @@ const UItemStaticClass* UProjectN_ItemInstance::GetItemStaticClass() const
 
 void UProjectN_ItemInstance::OnEquip(AActor* Owner)
 {
-	if (UWorld* World = GetWorld())
+	if (UWorld* World = Owner->GetWorld())
 	{
 		const FTransform Transform;
 		
