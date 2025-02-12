@@ -45,14 +45,14 @@ protected:
 	void ApplyStartupEffects();
 
 	UPROPERTY(Transient)
-	TObjectPtr<UProjectN_AttributeSet> ProjectN_AttributeSet;
+	TObjectPtr<UProjectN_AttributeSet> ProjectN_AttributeSet = nullptr;
 
 	UPROPERTY()
-	TObjectPtr<UProjectN_AbilitySystemComponent> ProjectN_AbilitySystemComponent;
+	TObjectPtr<UProjectN_AbilitySystemComponent> ProjectN_AbilitySystemComponent = nullptr;
 
 	// Set default data from Default
 	UPROPERTY(EditDefaultsOnly)
-	class UProjectN_CharacterDataAsset* CharacterDataAsset;
+	TObjectPtr<class UProjectN_CharacterDataAsset> CharacterDataAsset = nullptr;
 
 	// Save data from CharacterDataAsset when character init
 	UPROPERTY(ReplicatedUsing = OnRep_CharacterData)

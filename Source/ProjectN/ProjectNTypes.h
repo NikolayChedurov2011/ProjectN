@@ -22,9 +22,22 @@ class UItemStaticClass : public UObject
 
 public:
 	UFUNCTION(BlueprintCallable, BlueprintPure)
-	FName GetItemName() const { return ItemName; }
+	FORCEINLINE FName GetItemName() const { return ItemName; }
+
+	UFUNCTION(BlueprintCallable, BlueprintPure)
+	FORCEINLINE FName GetSocketToAttach() const { return SocketToAttach; }
+	
+	UFUNCTION(BlueprintCallable, BlueprintPure)
+	FORCEINLINE TSubclassOf<class AProjectN_ItemActor_Base> GetItemActorClass() const { return ItemActorClass; }
 
 protected:
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	FName ItemName = NAME_None;
 	
-	FName ItemName;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	FName SocketToAttach = NAME_None;
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	TSubclassOf<class AProjectN_ItemActor_Base> ItemActorClass;
 };

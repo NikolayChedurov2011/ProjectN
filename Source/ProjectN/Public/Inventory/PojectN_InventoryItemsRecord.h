@@ -3,9 +3,9 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "ItemInstance.h"
+#include "ProjectN_ItemInstance.h"
 #include "Net/Serialization/FastArraySerializer.h"
-#include "InventoryItemsRecord.generated.h"
+#include "PojectN_InventoryItemsRecord.generated.h"
 
 // List of items
 USTRUCT(BlueprintType)
@@ -16,7 +16,7 @@ struct FInventoryItem : public FFastArraySerializerItem
 public:
 
 	UPROPERTY()
-	UItemInstance* ItemInstance = nullptr;
+	UProjectN_ItemInstance* ItemInstance = nullptr;
 };
 
 USTRUCT(BlueprintType)
@@ -31,9 +31,9 @@ public:
 		return FFastArraySerializer::FastArrayDeltaSerialize<FInventoryItem, FInventoryList>(Items, DeltaParams, *this);
 	}
 
-	void AddItem(const TSubclassOf<UItemStaticClass> ItemStaticDataClass);
-	void RemoveItem(const TSubclassOf<UItemStaticClass> ItemStaticDataClass);
-	TArray<FInventoryItem>& GetItemsRef() { return Items; }
+	void AddItem(const TSubclassOf<UItemStaticClass>& ItemStaticDataClass);
+	void RemoveItem(const TSubclassOf<UItemStaticClass>& ItemStaticDataClass);
+	FORCEINLINE TArray<FInventoryItem>& GetItemsRef() { return Items; }
 
 protected:
 

@@ -3,13 +3,12 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "ProjectNStatics.h"
 #include "ProjectN/ProjectNTypes.h"
-#include "ItemInstance.generated.h"
+#include "ProjectN_ItemInstance.generated.h"
 
 //Runtime item data. Item parameters can be change while equipped, and we want to save it
 UCLASS(Blueprintable, BlueprintType)
-class PROJECTN_API UItemInstance : public UObject
+class PROJECTN_API UProjectN_ItemInstance : public UObject
 {
 	GENERATED_BODY()
 
@@ -21,13 +20,15 @@ public:
 	virtual void Init(TSubclassOf<UItemStaticClass> InItemStaticDataClass);
 
 	UFUNCTION(BlueprintCallable, BlueprintPure)
-	const UItemStaticClass* GetItemStaticClass() const { return UProjectNStatics::GetItemStaticData(ItemStaticDataClass); }
+	const UItemStaticClass* GetItemStaticClass() const;
+	UFUNCTION(BlueprintCallable, BlueprintPure)
+	TSubclassOf<UItemStaticClass> GetItemStaticSubClass() const { return ItemStaticDataClass; }
 	
 	UFUNCTION()
 	void OnRep_IsEquipped();
 
-	virtual void  OnEquipped();
-	virtual void  OnUnequipped();
+	virtual void  OnEquip(AActor* Owner = nullptr);
+	virtual void  OnUnEquip();
 
 protected:
 
@@ -36,4 +37,7 @@ protected:
 
 	UPROPERTY(ReplicatedUsing = OnRep_IsEquipped)
 	bool bIsEquipped = false;
+
+	UPROPERTY(Replicated)
+	TObjectPtr<AProjectN_ItemActor_Base> ItemActor = nullptr;
 };
