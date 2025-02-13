@@ -29,6 +29,7 @@ public:
 
 	virtual void  OnEquip(AActor* Owner = nullptr);
 	virtual void  OnUnEquip();
+	virtual void  OnDrop();
 
 protected:
 

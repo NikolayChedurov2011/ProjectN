@@ -57,6 +57,14 @@ void UProjectN_ItemInstance::OnUnEquip()
 	}
 }
 
+void UProjectN_ItemInstance::OnDrop()
+{
+	if (IsValid(ItemActor))
+	{
+		ItemActor->OnDropped();
+	}
+}
+
 void UProjectN_ItemInstance::OnRep_IsEquipped()
 {
 	

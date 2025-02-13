@@ -41,3 +41,11 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	TSubclassOf<class AProjectN_ItemActor_Base> ItemActorClass;
 };
+
+UENUM(BlueprintType)
+enum class EItemState : uint8
+{
+	None		UMETA(DisplayName = "None"),
+	Equipped	UMETA(DisplayName = "Equipped"),
+	Dropped		UMETA(DisplayName = "Dropped"),
+};

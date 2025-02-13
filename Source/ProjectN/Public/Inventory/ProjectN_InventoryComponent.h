@@ -30,6 +30,8 @@ public:
 	void EquipItem(const TSubclassOf<UItemStaticClass> ItemStaticDataClass);
 	UFUNCTION(BlueprintCallable)
 	void UnEquipItem(const TSubclassOf<UItemStaticClass> ItemStaticDataClass);
+	UFUNCTION(BlueprintCallable)
+	void DropItem();
 	
 	UFUNCTION(BlueprintCallable, BlueprintPure)
 	FORCEINLINE UProjectN_ItemInstance* GetEquippedItem()const { return CurrentItemInstance; }
