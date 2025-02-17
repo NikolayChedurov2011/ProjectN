@@ -32,6 +32,7 @@ public:
 	}
 
 	void AddItem(const TSubclassOf<UItemStaticClass>& ItemStaticDataClass);
+	void AddItemInstance(UProjectN_ItemInstance* InItemInstance);
 	void RemoveItem(const TSubclassOf<UItemStaticClass>& ItemStaticDataClass);
 	FORCEINLINE TArray<FInventoryItem>& GetItemsRef() { return Items; }
 

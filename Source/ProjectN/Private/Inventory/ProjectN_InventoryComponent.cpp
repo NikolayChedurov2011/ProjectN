@@ -84,7 +84,7 @@ void UProjectN_InventoryComponent::EquipItem(const TSubclassOf<UItemStaticClass>
 {
 	if (GetOwner()->HasAuthority() && IsValid(Cast<APlayerState>(GetOwner())->GetPawn()))
 	{
-		for (FInventoryItem Item : InventoryList.GetItemsRef())
+		for (const FInventoryItem& Item : InventoryList.GetItemsRef())
 		{
 			if (Item.ItemInstance->GetItemStaticSubClass() == ItemStaticDataClass)
 			{
@@ -100,7 +100,7 @@ void UProjectN_InventoryComponent::UnEquipItem(const TSubclassOf<UItemStaticClas
 {
 	if (GetOwner()->HasAuthority())
 	{
-		for (FInventoryItem Item : InventoryList.GetItemsRef())
+		for (const FInventoryItem& Item : InventoryList.GetItemsRef())
 		{
 			Item.ItemInstance->OnUnEquip();
 			CurrentItemInstance = nullptr;

@@ -36,16 +36,18 @@ void UProjectN_ItemInstance::OnEquip(AActor* Owner)
 		
 		ItemActor = World->SpawnActorDeferred<AProjectN_ItemActor_Base>(GetItemStaticClass()->GetItemActorClass(), Transform, Owner);
 		ItemActor->Init(this);
+		ItemActor->OnEquipped();
+		ItemActor->FinishSpawning(Transform);
 
 		const ACharacter* Character = Cast<ACharacter>(Owner);
-		
-		ItemActor->FinishSpawning(Transform);
 
 		if (USkeletalMeshComponent* SkeletalMeshComponent = Character ? Character->GetMesh() : nullptr)
 		{
 			ItemActor->AttachToComponent(SkeletalMeshComponent,  FAttachmentTransformRules::SnapToTargetNotIncludingScale, GetItemStaticClass()->GetSocketToAttach());
 		}
 	}
+	
+	bIsEquipped = true;
 }
 
 void UProjectN_ItemInstance::OnUnEquip()
@@ -54,7 +56,10 @@ void UProjectN_ItemInstance::OnUnEquip()
 	{
 		ItemActor->Destroy();
 		ItemActor = nullptr;
+		
 	}
+	
+	bIsEquipped = false;
 }
 
 void UProjectN_ItemInstance::OnDrop()
@@ -62,7 +67,10 @@ void UProjectN_ItemInstance::OnDrop()
 	if (IsValid(ItemActor))
 	{
 		ItemActor->OnDropped();
+		ItemActor->ForceNetUpdate();
 	}
+
+	bIsEquipped = false;
 }
 
 void UProjectN_ItemInstance::OnRep_IsEquipped()

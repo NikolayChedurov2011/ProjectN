@@ -15,6 +15,7 @@ AProjectN_ItemActor_Base::AProjectN_ItemActor_Base()
 {
 	PrimaryActorTick.bCanEverTick = true;
 	bReplicates = true;
+	SetReplicateMovement(true);
 	
 	SphereComponent = CreateDefaultSubobject<USphereComponent>(TEXT("Sphere Component"));
 	SphereComponent->SetupAttachment(GetRootComponent());
@@ -73,13 +74,8 @@ void AProjectN_ItemActor_Base::OnDropped()
 	ItemState = EItemState::Dropped;
 	SphereComponent->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
 	
-	//GetRootComponent()->DetachFromComponent(FDetachmentTransformRules::KeepWorldTransform);
-	//UE_LOG(LogTemp, Warning, TEXT("Attached Actor: %s"), *GetAttachParentActor()->GetName());
-	if (IsValid(GetAttachParentActor()))
-	{
-		DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
-		UE_LOG(LogTemp, Warning, TEXT("Detached!"));
-	}
+	GetRootComponent()->DetachFromComponent(FDetachmentTransformRules::KeepWorldTransform);
+	
 	if (GetOwner())
 	{
 		const FVector Location = GetActorLocation();
