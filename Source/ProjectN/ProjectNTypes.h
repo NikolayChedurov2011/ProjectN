@@ -40,6 +40,9 @@ protected:
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	TSubclassOf<class AProjectN_ItemActor_Base> ItemActorClass;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	bool bCanBeEquipped = false;
 };
 
 UENUM(BlueprintType)

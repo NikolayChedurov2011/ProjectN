@@ -31,9 +31,10 @@ public:
 		return FFastArraySerializer::FastArrayDeltaSerialize<FInventoryItem, FInventoryList>(Items, DeltaParams, *this);
 	}
 
-	void AddItem(const TSubclassOf<UItemStaticClass>& ItemStaticDataClass);
-	void AddItemInstance(UProjectN_ItemInstance* InItemInstance);
-	void RemoveItem(const TSubclassOf<UItemStaticClass>& ItemStaticDataClass);
+	void AddItemByStaticClass(const TSubclassOf<UItemStaticClass>& ItemStaticDataClass);
+	void AddItemByInstance(UProjectN_ItemInstance* InItemInstance);
+	void RemoveItemByStaticClass(const TSubclassOf<UItemStaticClass>& ItemStaticDataClass);
+	void RemoveItemByInstance(const UProjectN_ItemInstance* InItemInstance);
 	FORCEINLINE TArray<FInventoryItem>& GetItemsRef() { return Items; }
 
 protected:

@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Abilities/GameplayAbilityTypes.h"
 #include "Components/ActorComponent.h"
 #include "Inventory/PojectN_InventoryItemsRecord.h"
 #include "ProjectN_InventoryComponent.generated.h"
@@ -22,22 +23,45 @@ public:
 	virtual void GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const override;
 
 	UFUNCTION(BlueprintCallable)
-	void AddItem(const TSubclassOf<UItemStaticClass> ItemStaticDataClass);
+	void AddItemByStaticClass(const TSubclassOf<UItemStaticClass> ItemStaticDataClass);
 	UFUNCTION(BlueprintCallable)
-	void RemoveItem(const TSubclassOf<UItemStaticClass> ItemStaticDataClass);
+	void AddItemByInstance(UProjectN_ItemInstance* InItemInstance);
+	UFUNCTION(BlueprintCallable)
+	void RemoveItemByStaticClass(const TSubclassOf<UItemStaticClass> ItemStaticDataClass);
+	UFUNCTION(BlueprintCallable)
+	void RemoveItemByInstance(UProjectN_ItemInstance* InItemInstance);
 
 	UFUNCTION(BlueprintCallable)
-	void EquipItem(const TSubclassOf<UItemStaticClass> ItemStaticDataClass);
+	void EquipItemByStaticClass(const TSubclassOf<UItemStaticClass> ItemStaticDataClass);
 	UFUNCTION(BlueprintCallable)
-	void UnEquipItem(const TSubclassOf<UItemStaticClass> ItemStaticDataClass);
+	void EquipItemByInstance(UProjectN_ItemInstance* InItemInstance);
 	UFUNCTION(BlueprintCallable)
-	void DropItem();
+	void UnEquipItemByStaticClass(const TSubclassOf<UItemStaticClass> ItemStaticDataClass);
+	UFUNCTION(BlueprintCallable)
+	void UnEquipItemByInstance(UProjectN_ItemInstance* InItemInstance);
+	UFUNCTION(BlueprintCallable)
+	void DropItem(UProjectN_ItemInstance* InItemInstance);
 	
 	UFUNCTION(BlueprintCallable, BlueprintPure)
 	FORCEINLINE UProjectN_ItemInstance* GetEquippedItem()const { return CurrentItemInstance; }
 
+	virtual void GameplayEventCallback(const FGameplayEventData* Payload);
+
+	// This implementation in case if inventory classes should be independent, for example use it as separate plugin
+	//static FGameplayTag EquipItemTag;
+	//static FGameplayTag UnEquipItemTag;
+	//static FGameplayTag DropItemTag;
+
 protected:
 	virtual void InitializeComponent() override;
+
+	UFUNCTION()
+	void AddInventoryTags() ;
+
+	void HandleGameplayEventInternal(const FGameplayEventData Payload);
+
+	UFUNCTION(Server, Reliable)
+	void ServerHandleGameplayEvent(const FGameplayEventData Payload);
 
 	UPROPERTY(Replicated, EditDefaultsOnly)
 	FInventoryList InventoryList;

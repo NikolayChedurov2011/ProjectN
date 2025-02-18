@@ -5,7 +5,7 @@
 
 #include "ProjectN/ProjectNTypes.h"
 
-void FInventoryList::AddItem(const TSubclassOf<UItemStaticClass>& ItemStaticDataClass)
+void FInventoryList::AddItemByStaticClass(const TSubclassOf<UItemStaticClass>& ItemStaticDataClass)
 {
 	FInventoryItem& Item = Items.AddDefaulted_GetRef();
 
@@ -15,7 +15,7 @@ void FInventoryList::AddItem(const TSubclassOf<UItemStaticClass>& ItemStaticData
 	MarkItemDirty(Item);
 }
 
-void FInventoryList::AddItemInstance(UProjectN_ItemInstance* InItemInstance)
+void FInventoryList::AddItemByInstance(UProjectN_ItemInstance* InItemInstance)
 {
 	FInventoryItem& Item = Items.AddDefaulted_GetRef();
 	Item.ItemInstance = InItemInstance;
@@ -23,12 +23,26 @@ void FInventoryList::AddItemInstance(UProjectN_ItemInstance* InItemInstance)
 	MarkItemDirty(Item);
 }
 
-void FInventoryList::RemoveItem(const TSubclassOf<UItemStaticClass>& ItemStaticDataClass)
+void FInventoryList::RemoveItemByStaticClass(const TSubclassOf<UItemStaticClass>& ItemStaticDataClass)
 {
 	for (auto ItemIter = Items.CreateIterator(); ItemIter; ++ItemIter)
 	{
 		FInventoryItem& Item = *ItemIter;
 		if (Item.ItemInstance && Item.ItemInstance->GetItemStaticClass()->IsA(ItemStaticDataClass))
+		{
+			ItemIter.RemoveCurrent();
+			MarkArrayDirty();
+			break;
+		}
+	}
+}
+
+void FInventoryList::RemoveItemByInstance(const UProjectN_ItemInstance* InItemInstance)
+{
+	for (auto ItemIter = Items.CreateIterator(); ItemIter; ++ItemIter)
+	{
+		FInventoryItem& Item = *ItemIter;
+		if (Item.ItemInstance && Item.ItemInstance == InItemInstance)
 		{
 			ItemIter.RemoveCurrent();
 			MarkArrayDirty();

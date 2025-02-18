@@ -4,6 +4,7 @@
 #include "Inventory/ProjectN_ItemActor_Base.h"
 
 #include "AbilitySystemBlueprintLibrary.h"
+#include "ProjectN_GameplayTags.h"
 #include "Abilities/GameplayAbilityTypes.h"
 #include "Components/SphereComponent.h"
 #include "Engine/ActorChannel.h"
@@ -57,6 +58,32 @@ void AProjectN_ItemActor_Base::Init(UProjectN_ItemInstance* InItemInstance)
 	ItemInstance = InItemInstance;
 }
 
+void AProjectN_ItemActor_Base::OnRep_ItemState()
+{
+	switch (ItemState)
+	{
+	case EItemState::None:
+		SphereComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+		SphereComponent->SetGenerateOverlapEvents(false);
+		break;
+
+	case EItemState::Dropped:
+		SphereComponent->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+		SphereComponent->SetGenerateOverlapEvents(true);
+		break;
+		
+	case EItemState::Equipped:
+		SphereComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+		SphereComponent->SetGenerateOverlapEvents(false);
+		break;
+
+	default:
+		SphereComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+		SphereComponent->SetGenerateOverlapEvents(false);
+		break;
+	}
+}
+
 void AProjectN_ItemActor_Base::OnEquipped()
 {
 	ItemState = EItemState::Equipped;
@@ -105,8 +132,13 @@ void AProjectN_ItemActor_Base::OnDropped()
 
 void AProjectN_ItemActor_Base::OnItemOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	FGameplayEventData EventPayload;
-	EventPayload.OptionalObject = this;
+	if(HasAuthority())
+	{
+		FGameplayEventData EventPayload;
+		EventPayload.Instigator = this;
+		EventPayload.OptionalObject = ItemInstance;
+		EventPayload.EventTag = ProjectNGameplayTags::InventoryTag_Equip;
 
-	UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(OtherActor, OverlapEventTag, EventPayload);
+		UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(OtherActor, ProjectNGameplayTags::InventoryTag_Equip, EventPayload);
+	}
 }

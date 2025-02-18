@@ -3,15 +3,42 @@
 
 #include "Inventory/ProjectN_InventoryComponent.h"
 
+#include "AbilitySystemBlueprintLibrary.h"
+#include "AbilitySystemComponent.h"
+#include "GameplayTagsManager.h"
+#include "ProjectN_GameplayTags.h"
 #include "Engine/ActorChannel.h"
 #include "GameFramework/PlayerState.h"
 #include "Net/UnrealNetwork.h"
+
+//FGameplayTag UProjectN_InventoryComponent::EquipItemTag;
+//FGameplayTag UProjectN_InventoryComponent::UnEquipItemTag;
+//FGameplayTag UProjectN_InventoryComponent::DropItemTag;
+
+/*
+ **************
+ * Initialize
+ **************
+ */
 
 UProjectN_InventoryComponent::UProjectN_InventoryComponent()
 {
 	PrimaryComponentTick.bCanEverTick = true;
 	bWantsInitializeComponent = true;
 	SetIsReplicatedByDefault(true);
+
+	//UGameplayTagsManager().Get().OnLastChanceToAddNativeTags().AddUObject(this, &UProjectN_InventoryComponent::AddInventoryTags);
+}
+
+void UProjectN_InventoryComponent::AddInventoryTags()
+{
+	UGameplayTagsManager& TagsManager = UGameplayTagsManager::Get();
+
+	//UProjectN_InventoryComponent::EquipItemTag = TagsManager.AddNativeGameplayTag(TEXT("Inventory.EquipItem"), TEXT("Equip item"));
+	//UProjectN_InventoryComponent::UnEquipItemTag = TagsManager.AddNativeGameplayTag(TEXT("Inventory.UnEquipItem"), TEXT("Un equip item"));
+	//UProjectN_InventoryComponent::DropItemTag = TagsManager.AddNativeGameplayTag(TEXT("Inventory.DropItem"), TEXT("Drop item"));
+	
+	TagsManager.OnLastChanceToAddNativeTags().RemoveAll(this);
 }
 
 void UProjectN_InventoryComponent::GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const
@@ -46,15 +73,15 @@ void UProjectN_InventoryComponent::InitializeComponent()
 	{
 		for (const auto& ItemClass : DefaultItems)
         {
-        	InventoryList.AddItem(ItemClass);
+        	InventoryList.AddItemByStaticClass(ItemClass);
         }
 	}
-}
-void UProjectN_InventoryComponent::EquipTestItem()
-{
-	if (InventoryList.GetItemsRef().Num() && GetOwner()->HasAuthority())
+
+	if (UAbilitySystemComponent* ASC = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(GetOwner()))
 	{
-		EquipItem(InventoryList.GetItemsRef()[0].ItemInstance->GetItemStaticSubClass());
+		ASC->GenericGameplayEventCallbacks.FindOrAdd(ProjectNGameplayTags::InventoryTag_Equip).AddUObject(this, &UProjectN_InventoryComponent::GameplayEventCallback);
+		ASC->GenericGameplayEventCallbacks.FindOrAdd(ProjectNGameplayTags::InventoryTag_UnEquip).AddUObject(this, &UProjectN_InventoryComponent::GameplayEventCallback);
+		ASC->GenericGameplayEventCallbacks.FindOrAdd(ProjectNGameplayTags::InventoryTag_Drop).AddUObject(this, &UProjectN_InventoryComponent::GameplayEventCallback);
 	}
 }
 
@@ -64,23 +91,107 @@ void UProjectN_InventoryComponent::TickComponent(float DeltaTime, ELevelTick Tic
 
 }
 
-void UProjectN_InventoryComponent::AddItem(const TSubclassOf<UItemStaticClass> ItemStaticDataClass)
+/*
+ **************************************
+ * Main functions to handle inventory
+ **************************************
+ */
+
+void UProjectN_InventoryComponent::GameplayEventCallback(const FGameplayEventData* Payload)
 {
-	if (GetOwner()->HasAuthority())
+	ENetRole NetRole = GetOwnerRole();
+	
+	if (NetRole == ROLE_Authority)
 	{
-		InventoryList.AddItem(ItemStaticDataClass);
+		HandleGameplayEventInternal(*Payload);
+	}
+	else if (NetRole == ROLE_AutonomousProxy)
+	{
+		ServerHandleGameplayEvent(*Payload);
 	}
 }
 
-void UProjectN_InventoryComponent::RemoveItem(const TSubclassOf<UItemStaticClass> ItemStaticDataClass)
+void UProjectN_InventoryComponent::HandleGameplayEventInternal(const FGameplayEventData Payload)
 {
 	if (GetOwner()->HasAuthority())
 	{
-		InventoryList.RemoveItem(ItemStaticDataClass);
+		const FGameplayTag EventTag = Payload.EventTag;
+
+		if (EventTag == ProjectNGameplayTags::InventoryTag_Equip)
+		{
+			if (const UProjectN_ItemInstance* ItemInstance = Cast<UProjectN_ItemInstance>(Payload.OptionalObject))
+			{
+				AddItemByInstance(const_cast<UProjectN_ItemInstance*>(ItemInstance));
+
+				if (Payload.Instigator)
+				{
+					//const_cast<AActor*>(Payload->Instigator)->Destroy();
+				}
+			}
+		}
+		else if (EventTag == ProjectNGameplayTags::InventoryTag_UnEquip)
+		{
+			if (const UProjectN_ItemInstance* ItemInstance = Cast<UProjectN_ItemInstance>(Payload.OptionalObject))
+			{
+				UnEquipItemByInstance(const_cast<UProjectN_ItemInstance*>(ItemInstance));
+			}
+		}
+		else if (EventTag == ProjectNGameplayTags::InventoryTag_Drop)
+		{
+			if (const UProjectN_ItemInstance* ItemInstance = Cast<UProjectN_ItemInstance>(Payload.OptionalObject))
+			{
+				DropItem(const_cast<UProjectN_ItemInstance*>(ItemInstance));
+			}
+		}
 	}
 }
 
-void UProjectN_InventoryComponent::EquipItem(const TSubclassOf<UItemStaticClass> ItemStaticDataClass)
+void UProjectN_InventoryComponent::ServerHandleGameplayEvent_Implementation(const FGameplayEventData Payload)
+{
+	HandleGameplayEventInternal(Payload);
+}
+
+void UProjectN_InventoryComponent::EquipTestItem()
+{
+	if (InventoryList.GetItemsRef().Num() && GetOwner()->HasAuthority())
+	{
+		EquipItemByStaticClass(InventoryList.GetItemsRef()[0].ItemInstance->GetItemStaticSubClass());
+	}
+}
+
+void UProjectN_InventoryComponent::AddItemByStaticClass(const TSubclassOf<UItemStaticClass> ItemStaticDataClass)
+{
+	if (GetOwner()->HasAuthority())
+	{
+		InventoryList.AddItemByStaticClass(ItemStaticDataClass);
+	}
+}
+
+void UProjectN_InventoryComponent::AddItemByInstance(UProjectN_ItemInstance* InItemInstance)
+{
+	if (GetOwner()->HasAuthority())
+	{
+		InventoryList.AddItemByInstance(InItemInstance);
+	}
+}
+
+void UProjectN_InventoryComponent::RemoveItemByStaticClass(const TSubclassOf<UItemStaticClass> ItemStaticDataClass)
+{
+	if (GetOwner()->HasAuthority())
+	{
+		InventoryList.RemoveItemByStaticClass(ItemStaticDataClass);
+	}
+}
+
+void UProjectN_InventoryComponent::RemoveItemByInstance(UProjectN_ItemInstance* InItemInstance)
+{
+	if (GetOwner()->HasAuthority())
+	{
+		InventoryList.RemoveItemByInstance(InItemInstance);
+	}
+}
+
+void UProjectN_InventoryComponent::EquipItemByStaticClass(const TSubclassOf<UItemStaticClass> ItemStaticDataClass)
 {
 	if (GetOwner()->HasAuthority() && IsValid(Cast<APlayerState>(GetOwner())->GetPawn()))
 	{
@@ -96,7 +207,23 @@ void UProjectN_InventoryComponent::EquipItem(const TSubclassOf<UItemStaticClass>
 	}
 }
 
-void UProjectN_InventoryComponent::UnEquipItem(const TSubclassOf<UItemStaticClass> ItemStaticDataClass)
+void UProjectN_InventoryComponent::EquipItemByInstance(UProjectN_ItemInstance* InItemInstance)
+{
+	if (GetOwner()->HasAuthority() && IsValid(Cast<APlayerState>(GetOwner())->GetPawn()))
+	{
+		for (const FInventoryItem& Item : InventoryList.GetItemsRef())
+		{
+			if (Item.ItemInstance == InItemInstance)
+			{
+				Item.ItemInstance->OnEquip(Cast<APlayerState>(GetOwner())->GetPawn());
+				CurrentItemInstance = Item.ItemInstance;
+				break;
+			}
+		}
+	}
+}
+
+void UProjectN_InventoryComponent::UnEquipItemByStaticClass(const TSubclassOf<UItemStaticClass> ItemStaticDataClass)
 {
 	if (GetOwner()->HasAuthority())
 	{
@@ -109,14 +236,30 @@ void UProjectN_InventoryComponent::UnEquipItem(const TSubclassOf<UItemStaticClas
 	}
 }
 
-void UProjectN_InventoryComponent::DropItem()
+void UProjectN_InventoryComponent::UnEquipItemByInstance(UProjectN_ItemInstance* InItemInstance)
+{
+	if (GetOwner()->HasAuthority())
+	{
+		for (const FInventoryItem& Item : InventoryList.GetItemsRef())
+		{
+			if (Item.ItemInstance == InItemInstance)
+			{
+				Item.ItemInstance->OnUnEquip();
+				CurrentItemInstance = nullptr;
+				break;
+			}
+		}
+	}
+}
+
+void UProjectN_InventoryComponent::DropItem(UProjectN_ItemInstance* InItemInstance)
 {
 	if (GetOwner()->HasAuthority())
 	{
 		if (IsValid(CurrentItemInstance))
 		{
-			CurrentItemInstance->OnDrop();
-			RemoveItem(CurrentItemInstance->GetItemStaticSubClass());
+			InItemInstance->OnDrop();
+			RemoveItemByStaticClass(InItemInstance->GetItemStaticSubClass());
 			CurrentItemInstance = nullptr;
 		}
 	}

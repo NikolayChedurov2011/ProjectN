@@ -41,11 +41,11 @@ protected:
 	// Pointer to instance of this actor, provides access to static data class 
 	UPROPERTY(Replicated)
 	TObjectPtr<UProjectN_ItemInstance> ItemInstance = nullptr;
-	UPROPERTY(Replicated)
+	UPROPERTY(ReplicatedUsing = OnRep_ItemState)
 	TEnumAsByte<EItemState> ItemState = EItemState::None;
+	UFUNCTION()
+	void OnRep_ItemState();
 	
 	UPROPERTY(Replicated)
 	TObjectPtr<USphereComponent> SphereComponent = nullptr;
-
-	FGameplayTag OverlapEventTag;
 };
