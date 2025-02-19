@@ -26,6 +26,9 @@ public:
 
 	UFUNCTION(BlueprintCallable, BlueprintPure)
 	FORCEINLINE FName GetSocketToAttach() const { return SocketToAttach; }
+
+	UFUNCTION(BlueprintCallable, BlueprintPure)
+	FORCEINLINE bool CanBeEquipped() const { return bCanBeEquipped; }
 	
 	UFUNCTION(BlueprintCallable, BlueprintPure)
 	FORCEINLINE TSubclassOf<class AProjectN_ItemActor_Base> GetItemActorClass() const { return ItemActorClass; }

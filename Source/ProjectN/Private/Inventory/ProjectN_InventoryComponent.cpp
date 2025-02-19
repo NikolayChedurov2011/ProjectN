@@ -195,6 +195,7 @@ void UProjectN_InventoryComponent::EquipItemByStaticClass(const TSubclassOf<UIte
 {
 	if (GetOwner()->HasAuthority() && IsValid(Cast<APlayerState>(GetOwner())->GetPawn()))
 	{
+		// Just check if item has in our inventory
 		for (const FInventoryItem& Item : InventoryList.GetItemsRef())
 		{
 			if (Item.ItemInstance->GetItemStaticSubClass() == ItemStaticDataClass)
@@ -211,6 +212,7 @@ void UProjectN_InventoryComponent::EquipItemByInstance(UProjectN_ItemInstance* I
 {
 	if (GetOwner()->HasAuthority() && IsValid(Cast<APlayerState>(GetOwner())->GetPawn()))
 	{
+		// Just check if item has in our inventory
 		for (const FInventoryItem& Item : InventoryList.GetItemsRef())
 		{
 			if (Item.ItemInstance == InItemInstance)

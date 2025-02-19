@@ -23,9 +23,6 @@ public:
 	const UItemStaticClass* GetItemStaticClass() const;
 	UFUNCTION(BlueprintCallable, BlueprintPure)
 	TSubclassOf<UItemStaticClass> GetItemStaticSubClass() const { return ItemStaticDataClass; }
-	
-	UFUNCTION()
-	void OnRep_IsEquipped();
 
 	virtual void  OnEquip(AActor* Owner = nullptr);
 	virtual void  OnUnEquip();
@@ -41,4 +38,7 @@ protected:
 
 	UPROPERTY(Replicated)
 	TObjectPtr<AProjectN_ItemActor_Base> ItemActor = nullptr;
+
+	UFUNCTION()
+	void OnRep_IsEquipped();
 };

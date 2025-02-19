@@ -56,7 +56,6 @@ void UProjectN_ItemInstance::OnUnEquip()
 	{
 		ItemActor->Destroy();
 		ItemActor = nullptr;
-		
 	}
 	
 	bIsEquipped = false;
@@ -67,7 +66,6 @@ void UProjectN_ItemInstance::OnDrop()
 	if (IsValid(ItemActor))
 	{
 		ItemActor->OnDropped();
-		ItemActor->ForceNetUpdate();
 	}
 
 	bIsEquipped = false;

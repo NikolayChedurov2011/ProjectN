@@ -56,7 +56,7 @@ protected:
 	virtual void InitializeComponent() override;
 
 	UFUNCTION()
-	void AddInventoryTags() ;
+	void AddInventoryTags();
 
 	void HandleGameplayEventInternal(const FGameplayEventData Payload);
 
