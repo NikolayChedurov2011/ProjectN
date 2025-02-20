@@ -44,6 +44,8 @@ public:
 	
 	UFUNCTION(BlueprintCallable, BlueprintPure)
 	FORCEINLINE UProjectN_ItemInstance* GetEquippedItem()const { return CurrentItemInstance; }
+	UFUNCTION(BlueprintCallable, BlueprintPure)
+	FORCEINLINE  TArray<FInventoryItem>& GetItemsList() { return InventoryList.GetItemsRef(); }
 
 	virtual void GameplayEventCallback(const FGameplayEventData* Payload);
 

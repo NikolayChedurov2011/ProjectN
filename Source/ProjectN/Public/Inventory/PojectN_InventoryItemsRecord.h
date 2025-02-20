@@ -15,7 +15,7 @@ struct FInventoryItem : public FFastArraySerializerItem
 
 public:
 
-	UPROPERTY()
+	UPROPERTY(BlueprintReadOnly)
 	UProjectN_ItemInstance* ItemInstance = nullptr;
 };
 

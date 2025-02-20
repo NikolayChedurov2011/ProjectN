@@ -23,6 +23,12 @@ public:
 	
 	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override;
 	UProjectN_AttributeSet* GetAttributeSet() const { return ProjectN_AttributeSet; }
+	
+	UFUNCTION(BlueprintCallable)
+	FORCEINLINE FCharacterData GetCharacterData() const;
+
+	UFUNCTION(BlueprintCallable)
+	FORCEINLINE void SetCharacterData(const FCharacterData& NewCharacterData);
 
 protected:
 	virtual void BeginPlay() override;
@@ -34,12 +40,6 @@ protected:
 	virtual void InitFromCharacterData(const FCharacterData& InCharacterData, bool bFromReplication = false);
 	bool ApplyGamePlayEffectToSelf(const TSubclassOf<UGameplayEffect> Effect, const FGameplayEffectContextHandle& InEffectContext) const;
 	virtual void InitAbilityActorInfo();
-	
-	UFUNCTION(BlueprintCallable)
-	FORCEINLINE FCharacterData GetCharacterData() const;
-
-	UFUNCTION(BlueprintCallable)
-	FORCEINLINE void SetCharacterData(const FCharacterData& NewCharacterData);
 
 	void GiveAbilities();
 	void ApplyStartupEffects();
