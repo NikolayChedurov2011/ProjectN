@@ -18,9 +18,6 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	void SetWidgetController(UObject* InWidgetController);
-
-//	UFUNCTION(BlueprintCallable, BlueprintPure)
-//	FORCEINLINE TObjectPtr<UObject> GetWidgetController() const { return WidgetController; }
 	
 protected:
 

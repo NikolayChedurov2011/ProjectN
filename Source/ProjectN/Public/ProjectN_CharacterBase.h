@@ -7,19 +7,19 @@
 #include "AbilitySystemInterface.h"
 #include "ProjectN/ProjectNTypes.h"
 #include "AbilitySystem/ProjectN_AbilitySystemComponent.h"
-#include "ProjectNCharacter_Base.generated.h"
+#include "ProjectN_CharacterBase.generated.h"
 
 class UGamePlayEffect;
 class UGameplayAbility;
 class UProjectN_AttributeSet;
 
 UCLASS(Abstract)
-class PROJECTN_API AProjectNCharacter_Base : public ACharacter, public IAbilitySystemInterface
+class PROJECTN_API AProjectN_CharacterBase : public ACharacter, public IAbilitySystemInterface
 {
 	GENERATED_BODY()
 
 public:
-	AProjectNCharacter_Base(const FObjectInitializer& ObjectInitializer);
+	AProjectN_CharacterBase(const FObjectInitializer& ObjectInitializer);
 	
 	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override;
 	UProjectN_AttributeSet* GetAttributeSet() const { return ProjectN_AttributeSet; }

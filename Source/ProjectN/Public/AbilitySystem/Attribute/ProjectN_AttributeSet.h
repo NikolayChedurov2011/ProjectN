@@ -19,7 +19,9 @@ class PROJECTN_API UProjectN_AttributeSet : public UAttributeSet
 	GENERATED_BODY()
 
 public:
-		
+
+	UProjectN_AttributeSet();
+	
 	UPROPERTY(BlueprintReadOnly, Category = "Health", ReplicatedUsing = OnRep_Health)
 	FGameplayAttributeData Health;
 	ATTRIBUTE_ACCESSORS(UProjectN_AttributeSet, Health)
@@ -32,9 +34,17 @@ public:
 	FGameplayAttributeData Mana;
 	ATTRIBUTE_ACCESSORS(UProjectN_AttributeSet, Mana)
 
-	UPROPERTY(BlueprintReadOnly, Category = "MaxMana", ReplicatedUsing = OnRep_MaxMana)
+	UPROPERTY(BlueprintReadOnly, Category = "Mana", ReplicatedUsing = OnRep_MaxMana)
 	FGameplayAttributeData MaxMana;
 	ATTRIBUTE_ACCESSORS(UProjectN_AttributeSet, MaxMana)
+
+	UPROPERTY(BlueprintReadOnly, Category = "Stamina", ReplicatedUsing = OnRep_Stamina)
+	FGameplayAttributeData Stamina;
+	ATTRIBUTE_ACCESSORS(UProjectN_AttributeSet, Stamina)
+
+	UPROPERTY(BlueprintReadOnly, Category = "Stamina", ReplicatedUsing = OnRep_MaxStamina)
+	FGameplayAttributeData MaxStamina;
+	ATTRIBUTE_ACCESSORS(UProjectN_AttributeSet, MaxStamina)
 
 	UPROPERTY(BlueprintReadOnly, Category = "MovementSpeed", ReplicatedUsing = OnRep_MaxMovementSpeed)
 	FGameplayAttributeData MaxMovementSpeed;
@@ -54,4 +64,8 @@ protected:
 	virtual void OnRep_MaxMana(const FGameplayAttributeData& OldMaxMana);
 	UFUNCTION()
 	virtual void OnRep_MaxMovementSpeed(const FGameplayAttributeData& OldMaxMovementSpeed);
+	UFUNCTION()
+	virtual void OnRep_Stamina(const FGameplayAttributeData& OldStamina);
+	UFUNCTION()
+	virtual void OnRep_MaxStamina(const FGameplayAttributeData& OldMaxStamina);
 };

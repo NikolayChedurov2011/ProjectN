@@ -1,13 +1,13 @@
 // N Chedurov All Rights Reserved
 
-#include "ProjectNCharacter_Base.h"
+#include "ProjectN_CharacterBase.h"
 
 #include "AbilitySystem/Attribute/ProjectN_AttributeSet.h"
 #include "DataAssets/ProjectN_CharacterDataAsset.h"
 #include "Components/ProjectN_MovementComponent.h"
 #include "Net/UnrealNetwork.h"
 
-AProjectNCharacter_Base::AProjectNCharacter_Base(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer.SetDefaultSubobjectClass<UProjectN_MovementComponent>(ACharacter::CharacterMovementComponentName))
+AProjectN_CharacterBase::AProjectN_CharacterBase(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer.SetDefaultSubobjectClass<UProjectN_MovementComponent>(ACharacter::CharacterMovementComponentName))
 {
 	PrimaryActorTick.bCanEverTick = false;
 	PrimaryActorTick.bStartWithTickEnabled = false;
@@ -19,27 +19,27 @@ AProjectNCharacter_Base::AProjectNCharacter_Base(const FObjectInitializer& Objec
 	GetCharacterMovement()->BrakingDecelerationWalking = 2000.f;
 }
 
-void AProjectNCharacter_Base::GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const
+void AProjectN_CharacterBase::GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
-	DOREPLIFETIME(AProjectNCharacter_Base, CharacterData);
+	DOREPLIFETIME(AProjectN_CharacterBase, CharacterData);
 }
 
 /*
  *** Main Get and Set functions
  */
-UAbilitySystemComponent* AProjectNCharacter_Base::GetAbilitySystemComponent() const
+UAbilitySystemComponent* AProjectN_CharacterBase::GetAbilitySystemComponent() const
 {
 	return ProjectN_AbilitySystemComponent;
 }
 
-FCharacterData AProjectNCharacter_Base::GetCharacterData() const
+FCharacterData AProjectN_CharacterBase::GetCharacterData() const
 {
 	return  CharacterData;
 }
 
-void AProjectNCharacter_Base::SetCharacterData(const FCharacterData& NewCharacterData)
+void AProjectN_CharacterBase::SetCharacterData(const FCharacterData& NewCharacterData)
 {
 	CharacterData = NewCharacterData;
 	InitFromCharacterData(CharacterData);
@@ -52,7 +52,7 @@ void AProjectNCharacter_Base::SetCharacterData(const FCharacterData& NewCharacte
  *** Character initialize
  */
 //First in initialization order
-void AProjectNCharacter_Base::PostInitializeComponents()
+void AProjectN_CharacterBase::PostInitializeComponents()
 {
 	Super::PostInitializeComponents();
 
@@ -62,24 +62,24 @@ void AProjectNCharacter_Base::PostInitializeComponents()
 	}
 }
 //Second in initialization order
-void AProjectNCharacter_Base::BeginPlay()
+void AProjectN_CharacterBase::BeginPlay()
 {
 	Super::BeginPlay();
 }
 
-void AProjectNCharacter_Base::PossessedBy(AController* NewController)
+void AProjectN_CharacterBase::PossessedBy(AController* NewController)
 {
 	Super::PossessedBy(NewController);
 }
 
-void AProjectNCharacter_Base::OnRep_PlayerState()
+void AProjectN_CharacterBase::OnRep_PlayerState()
 {
 	Super::OnRep_PlayerState();
 }
 
-void AProjectNCharacter_Base::InitAbilityActorInfo()
+void AProjectN_CharacterBase::InitAbilityActorInfo()
 {
-	GetAbilitySystemComponent()->GetGameplayAttributeValueChangeDelegate(GetAttributeSet()->GetMaxMovementSpeedAttribute()).AddUObject(this, &AProjectNCharacter_Base::OnMaxMovementSpeedChanged);
+	GetAbilitySystemComponent()->GetGameplayAttributeValueChangeDelegate(GetAttributeSet()->GetMaxMovementSpeedAttribute()).AddUObject(this, &AProjectN_CharacterBase::OnMaxMovementSpeedChanged);
 }
 /*
  *
@@ -88,7 +88,7 @@ void AProjectNCharacter_Base::InitAbilityActorInfo()
 /*
  *** Give startup gameplay abilities and effects + ApplyGamePlayEffectToSelf function
  */
-void AProjectNCharacter_Base::GiveAbilities()
+void AProjectN_CharacterBase::GiveAbilities()
 {
 	if (HasAuthority() && GetAbilitySystemComponent())
 	{
@@ -99,7 +99,7 @@ void AProjectNCharacter_Base::GiveAbilities()
 	}
 }
 
-void AProjectNCharacter_Base::ApplyStartupEffects()
+void AProjectN_CharacterBase::ApplyStartupEffects()
 {
 	if (HasAuthority() && GetAbilitySystemComponent())
 	{
@@ -113,7 +113,7 @@ void AProjectNCharacter_Base::ApplyStartupEffects()
 	}
 }
 
-bool AProjectNCharacter_Base::ApplyGamePlayEffectToSelf(const TSubclassOf<UGameplayEffect> Effect, const FGameplayEffectContextHandle& InEffectContext) const
+bool AProjectN_CharacterBase::ApplyGamePlayEffectToSelf(const TSubclassOf<UGameplayEffect> Effect, const FGameplayEffectContextHandle& InEffectContext) const
 {
 	if (!Effect.Get())
 	{
@@ -134,17 +134,17 @@ bool AProjectNCharacter_Base::ApplyGamePlayEffectToSelf(const TSubclassOf<UGamep
  *
  */
 
-void AProjectNCharacter_Base::InitFromCharacterData(const FCharacterData& InCharacterData, bool bFromReplication)
+void AProjectN_CharacterBase::InitFromCharacterData(const FCharacterData& InCharacterData, bool bFromReplication)
 {
 	
 }
 
-void AProjectNCharacter_Base::OnRep_CharacterData()
+void AProjectN_CharacterBase::OnRep_CharacterData()
 {
 	InitFromCharacterData(CharacterData, true);
 }
 
-void AProjectNCharacter_Base::OnMaxMovementSpeedChanged(const FOnAttributeChangeData& Data) const
+void AProjectN_CharacterBase::OnMaxMovementSpeedChanged(const FOnAttributeChangeData& Data) const
 {
 	GetCharacterMovement()->MaxWalkSpeed = Data.NewValue;
 }

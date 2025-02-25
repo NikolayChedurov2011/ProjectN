@@ -8,6 +8,9 @@
 #include "Components/Input/ProjectN_InputComponent.h"
 #include "ProjectN_GameplayTags.h"
 #include "ProjectN_PlayerState.h"
+#include "AbilitySystem/Attribute/ProjectN_AttributeSet.h"
+#include "Controllers/ProjectN_PlayerController.h"
+#include "UI/HUD/ProjectN_HUD.h"
 
 AProjectN_PlayerCharacter::AProjectN_PlayerCharacter(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
 {
@@ -49,12 +52,20 @@ void AProjectN_PlayerCharacter::OnRep_PlayerState()
 void AProjectN_PlayerCharacter::InitAbilityActorInfo()
 {
 	AProjectN_PlayerState* ProjectN_PlayerState = GetPlayerState<AProjectN_PlayerState>();
-	check(ProjectN_PlayerState);
+	check(ProjectN_PlayerState)
 	
 	ProjectN_AbilitySystemComponent = Cast<UProjectN_AbilitySystemComponent>(ProjectN_PlayerState->GetAbilitySystemComponent());
 	ProjectN_AttributeSet = ProjectN_PlayerState->GetAttributeSet();
 	GetAbilitySystemComponent()->InitAbilityActorInfo(ProjectN_PlayerState, this);
-
+	
+	if (AProjectN_PlayerController* ProjectN_PlayerController = GetController<AProjectN_PlayerController>())
+	{
+		if (AProjectN_HUD* HUD = Cast<AProjectN_HUD>(ProjectN_PlayerController->GetHUD()))
+		{
+			HUD->InitOverlay(ProjectN_PlayerController, ProjectN_PlayerState, ProjectN_AbilitySystemComponent, ProjectN_AttributeSet);
+		}
+	}
+	
 	Super::InitAbilityActorInfo();
 }
 
@@ -76,12 +87,15 @@ void AProjectN_PlayerCharacter::OnCharacterInitAbilityEnd_Implementation()
  */
 void AProjectN_PlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
-	checkf(InputConfigDataAsset, TEXT("Forgot to assign valid data asset"));
+	checkf(InputConfigDataAsset, TEXT("Forgot to assign valid data asset, please fill out Character data"));
 	
 	const ULocalPlayer* LocalPLayer = GetController<APlayerController>()->GetLocalPlayer();
 	UEnhancedInputLocalPlayerSubsystem* EnhancedInputSubsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(LocalPLayer);
 
-	check(EnhancedInputSubsystem);
+	if (EnhancedInputSubsystem == nullptr)
+	{
+		return;
+	}
 
 	EnhancedInputSubsystem->AddMappingContext(InputConfigDataAsset->DefaultMappingContext, 0);
 	UProjectN_InputComponent* ProjectNInputComponent = CastChecked<UProjectN_InputComponent>(PlayerInputComponent);

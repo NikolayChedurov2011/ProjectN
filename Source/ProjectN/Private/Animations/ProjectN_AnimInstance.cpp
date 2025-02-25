@@ -3,12 +3,12 @@
 
 #include "Animations/ProjectN_AnimInstance.h"
 
-#include "ProjectNCharacter_Base.h"
+#include "ProjectN_CharacterBase.h"
 #include "DataAssets/ProjectN_AnimationDataAsset.h"
 
 class UBlendSpace* UProjectN_AnimInstance::GetLocomotionBlendSpace() const
 {
-	if (AProjectNCharacter_Base* OwningCharacter = Cast<AProjectNCharacter_Base>(GetOwningActor()))
+	if (AProjectN_CharacterBase* OwningCharacter = Cast<AProjectN_CharacterBase>(GetOwningActor()))
 	{
 		const FCharacterData CharacterData  = OwningCharacter->GetCharacterData();
 
@@ -24,7 +24,7 @@ class UBlendSpace* UProjectN_AnimInstance::GetLocomotionBlendSpace() const
 
 class UAnimSequenceBase* UProjectN_AnimInstance::GetIdleAnimationAsset() const
 {
-	if (AProjectNCharacter_Base* OwningCharacter = Cast<AProjectNCharacter_Base>(GetOwningActor()))
+	if (AProjectN_CharacterBase* OwningCharacter = Cast<AProjectN_CharacterBase>(GetOwningActor()))
 	{
 		const FCharacterData CharacterData  = OwningCharacter->GetCharacterData();
 

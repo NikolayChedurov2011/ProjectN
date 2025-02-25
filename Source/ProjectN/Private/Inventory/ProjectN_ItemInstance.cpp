@@ -6,7 +6,7 @@
 #include "GameFramework/Character.h"
 #include "Inventory/ProjectN_ItemActor_Base.h"
 #include "Net/UnrealNetwork.h"
-#include "ProjectNStatics.h"
+#include "ProjectN_Statics.h"
 
 
 void UProjectN_ItemInstance::GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const
@@ -25,7 +25,7 @@ void UProjectN_ItemInstance::Init(TSubclassOf<UItemStaticClass> InItemStaticData
 
 const UItemStaticClass* UProjectN_ItemInstance::GetItemStaticClass() const
 {
-	return UProjectNStatics::GetItemStaticData(ItemStaticDataClass);
+	return UProjectN_Statics::GetItemStaticData(ItemStaticDataClass);
 }
 
 void UProjectN_ItemInstance::OnEquip(AActor* Owner)

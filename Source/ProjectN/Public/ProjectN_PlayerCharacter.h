@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "ProjectNCharacter_Base.h"
+#include "ProjectN_CharacterBase.h"
 #include "ProjectN_PlayerCharacter.generated.h"
 
 class UDataAsset_InputConfig;
@@ -14,7 +14,7 @@ class AProjectN_PlayerCameraManager;
 struct FInputActionValue;
 
 UCLASS(Abstract)
-class PROJECTN_API AProjectN_PlayerCharacter : public AProjectNCharacter_Base
+class PROJECTN_API AProjectN_PlayerCharacter : public AProjectN_CharacterBase
 {
 	GENERATED_BODY()
 
