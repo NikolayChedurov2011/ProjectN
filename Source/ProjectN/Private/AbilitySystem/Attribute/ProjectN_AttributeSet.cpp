@@ -3,7 +3,9 @@
 
 #include "AbilitySystem/Attribute/ProjectN_AttributeSet.h"
 
+#include "AbilitySystemBlueprintLibrary.h"
 #include "GameplayEffectExtension.h"
+#include "GameFramework/Character.h"
 #include "Net/UnrealNetwork.h"
 
 UProjectN_AttributeSet::UProjectN_AttributeSet()
@@ -20,7 +22,11 @@ void UProjectN_AttributeSet::PostGameplayEffectExecute(const struct FGameplayEff
 {
 	Super::PostGameplayEffectExecute(Data);
 
-	if (Data.EvaluatedData.Attribute == GetHealthAttribute())
+	FEffectProperties Props;
+	SetEffectProperties(Data, Props);
+
+
+	/*if (Data.EvaluatedData.Attribute == GetHealthAttribute())
 	{
 		SetHealth(FMath::Clamp(GetHealth(), 0.f, GetMaxHealth()));
 	}
@@ -31,10 +37,10 @@ void UProjectN_AttributeSet::PostGameplayEffectExecute(const struct FGameplayEff
 	if (Data.EvaluatedData.Attribute == GetStaminaAttribute())
 	{
 		SetStamina(FMath::Clamp(GetStamina(), 0.f, GetMaxStamina()));
-	}
+	}*/
 }
 
-/*void UProjectN_AttributeSet::PreAttributeChange(const FGameplayAttribute& Attribute, float& NewValue)
+void UProjectN_AttributeSet::PreAttributeChange(const FGameplayAttribute& Attribute, float& NewValue)
 {
 	Super::PreAttributeChange(Attribute, NewValue);
 	
@@ -45,7 +51,9 @@ void UProjectN_AttributeSet::PostGameplayEffectExecute(const struct FGameplayEff
 	if (Attribute == GetMaxHealthAttribute())
 	{
 		if (GetHealth() > NewValue)
-		NewValue = FMath::Clamp(NewValue, 0.f, GetMaxHealth());
+		{
+			SetHealth(NewValue);
+		}
 	}
 	if (Attribute == GetManaAttribute())
 	{
@@ -53,7 +61,10 @@ void UProjectN_AttributeSet::PostGameplayEffectExecute(const struct FGameplayEff
 	}
 	if (Attribute == GetMaxManaAttribute())
 	{
-		NewValue = FMath::Clamp(NewValue, 0.f, GetMaxMana());
+		if (GetMana() > NewValue)
+		{
+			SetMana(NewValue);
+		}
 	}
 	if (Attribute == GetStaminaAttribute())
 	{
@@ -61,9 +72,12 @@ void UProjectN_AttributeSet::PostGameplayEffectExecute(const struct FGameplayEff
 	}
 	if (Attribute == GetMaxStaminaAttribute())
 	{
-		NewValue = FMath::Clamp(NewValue, 0.f, GetMaxStamina());
+		if (GetStamina() > NewValue)
+		{
+			SetStamina(NewValue);
+		}
 	}
-}*/
+}
 
 void UProjectN_AttributeSet::GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const
 {
@@ -76,6 +90,41 @@ void UProjectN_AttributeSet::GetLifetimeReplicatedProps(TArray<class FLifetimePr
 	DOREPLIFETIME_CONDITION_NOTIFY(UProjectN_AttributeSet, Stamina, COND_None, REPNOTIFY_Always);
 	DOREPLIFETIME_CONDITION_NOTIFY(UProjectN_AttributeSet, MaxStamina, COND_None, REPNOTIFY_Always);
 	DOREPLIFETIME_CONDITION_NOTIFY(UProjectN_AttributeSet, MaxMovementSpeed, COND_None, REPNOTIFY_Always);
+}
+
+void UProjectN_AttributeSet::SetEffectProperties(const FGameplayEffectModCallbackData& Data, FEffectProperties& Props) const
+{
+	Props.EffectContextHandle = Data.EffectSpec.GetContext();
+	Props.SourceProperties.AbilitySystemComponent = Props.EffectContextHandle.GetOriginalInstigatorAbilitySystemComponent();
+
+	if (IsValid(Props.SourceProperties.AbilitySystemComponent) && Props.SourceProperties.AbilitySystemComponent->AbilityActorInfo.IsValid() && Props.SourceProperties.AbilitySystemComponent->AbilityActorInfo->AvatarActor.IsValid())
+	{
+		Props.SourceProperties.AvatarActor = Props.SourceProperties.AbilitySystemComponent->AbilityActorInfo->AvatarActor.Get();
+		Props.SourceProperties.Controller = Props.SourceProperties.AbilitySystemComponent->AbilityActorInfo->PlayerController.Get();
+
+		if (Props.SourceProperties.Controller == nullptr && Props.SourceProperties.AvatarActor != nullptr)
+		{
+			if (const APawn* Pawn = Cast<APawn>(Props.SourceProperties.AvatarActor))
+			{
+				Props.SourceProperties.Controller = Pawn->GetController();
+			}
+		}
+		if (Props.SourceProperties.Controller)
+		{
+			if (ACharacter* SourceCharacter = Cast<ACharacter>(Props.SourceProperties.Controller->GetPawn()))
+			{
+				Props.SourceProperties.Character = SourceCharacter;
+			}
+		}
+	}
+
+	if (Data.Target.AbilityActorInfo.IsValid() && Data.Target.AbilityActorInfo->AvatarActor.IsValid())
+	{
+		Props.TargetProperties.AvatarActor = Data.Target.AbilityActorInfo->AvatarActor.Get();
+		Props.TargetProperties.Controller = Data.Target.AbilityActorInfo->PlayerController.Get();
+		Props.TargetProperties.Character = Cast<ACharacter>(Props.TargetProperties.AvatarActor);
+		Props.TargetProperties.AbilitySystemComponent = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(Props.TargetProperties.AvatarActor);
+	}
 }
 
 void UProjectN_AttributeSet::OnRep_Health(const FGameplayAttributeData& OldHealth)

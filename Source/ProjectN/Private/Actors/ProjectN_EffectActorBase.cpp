@@ -24,7 +24,7 @@ void AProjectN_EffectActorBase::ApplyEffect(AActor* TargetActor, TSubclassOf<UGa
 
 	FGameplayEffectContextHandle EffectContextHandle = TargetASC->MakeEffectContext();
 	EffectContextHandle.AddSourceObject(this);
-	const FGameplayEffectSpecHandle GameplayEffectHandle = TargetASC->MakeOutgoingSpec(InEffectToApply, 1.f, EffectContextHandle);
+	const FGameplayEffectSpecHandle GameplayEffectHandle = TargetASC->MakeOutgoingSpec(InEffectToApply, ActorLevel, EffectContextHandle);
 	const FActiveGameplayEffectHandle ActiveGameplayEffectHandle = TargetASC->ApplyGameplayEffectSpecToSelf(*GameplayEffectHandle.Data.Get());
 
 	const bool bIsInfinite = GameplayEffectHandle.Data.Get()->Def.Get()->DurationPolicy == EGameplayEffectDurationType::Infinite;

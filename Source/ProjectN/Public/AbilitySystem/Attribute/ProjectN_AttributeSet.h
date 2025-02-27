@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "AbilitySystemComponent.h"
 #include "AttributeSet.h"
+#include "GameplayEffectExtension.h"
 #include "ProjectN_AttributeSet.generated.h"
 
 #define ATTRIBUTE_ACCESSORS(ClassName, PropertyName) \
@@ -12,6 +13,40 @@
 	GAMEPLAYATTRIBUTE_VALUE_GETTER(PropertyName) \
 	GAMEPLAYATTRIBUTE_VALUE_SETTER(PropertyName) \
 	GAMEPLAYATTRIBUTE_VALUE_INITTER(PropertyName)
+
+USTRUCT()
+struct FPropertiesData
+{
+	GENERATED_BODY()
+
+public:
+	FPropertiesData() {}
+
+	UPROPERTY()
+	TObjectPtr<UAbilitySystemComponent> AbilitySystemComponent = nullptr;
+
+	UPROPERTY()
+	TObjectPtr<AActor> AvatarActor = nullptr;
+	
+	UPROPERTY()
+	TObjectPtr<AController> Controller = nullptr;
+	
+	UPROPERTY()
+	TObjectPtr<ACharacter> Character = nullptr;
+};
+
+USTRUCT()
+struct FEffectProperties
+{
+	GENERATED_BODY()
+
+public:
+
+	FGameplayEffectContextHandle EffectContextHandle;
+	
+	FPropertiesData SourceProperties;
+	FPropertiesData TargetProperties;
+};
 
 UCLASS()
 class PROJECTN_API UProjectN_AttributeSet : public UAttributeSet
@@ -69,4 +104,8 @@ protected:
 	virtual void OnRep_Stamina(const FGameplayAttributeData& OldStamina);
 	UFUNCTION()
 	virtual void OnRep_MaxStamina(const FGameplayAttributeData& OldMaxStamina);
+
+private:
+
+	void SetEffectProperties(const FGameplayEffectModCallbackData& Data, FEffectProperties& Props) const;
 };

@@ -48,6 +48,9 @@ protected:
 	bool bDestroyOnEffectRemoval = false;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Effect To Apply")
+	float ActorLevel = 1.f;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Effect To Apply")
 	TSubclassOf<UGameplayEffect> InstantEffectToApply;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Effect To Apply")
