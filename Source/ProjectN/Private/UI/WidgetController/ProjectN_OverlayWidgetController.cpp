@@ -3,6 +3,7 @@
 
 #include "UI/WidgetController/ProjectN_OverlayWidgetController.h"
 
+#include "AbilitySystem/ProjectN_AbilitySystemComponent.h"
 #include "AbilitySystem/Attribute/ProjectN_AttributeSet.h"
 
 void UProjectN_OverlayWidgetController::BroadcastInitialValues()
@@ -27,6 +28,15 @@ void UProjectN_OverlayWidgetController::BindCallbacksToResponce()
 	AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(ProjectN_AttributeSet->GetMaxManaAttribute()).AddUObject(this, &UProjectN_OverlayWidgetController::MaxManaChanged);
 	AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(ProjectN_AttributeSet->GetStaminaAttribute()).AddUObject(this, &UProjectN_OverlayWidgetController::StaminaChanged);
 	AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(ProjectN_AttributeSet->GetMaxStaminaAttribute()).AddUObject(this, &UProjectN_OverlayWidgetController::MaxStaminaChanged);
+	Cast<UProjectN_AbilitySystemComponent>(AbilitySystemComponent)->EffectAssetTags.AddLambda(
+		[this](const FGameplayTagContainer& EffectAssetTags)
+		{
+			for (const auto Tag : EffectAssetTags)
+			{
+				FUIWidgetRow* WidgetRow = GetTableRowByTag<FUIWidgetRow>(MessageWidgetDataTable, Tag);
+			}
+		}
+	);
 }
 
 void UProjectN_OverlayWidgetController::HealthChanged(const FOnAttributeChangeData& AttributeData) const
