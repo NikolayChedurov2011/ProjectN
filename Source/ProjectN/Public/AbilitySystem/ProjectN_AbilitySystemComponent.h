@@ -21,5 +21,6 @@ public:
 
 protected:
 
+	UFUNCTION(Client, Reliable)
 	void OnEffectApply(UAbilitySystemComponent* AbilitySystemComponent, const FGameplayEffectSpec& GameplayEffectSpec, FActiveGameplayEffectHandle GameplayEffectHandle) const;
 };

@@ -30,12 +30,14 @@ public:
 	UTexture2D* Image = nullptr;
 };
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnMaxHealthChangedSignature, float, NewMaxHealth);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnHealthChangedSignature, float, NewHealth);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnMaxManaChangedSignature, float, NewMaxMana);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnManaChangedSignature, float, NewMana);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnMaxStaminaChangedSignature, float, NewMaxStamina);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnStaminaChangedSignature, float, NewStamina);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnAttributeChangedSignature, float, NewValue);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnMessageRowSignature, FUIWidgetRow, WidgetRow);
+
+//DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnHealthChangedSignature, float, NewHealth);
+//DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnMaxManaChangedSignature, float, NewMaxMana);
+//DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnManaChangedSignature, float, NewMana);
+//DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnMaxStaminaChangedSignature, float, NewMaxStamina);
+//DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnStaminaChangedSignature, float, NewStamina);
 
 UCLASS(BlueprintType, Blueprintable)
 class PROJECTN_API UProjectN_OverlayWidgetController : public UProjectN_WidgetControllerBase
@@ -45,22 +47,25 @@ class PROJECTN_API UProjectN_OverlayWidgetController : public UProjectN_WidgetCo
 public:
 
 	UPROPERTY(BlueprintAssignable)
-	FOnMaxHealthChangedSignature	OnMaxHealthChanged;
+	FOnAttributeChangedSignature	OnMaxHealthChanged;
 	
 	UPROPERTY(BlueprintAssignable)
-	FOnHealthChangedSignature		OnHealthChanged;
+	FOnAttributeChangedSignature	OnHealthChanged;
 	
 	UPROPERTY(BlueprintAssignable)
-	FOnMaxManaChangedSignature		OnMaxManaChanged;
+	FOnAttributeChangedSignature	OnMaxManaChanged;
 	
 	UPROPERTY(BlueprintAssignable)
-	FOnMaxManaChangedSignature		OnManaChanged;
+	FOnAttributeChangedSignature	OnManaChanged;
 	
 	UPROPERTY(BlueprintAssignable)
-	FOnMaxStaminaChangedSignature	OnMaxStaminaChanged;
+	FOnAttributeChangedSignature	OnMaxStaminaChanged;
 	
 	UPROPERTY(BlueprintAssignable)
-	FOnStaminaChangedSignature		OnStaminaChanged;
+	FOnAttributeChangedSignature	OnStaminaChanged;
+
+	UPROPERTY(BlueprintAssignable)
+	FOnMessageRowSignature			OnMessageRowSignature;
 
 	virtual void BroadcastInitialValues() override;
 	virtual void BindCallbacksToResponce() override;
@@ -76,6 +81,7 @@ protected:
 	void MaxManaChanged(const FOnAttributeChangeData& AttributeData) const;
 	void StaminaChanged(const FOnAttributeChangeData& AttributeData) const;
 	void MaxStaminaChanged(const FOnAttributeChangeData& AttributeData) const;
+	void BroadcastMessage(const FGameplayTagContainer& EffectAssetTags);
 
 	template <typename T>
 	T* GetTableRowByTag(UDataTable* DataTable, FGameplayTag GameplayTag);

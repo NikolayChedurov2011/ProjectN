@@ -34,7 +34,7 @@ AProjectN_PlayerCharacter::AProjectN_PlayerCharacter(const FObjectInitializer& O
 void AProjectN_PlayerCharacter::PossessedBy(AController* NewController)
 {
 	Super::PossessedBy(NewController);
-	
+
 	// Init ability actor info for the Server
 	InitAbilityActorInfo();
 }
@@ -42,9 +42,10 @@ void AProjectN_PlayerCharacter::PossessedBy(AController* NewController)
 void AProjectN_PlayerCharacter::OnRep_PlayerState()
 {
 	Super::OnRep_PlayerState();
-	
+
 	// Init ability actor info for the Client
 	InitAbilityActorInfo();
+	
 	//Send RPS from Client to Server when it's ready
 	OnCharacterInitAbilityEnd();
 }
@@ -72,7 +73,7 @@ void AProjectN_PlayerCharacter::InitAbilityActorInfo()
 void AProjectN_PlayerCharacter::OnCharacterInitAbilityEnd_Implementation()
 {
 	if (HasAuthority())
-	{
+	{		
 		GiveAbilities();
 		ApplyStartupEffects();
 	}

@@ -25,8 +25,8 @@ void UProjectN_AttributeSet::PostGameplayEffectExecute(const struct FGameplayEff
 	FEffectProperties Props;
 	SetEffectProperties(Data, Props);
 
-
-	/*if (Data.EvaluatedData.Attribute == GetHealthAttribute())
+	// Current attribute values
+	if (Data.EvaluatedData.Attribute == GetHealthAttribute())
 	{
 		SetHealth(FMath::Clamp(GetHealth(), 0.f, GetMaxHealth()));
 	}
@@ -37,14 +37,37 @@ void UProjectN_AttributeSet::PostGameplayEffectExecute(const struct FGameplayEff
 	if (Data.EvaluatedData.Attribute == GetStaminaAttribute())
 	{
 		SetStamina(FMath::Clamp(GetStamina(), 0.f, GetMaxStamina()));
-	}*/
+	}
+
+	// Max attribute values
+	if (Data.EvaluatedData.Attribute == GetMaxHealthAttribute())
+	{
+		if (GetHealth() > Data.EvaluatedData.Magnitude)
+		{
+			SetHealth(Data.EvaluatedData.Magnitude);
+		}
+	}
+	if (Data.EvaluatedData.Attribute == GetMaxManaAttribute())
+	{
+		if (GetMana() > Data.EvaluatedData.Magnitude)
+		{
+			SetMana(Data.EvaluatedData.Magnitude);
+		}
+	}
+	if (Data.EvaluatedData.Attribute == GetMaxStaminaAttribute())
+	{
+		if (GetStamina() > Data.EvaluatedData.Magnitude)
+		{
+			SetStamina(Data.EvaluatedData.Magnitude);
+		}
+	}
 }
 
 void UProjectN_AttributeSet::PreAttributeChange(const FGameplayAttribute& Attribute, float& NewValue)
 {
 	Super::PreAttributeChange(Attribute, NewValue);
 	
-	if (Attribute == GetHealthAttribute())
+	/*if (Attribute == GetHealthAttribute())
 	{
 		NewValue = FMath::Clamp(NewValue, 0.f, GetMaxHealth());
 	}
@@ -76,7 +99,7 @@ void UProjectN_AttributeSet::PreAttributeChange(const FGameplayAttribute& Attrib
 		{
 			SetStamina(NewValue);
 		}
-	}
+	}*/
 }
 
 void UProjectN_AttributeSet::GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const

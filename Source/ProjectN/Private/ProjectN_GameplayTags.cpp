@@ -13,4 +13,8 @@ namespace ProjectNGameplayTags
 	UE_DEFINE_GAMEPLAY_TAG(InventoryTag_Equip,		"InventoryTag.Equip")
 	UE_DEFINE_GAMEPLAY_TAG(InventoryTag_UnEquip,	"InventoryTag.UnEquip")
 	UE_DEFINE_GAMEPLAY_TAG(InventoryTag_Drop,		"InventoryTag.Drop")
+
+	/**** Message Tags ****/
+	UE_DEFINE_GAMEPLAY_TAG(Message,					"Message")
+	UE_DEFINE_GAMEPLAY_TAG(Message_Potion,			"Message.Potion")
 }

@@ -28,15 +28,35 @@ void UProjectN_OverlayWidgetController::BindCallbacksToResponce()
 	AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(ProjectN_AttributeSet->GetMaxManaAttribute()).AddUObject(this, &UProjectN_OverlayWidgetController::MaxManaChanged);
 	AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(ProjectN_AttributeSet->GetStaminaAttribute()).AddUObject(this, &UProjectN_OverlayWidgetController::StaminaChanged);
 	AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(ProjectN_AttributeSet->GetMaxStaminaAttribute()).AddUObject(this, &UProjectN_OverlayWidgetController::MaxStaminaChanged);
-	Cast<UProjectN_AbilitySystemComponent>(AbilitySystemComponent)->EffectAssetTags.AddLambda(
+	Cast<UProjectN_AbilitySystemComponent>(AbilitySystemComponent)->EffectAssetTags.AddUObject(this, &UProjectN_OverlayWidgetController::BroadcastMessage);
+	
+	/*Cast<UProjectN_AbilitySystemComponent>(AbilitySystemComponent)->EffectAssetTags.AddLambda(
 		[this](const FGameplayTagContainer& EffectAssetTags)
 		{
-			for (const auto Tag : EffectAssetTags)
+			for (const FGameplayTag& Tag : EffectAssetTags)
 			{
-				FUIWidgetRow* WidgetRow = GetTableRowByTag<FUIWidgetRow>(MessageWidgetDataTable, Tag);
+				const FGameplayTag MessageTag = FGameplayTag::RequestGameplayTag(FName("Message"));
+				if (Tag.MatchesTag(MessageTag))
+				{
+					const FUIWidgetRow* WidgetRow = GetTableRowByTag<FUIWidgetRow>(MessageWidgetDataTable, Tag);
+					OnMessageRowSignature.Broadcast(*WidgetRow);
+				}
 			}
 		}
-	);
+	);*/
+}
+
+void UProjectN_OverlayWidgetController::BroadcastMessage(const FGameplayTagContainer& EffectAssetTags)
+{
+	for (const FGameplayTag& Tag : EffectAssetTags)
+	{
+		const FGameplayTag MessageTag = FGameplayTag::RequestGameplayTag(FName("Message"));
+		if (Tag.MatchesTag(MessageTag))
+		{
+			const FUIWidgetRow* WidgetRow = GetTableRowByTag<FUIWidgetRow>(MessageWidgetDataTable, Tag);
+			OnMessageRowSignature.Broadcast(*WidgetRow);
+		}
+	}
 }
 
 void UProjectN_OverlayWidgetController::HealthChanged(const FOnAttributeChangeData& AttributeData) const
