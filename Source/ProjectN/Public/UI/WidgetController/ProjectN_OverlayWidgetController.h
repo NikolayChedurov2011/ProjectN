@@ -8,6 +8,7 @@
 #include "ProjectN_OverlayWidgetController.generated.h"
 
 struct FOnAttributeChangeData;
+struct FGameplayAttribute;
 class UProjectN_WidgetBase;
 
 USTRUCT(BlueprintType)
@@ -30,14 +31,8 @@ public:
 	UTexture2D* Image = nullptr;
 };
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnAttributeChangedSignature, float, NewValue);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnAttributeChangedSignature, float, NewValue, float, OldValue);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnMessageRowSignature, FUIWidgetRow, WidgetRow);
-
-//DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnHealthChangedSignature, float, NewHealth);
-//DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnMaxManaChangedSignature, float, NewMaxMana);
-//DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnManaChangedSignature, float, NewMana);
-//DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnMaxStaminaChangedSignature, float, NewMaxStamina);
-//DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnStaminaChangedSignature, float, NewStamina);
 
 UCLASS(BlueprintType, Blueprintable)
 class PROJECTN_API UProjectN_OverlayWidgetController : public UProjectN_WidgetControllerBase
@@ -75,14 +70,8 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	TObjectPtr<UDataTable> MessageWidgetDataTable; 
 
-	void HealthChanged(const FOnAttributeChangeData& AttributeData) const;
-	void MaxHealthChanged(const FOnAttributeChangeData& AttributeData) const;
-	void ManaChanged(const FOnAttributeChangeData& AttributeData) const;
-	void MaxManaChanged(const FOnAttributeChangeData& AttributeData) const;
-	void StaminaChanged(const FOnAttributeChangeData& AttributeData) const;
-	void MaxStaminaChanged(const FOnAttributeChangeData& AttributeData) const;
-	void BroadcastMessage(const FGameplayTagContainer& EffectAssetTags);
-
+	void BindGameplayAttributeValueChange(const FGameplayAttribute& AttributeData, const FOnAttributeChangedSignature& OnAttributeChangedDelegate) const;
+	
 	template <typename T>
 	T* GetTableRowByTag(UDataTable* DataTable, FGameplayTag GameplayTag);
 };

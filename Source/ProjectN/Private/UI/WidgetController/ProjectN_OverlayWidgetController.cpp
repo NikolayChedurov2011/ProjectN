@@ -10,81 +10,43 @@ void UProjectN_OverlayWidgetController::BroadcastInitialValues()
 {
 	const UProjectN_AttributeSet* ProjectN_AttributeSet = CastChecked<UProjectN_AttributeSet>(AttributeSet);
 
-	OnMaxHealthChanged.Broadcast(ProjectN_AttributeSet->GetMaxHealth());
-	OnHealthChanged.Broadcast(ProjectN_AttributeSet->GetHealth());
-	OnMaxManaChanged.Broadcast(ProjectN_AttributeSet->GetMaxMana());
-	OnManaChanged.Broadcast(ProjectN_AttributeSet->GetMana());
-	OnMaxStaminaChanged.Broadcast(ProjectN_AttributeSet->GetMaxStamina());
-	OnStaminaChanged.Broadcast(ProjectN_AttributeSet->GetStamina());
+	OnMaxHealthChanged.Broadcast(ProjectN_AttributeSet->GetMaxHealth(), ProjectN_AttributeSet->GetMaxHealth());
+	OnHealthChanged.Broadcast(ProjectN_AttributeSet->GetHealth(), ProjectN_AttributeSet->GetHealth());
+	OnMaxManaChanged.Broadcast(ProjectN_AttributeSet->GetMaxMana(), ProjectN_AttributeSet->GetMaxMana());
+	OnManaChanged.Broadcast(ProjectN_AttributeSet->GetMana(), ProjectN_AttributeSet->GetMana());
+	OnMaxStaminaChanged.Broadcast(ProjectN_AttributeSet->GetMaxStamina(), ProjectN_AttributeSet->GetMaxStamina());
+	OnStaminaChanged.Broadcast(ProjectN_AttributeSet->GetStamina(), ProjectN_AttributeSet->GetStamina());
 }
 
 void UProjectN_OverlayWidgetController::BindCallbacksToResponce()
 {
 	const UProjectN_AttributeSet* ProjectN_AttributeSet = CastChecked<UProjectN_AttributeSet>(AttributeSet);
 
-	AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(ProjectN_AttributeSet->GetHealthAttribute()).AddUObject(this, &UProjectN_OverlayWidgetController::HealthChanged);
-	AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(ProjectN_AttributeSet->GetMaxHealthAttribute()).AddUObject(this, &UProjectN_OverlayWidgetController::MaxHealthChanged);
-	AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(ProjectN_AttributeSet->GetManaAttribute()).AddUObject(this, &UProjectN_OverlayWidgetController::ManaChanged);
-	AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(ProjectN_AttributeSet->GetMaxManaAttribute()).AddUObject(this, &UProjectN_OverlayWidgetController::MaxManaChanged);
-	AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(ProjectN_AttributeSet->GetStaminaAttribute()).AddUObject(this, &UProjectN_OverlayWidgetController::StaminaChanged);
-	AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(ProjectN_AttributeSet->GetMaxStaminaAttribute()).AddUObject(this, &UProjectN_OverlayWidgetController::MaxStaminaChanged);
-	Cast<UProjectN_AbilitySystemComponent>(AbilitySystemComponent)->EffectAssetTags.AddUObject(this, &UProjectN_OverlayWidgetController::BroadcastMessage);
+	BindGameplayAttributeValueChange(ProjectN_AttributeSet->GetHealthAttribute(), OnHealthChanged);
+	BindGameplayAttributeValueChange(ProjectN_AttributeSet->GetMaxHealthAttribute(), OnMaxHealthChanged);
+	BindGameplayAttributeValueChange(ProjectN_AttributeSet->GetManaAttribute(), OnManaChanged);
+	BindGameplayAttributeValueChange(ProjectN_AttributeSet->GetMaxManaAttribute(), OnMaxManaChanged);
+	BindGameplayAttributeValueChange(ProjectN_AttributeSet->GetStaminaAttribute(), OnStaminaChanged);
+	BindGameplayAttributeValueChange(ProjectN_AttributeSet->GetMaxStaminaAttribute(), OnMaxStaminaChanged);
 	
-	/*Cast<UProjectN_AbilitySystemComponent>(AbilitySystemComponent)->EffectAssetTags.AddLambda(
-		[this](const FGameplayTagContainer& EffectAssetTags)
+	Cast<UProjectN_AbilitySystemComponent>(AbilitySystemComponent)->EffectAssetTags.AddLambda([this] (const FGameplayTagContainer& EffectAssetTags)
+	{
+		for (const FGameplayTag& Tag : EffectAssetTags)
 		{
-			for (const FGameplayTag& Tag : EffectAssetTags)
+			const FGameplayTag MessageTag = FGameplayTag::RequestGameplayTag(FName("Message"));
+			if (Tag.MatchesTag(MessageTag))
 			{
-				const FGameplayTag MessageTag = FGameplayTag::RequestGameplayTag(FName("Message"));
-				if (Tag.MatchesTag(MessageTag))
-				{
-					const FUIWidgetRow* WidgetRow = GetTableRowByTag<FUIWidgetRow>(MessageWidgetDataTable, Tag);
-					OnMessageRowSignature.Broadcast(*WidgetRow);
-				}
+				const FUIWidgetRow* WidgetRow = GetTableRowByTag<FUIWidgetRow>(MessageWidgetDataTable, Tag);
+				OnMessageRowSignature.Broadcast(*WidgetRow);
 			}
 		}
-	);*/
+	});
 }
 
-void UProjectN_OverlayWidgetController::BroadcastMessage(const FGameplayTagContainer& EffectAssetTags)
+void UProjectN_OverlayWidgetController::BindGameplayAttributeValueChange(const FGameplayAttribute& AttributeData, const FOnAttributeChangedSignature& OnAttributeChangedDelegate) const
 {
-	for (const FGameplayTag& Tag : EffectAssetTags)
+	AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(AttributeData).AddLambda([&OnAttributeChangedDelegate] (const FOnAttributeChangeData& Data)
 	{
-		const FGameplayTag MessageTag = FGameplayTag::RequestGameplayTag(FName("Message"));
-		if (Tag.MatchesTag(MessageTag))
-		{
-			const FUIWidgetRow* WidgetRow = GetTableRowByTag<FUIWidgetRow>(MessageWidgetDataTable, Tag);
-			OnMessageRowSignature.Broadcast(*WidgetRow);
-		}
-	}
-}
-
-void UProjectN_OverlayWidgetController::HealthChanged(const FOnAttributeChangeData& AttributeData) const
-{
-	OnHealthChanged.Broadcast(AttributeData.NewValue);
-}
-
-void UProjectN_OverlayWidgetController::MaxHealthChanged(const FOnAttributeChangeData& AttributeData) const
-{
-	OnMaxHealthChanged.Broadcast(AttributeData.NewValue);
-}
-
-void UProjectN_OverlayWidgetController::ManaChanged(const FOnAttributeChangeData& AttributeData) const
-{
-	OnManaChanged.Broadcast(AttributeData.NewValue);
-}
-
-void UProjectN_OverlayWidgetController::MaxManaChanged(const FOnAttributeChangeData& AttributeData) const
-{
-	OnMaxManaChanged.Broadcast(AttributeData.NewValue);
-}
-
-void UProjectN_OverlayWidgetController::StaminaChanged(const FOnAttributeChangeData& AttributeData) const
-{
-	OnStaminaChanged.Broadcast(AttributeData.NewValue);
-}
-
-void UProjectN_OverlayWidgetController::MaxStaminaChanged(const FOnAttributeChangeData& AttributeData) const
-{
-	OnMaxStaminaChanged.Broadcast(AttributeData.NewValue);
+		OnAttributeChangedDelegate.Broadcast(Data.NewValue, Data.OldValue);
+	});
 }
