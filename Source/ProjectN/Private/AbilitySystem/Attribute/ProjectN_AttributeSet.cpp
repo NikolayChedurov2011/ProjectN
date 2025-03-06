@@ -66,46 +66,20 @@ void UProjectN_AttributeSet::PostGameplayEffectExecute(const struct FGameplayEff
 void UProjectN_AttributeSet::PreAttributeChange(const FGameplayAttribute& Attribute, float& NewValue)
 {
 	Super::PreAttributeChange(Attribute, NewValue);
-	
-	/*if (Attribute == GetHealthAttribute())
-	{
-		NewValue = FMath::Clamp(NewValue, 0.f, GetMaxHealth());
-	}
-	if (Attribute == GetMaxHealthAttribute())
-	{
-		if (GetHealth() > NewValue)
-		{
-			SetHealth(NewValue);
-		}
-	}
-	if (Attribute == GetManaAttribute())
-	{
-		NewValue = FMath::Clamp(NewValue, 0.f, GetMaxMana());
-	}
-	if (Attribute == GetMaxManaAttribute())
-	{
-		if (GetMana() > NewValue)
-		{
-			SetMana(NewValue);
-		}
-	}
-	if (Attribute == GetStaminaAttribute())
-	{
-		NewValue = FMath::Clamp(NewValue, 0.f, GetMaxStamina());
-	}
-	if (Attribute == GetMaxStaminaAttribute())
-	{
-		if (GetStamina() > NewValue)
-		{
-			SetStamina(NewValue);
-		}
-	}*/
 }
 
 void UProjectN_AttributeSet::GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
+	// Primary Attributes
+	DOREPLIFETIME_CONDITION_NOTIFY(UProjectN_AttributeSet, Strength, COND_None, REPNOTIFY_Always);
+	DOREPLIFETIME_CONDITION_NOTIFY(UProjectN_AttributeSet, Intelligence, COND_None, REPNOTIFY_Always);
+	DOREPLIFETIME_CONDITION_NOTIFY(UProjectN_AttributeSet, Dexterity, COND_None, REPNOTIFY_Always);
+	DOREPLIFETIME_CONDITION_NOTIFY(UProjectN_AttributeSet, Endurance, COND_None, REPNOTIFY_Always);
+
+	// Secondary Attributes
+	// Main
 	DOREPLIFETIME_CONDITION_NOTIFY(UProjectN_AttributeSet, Health, COND_None, REPNOTIFY_Always);
 	DOREPLIFETIME_CONDITION_NOTIFY(UProjectN_AttributeSet, MaxHealth, COND_None, REPNOTIFY_Always);
 	DOREPLIFETIME_CONDITION_NOTIFY(UProjectN_AttributeSet, Mana, COND_None, REPNOTIFY_Always);
@@ -113,6 +87,14 @@ void UProjectN_AttributeSet::GetLifetimeReplicatedProps(TArray<class FLifetimePr
 	DOREPLIFETIME_CONDITION_NOTIFY(UProjectN_AttributeSet, Stamina, COND_None, REPNOTIFY_Always);
 	DOREPLIFETIME_CONDITION_NOTIFY(UProjectN_AttributeSet, MaxStamina, COND_None, REPNOTIFY_Always);
 	DOREPLIFETIME_CONDITION_NOTIFY(UProjectN_AttributeSet, MaxMovementSpeed, COND_None, REPNOTIFY_Always);
+
+	// Secondary
+	DOREPLIFETIME_CONDITION_NOTIFY(UProjectN_AttributeSet, Armor, COND_None, REPNOTIFY_Always);
+	DOREPLIFETIME_CONDITION_NOTIFY(UProjectN_AttributeSet, Evasion, COND_None, REPNOTIFY_Always);
+	DOREPLIFETIME_CONDITION_NOTIFY(UProjectN_AttributeSet, CriticalHitChance, COND_None, REPNOTIFY_Always);
+	DOREPLIFETIME_CONDITION_NOTIFY(UProjectN_AttributeSet, CriticalHitDamage, COND_None, REPNOTIFY_Always);
+	DOREPLIFETIME_CONDITION_NOTIFY(UProjectN_AttributeSet, HealRegeneration, COND_None, REPNOTIFY_Always);
+	DOREPLIFETIME_CONDITION_NOTIFY(UProjectN_AttributeSet, ManaRegeneration, COND_None, REPNOTIFY_Always);
 }
 
 void UProjectN_AttributeSet::SetEffectProperties(const FGameplayEffectModCallbackData& Data, FEffectProperties& Props) const
@@ -150,6 +132,26 @@ void UProjectN_AttributeSet::SetEffectProperties(const FGameplayEffectModCallbac
 	}
 }
 
+void UProjectN_AttributeSet::OnRep_Strength(const FGameplayAttributeData& OldStrength)
+{
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UProjectN_AttributeSet, Strength, OldStrength);
+}
+
+void UProjectN_AttributeSet::OnRep_Intelligence(const FGameplayAttributeData& OldIntelligence)
+{
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UProjectN_AttributeSet, Intelligence, OldIntelligence);
+}
+
+void UProjectN_AttributeSet::OnRep_Dexterity(const FGameplayAttributeData& OldDexterity)
+{
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UProjectN_AttributeSet, Dexterity, OldDexterity);
+}
+
+void UProjectN_AttributeSet::OnRep_Endurance(const FGameplayAttributeData& OldEndurance)
+{
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UProjectN_AttributeSet, Endurance, OldEndurance);
+}
+
 void UProjectN_AttributeSet::OnRep_Health(const FGameplayAttributeData& OldHealth)
 {
 	GAMEPLAYATTRIBUTE_REPNOTIFY(UProjectN_AttributeSet, Health, OldHealth);
@@ -183,4 +185,34 @@ void UProjectN_AttributeSet::OnRep_Stamina(const FGameplayAttributeData& OldStam
 void UProjectN_AttributeSet::OnRep_MaxStamina(const FGameplayAttributeData& OldMaxStamina)
 {
 	GAMEPLAYATTRIBUTE_REPNOTIFY(UProjectN_AttributeSet, MaxStamina, OldMaxStamina);
+}
+
+void UProjectN_AttributeSet::OnRep_Armor(const FGameplayAttributeData& OldArmor)
+{
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UProjectN_AttributeSet, Armor, OldArmor);
+}
+
+void UProjectN_AttributeSet::OnRep_Evasion(const FGameplayAttributeData& OldEvasion)
+{
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UProjectN_AttributeSet, Evasion, OldEvasion);
+}
+
+void UProjectN_AttributeSet::OnRep_CriticalHitChance(const FGameplayAttributeData& OldCriticalHitChance)
+{
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UProjectN_AttributeSet, CriticalHitChance, OldCriticalHitChance);
+}
+
+void UProjectN_AttributeSet::OnRep_CriticalHitDamage(const FGameplayAttributeData& OldCriticalHitDamage)
+{
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UProjectN_AttributeSet, CriticalHitDamage, OldCriticalHitDamage);
+}
+
+void UProjectN_AttributeSet::OnRep_HealRegeneration(const FGameplayAttributeData& OldHealRegeneration)
+{
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UProjectN_AttributeSet, HealRegeneration, OldHealRegeneration);
+}
+
+void UProjectN_AttributeSet::OnRep_ManaRegeneration(const FGameplayAttributeData& OldManaRegeneration)
+{
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UProjectN_AttributeSet, ManaRegeneration, OldManaRegeneration);
 }

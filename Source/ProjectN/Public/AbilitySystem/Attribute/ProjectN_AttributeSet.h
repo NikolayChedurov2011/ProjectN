@@ -56,7 +56,35 @@ class PROJECTN_API UProjectN_AttributeSet : public UAttributeSet
 public:
 
 	UProjectN_AttributeSet();
+
+	/*
+	 ***********************
+	 *  Primary Attributes
+	 ***********************
+	 */
+	UPROPERTY(BlueprintReadOnly, Category = "Strength", ReplicatedUsing = OnRep_Strength)
+	FGameplayAttributeData Strength;
+	ATTRIBUTE_ACCESSORS(UProjectN_AttributeSet, Strength)
+
+	UPROPERTY(BlueprintReadOnly, Category = "Intelligence", ReplicatedUsing = OnRep_Intelligence)
+	FGameplayAttributeData Intelligence;
+	ATTRIBUTE_ACCESSORS(UProjectN_AttributeSet, Intelligence)
+
+	UPROPERTY(BlueprintReadOnly, Category = "Dexterity", ReplicatedUsing = OnRep_Dexterity)
+	FGameplayAttributeData Dexterity;
+	ATTRIBUTE_ACCESSORS(UProjectN_AttributeSet, Dexterity)
+
+	UPROPERTY(BlueprintReadOnly, Category = "Endurance", ReplicatedUsing = OnRep_Endurance)
+	FGameplayAttributeData Endurance;
+	ATTRIBUTE_ACCESSORS(UProjectN_AttributeSet, Endurance)
+
 	
+	/*
+	 ************************
+	 *  Secondary Attributes
+	 ************************
+	 */
+	// Main
 	UPROPERTY(BlueprintReadOnly, Category = "Health", ReplicatedUsing = OnRep_Health)
 	FGameplayAttributeData Health;
 	ATTRIBUTE_ACCESSORS(UProjectN_AttributeSet, Health)
@@ -80,16 +108,53 @@ public:
 	UPROPERTY(BlueprintReadOnly, Category = "Stamina", ReplicatedUsing = OnRep_MaxStamina)
 	FGameplayAttributeData MaxStamina;
 	ATTRIBUTE_ACCESSORS(UProjectN_AttributeSet, MaxStamina)
-
+	
 	UPROPERTY(BlueprintReadOnly, Category = "MovementSpeed", ReplicatedUsing = OnRep_MaxMovementSpeed)
 	FGameplayAttributeData MaxMovementSpeed;
 	ATTRIBUTE_ACCESSORS(UProjectN_AttributeSet, MaxMovementSpeed)
+
+	// Secondary
+	UPROPERTY(BlueprintReadOnly, Category = "Armor", ReplicatedUsing = OnRep_Armor)
+	FGameplayAttributeData Armor;
+	ATTRIBUTE_ACCESSORS(UProjectN_AttributeSet, Armor)
+
+	UPROPERTY(BlueprintReadOnly, Category = "Evasion", ReplicatedUsing = OnRep_Evasion)
+	FGameplayAttributeData Evasion;
+	ATTRIBUTE_ACCESSORS(UProjectN_AttributeSet, Evasion)
+
+	UPROPERTY(BlueprintReadOnly, Category = "CriticalHitChance", ReplicatedUsing = OnRep_CriticalHitChance)
+	FGameplayAttributeData CriticalHitChance;
+	ATTRIBUTE_ACCESSORS(UProjectN_AttributeSet, CriticalHitChance)
+
+	UPROPERTY(BlueprintReadOnly, Category = "CriticalHitDamage", ReplicatedUsing = OnRep_CriticalHitDamage)
+	FGameplayAttributeData CriticalHitDamage;
+	ATTRIBUTE_ACCESSORS(UProjectN_AttributeSet, CriticalHitDamage)
+
+	UPROPERTY(BlueprintReadOnly, Category = "HealRegeneration", ReplicatedUsing = OnRep_HealRegeneration)
+	FGameplayAttributeData HealRegeneration;
+	ATTRIBUTE_ACCESSORS(UProjectN_AttributeSet, HealRegeneration)
+
+	UPROPERTY(BlueprintReadOnly, Category = "ManaRegeneration", ReplicatedUsing = OnRep_ManaRegeneration)
+	FGameplayAttributeData ManaRegeneration;
+	ATTRIBUTE_ACCESSORS(UProjectN_AttributeSet, ManaRegeneration)
 
 protected:
 	virtual void PostGameplayEffectExecute(const struct FGameplayEffectModCallbackData& Data) override;
 	virtual void PreAttributeChange(const FGameplayAttribute& Attribute, float& NewValue) override;
 	virtual void GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const override;
 
+	// Primary Attributes
+	UFUNCTION()
+	virtual void OnRep_Strength(const FGameplayAttributeData& OldStrength);
+	UFUNCTION()
+	virtual void OnRep_Intelligence(const FGameplayAttributeData& OldIntelligence);
+	UFUNCTION()
+	virtual void OnRep_Dexterity(const FGameplayAttributeData& OldDexterity);
+	UFUNCTION()
+	virtual void OnRep_Endurance(const FGameplayAttributeData& OldEndurance);
+
+	// Secondary Attributes
+	// Main
 	UFUNCTION()
 	virtual void OnRep_Health(const FGameplayAttributeData& OldHealth);
 	UFUNCTION()
@@ -99,11 +164,25 @@ protected:
 	UFUNCTION()
 	virtual void OnRep_MaxMana(const FGameplayAttributeData& OldMaxMana);
 	UFUNCTION()
-	virtual void OnRep_MaxMovementSpeed(const FGameplayAttributeData& OldMaxMovementSpeed);
-	UFUNCTION()
 	virtual void OnRep_Stamina(const FGameplayAttributeData& OldStamina);
 	UFUNCTION()
 	virtual void OnRep_MaxStamina(const FGameplayAttributeData& OldMaxStamina);
+	UFUNCTION()
+	virtual void OnRep_MaxMovementSpeed(const FGameplayAttributeData& OldMaxMovementSpeed);
+	
+	// Secondary
+	UFUNCTION()
+    virtual void OnRep_Armor(const FGameplayAttributeData& OldArmor);
+	UFUNCTION()
+	virtual void OnRep_Evasion(const FGameplayAttributeData& OldEvasion);
+	UFUNCTION()
+	virtual void OnRep_CriticalHitChance(const FGameplayAttributeData& OldCriticalHitChance);
+	UFUNCTION()
+	virtual void OnRep_CriticalHitDamage(const FGameplayAttributeData& OldCriticalHitDamage);
+	UFUNCTION()
+	virtual void OnRep_HealRegeneration(const FGameplayAttributeData& OldHealRegeneration);
+	UFUNCTION()
+	virtual void OnRep_ManaRegeneration(const FGameplayAttributeData& OldManaRegeneration);
 
 private:
 
