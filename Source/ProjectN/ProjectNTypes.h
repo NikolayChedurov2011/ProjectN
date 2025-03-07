@@ -3,16 +3,30 @@
 #include "CoreMinimal.h"
 #include "ProjectNTypes.generated.h"
 
+class UGameplayEffect;
+class UGameplayAbility;
+class UBlendSpace;
+class UAnimSequenceBase;
+class AProjectN_ItemActor_Base;
+
 USTRUCT(BlueprintType)
 struct FCharacterData
 {
 	GENERATED_USTRUCT_BODY()
 
+	// Initialize primary attributes. Instant
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "GAS")
-	TArray<TSubclassOf<class UGameplayEffect>> Effects;
+	TSubclassOf<UGameplayEffect> PrimaryAttributes;
+
+	// Initialize and handle the changes for secondary attributes in runtime. Infinite
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "GAS")
+	TSubclassOf<UGameplayEffect> SecondaryAttributes;
+
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "GAS")
+	TArray<TSubclassOf<UGameplayEffect>> Effects;
 	
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "GAS")
-	TArray<TSubclassOf<class UGameplayAbility>> Abilities;
+	TArray<TSubclassOf<UGameplayAbility>> Abilities;
 	
 	UPROPERTY(EditAnywhere, Category = "Animation")
 	class UProjectN_AnimationDataAsset* DefaultAnimationDataAsset;
@@ -24,10 +38,10 @@ struct FAnimationData
 	GENERATED_USTRUCT_BODY()
 
 	UPROPERTY(EditDefaultsOnly, Category = "Animation")
-	class UBlendSpace* MovementBlendSpace = nullptr;
+	UBlendSpace* MovementBlendSpace = nullptr;
 	
 	UPROPERTY(EditAnywhere, Category = "Animation")
-	class UAnimSequenceBase* IdleAnimation = nullptr;
+	UAnimSequenceBase* IdleAnimation = nullptr;
 };
 
 UCLASS(BlueprintType, Blueprintable)
@@ -46,7 +60,7 @@ public:
 	FORCEINLINE bool CanBeEquipped() const { return bCanBeEquipped; }
 	
 	UFUNCTION(BlueprintCallable, BlueprintPure)
-	FORCEINLINE TSubclassOf<class AProjectN_ItemActor_Base> GetItemActorClass() const { return ItemActorClass; }
+	FORCEINLINE TSubclassOf<AProjectN_ItemActor_Base> GetItemActorClass() const { return ItemActorClass; }
 
 protected:
 
@@ -57,7 +71,7 @@ protected:
 	FName SocketToAttach = NAME_None;
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	TSubclassOf<class AProjectN_ItemActor_Base> ItemActorClass;
+	TSubclassOf<AProjectN_ItemActor_Base> ItemActorClass;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	FAnimationData AnimationData;

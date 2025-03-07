@@ -38,7 +38,7 @@ protected:
 
 	virtual void GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const override;
 	virtual void InitFromCharacterData(const FCharacterData& InCharacterData, bool bFromReplication = false);
-	bool ApplyGamePlayEffectToSelf(const TSubclassOf<UGameplayEffect> Effect, const FGameplayEffectContextHandle& InEffectContext) const;
+	bool ApplyGamePlayEffectToSelf(const TSubclassOf<UGameplayEffect> Effect, const FGameplayEffectContextHandle& InEffectContext, const float Level) const;
 	virtual void InitAbilityActorInfo();
 
 	void GiveAbilities();

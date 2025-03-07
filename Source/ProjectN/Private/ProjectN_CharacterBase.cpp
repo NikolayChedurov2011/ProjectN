@@ -107,21 +107,24 @@ void AProjectN_CharacterBase::ApplyStartupEffects()
 		FGameplayEffectContextHandle EffectContext = GetAbilitySystemComponent()->MakeEffectContext();
 		EffectContext.AddSourceObject(this);
 
+		ApplyGamePlayEffectToSelf(CharacterData.PrimaryAttributes, EffectContext, 1.f);
+		ApplyGamePlayEffectToSelf(CharacterData.SecondaryAttributes, EffectContext, 1.f);
+
 		for (const TSubclassOf DefaultEffect : CharacterData.Effects)
 		{
-			ApplyGamePlayEffectToSelf(DefaultEffect, EffectContext);
+			ApplyGamePlayEffectToSelf(DefaultEffect, EffectContext, 1.f);
 		}
 	}
 }
 
-bool AProjectN_CharacterBase::ApplyGamePlayEffectToSelf(const TSubclassOf<UGameplayEffect> Effect, const FGameplayEffectContextHandle& InEffectContext) const
+bool AProjectN_CharacterBase::ApplyGamePlayEffectToSelf(const TSubclassOf<UGameplayEffect> Effect, const FGameplayEffectContextHandle& InEffectContext, const float Level) const
 {
 	if (!Effect.Get())
 	{
 		return false;
 	}
 
-	const FGameplayEffectSpecHandle SpecHandle = GetAbilitySystemComponent()->MakeOutgoingSpec(Effect, 1,InEffectContext);
+	const FGameplayEffectSpecHandle SpecHandle = GetAbilitySystemComponent()->MakeOutgoingSpec(Effect, Level,InEffectContext);
 	if (SpecHandle.IsValid())
 	{
 		const FActiveGameplayEffectHandle ActiveGameplayEffectHandle = GetAbilitySystemComponent()->ApplyGameplayEffectSpecToSelf(*SpecHandle.Data.Get());
