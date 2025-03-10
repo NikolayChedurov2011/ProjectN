@@ -106,15 +106,24 @@ void AProjectN_CharacterBase::InitAbilityActorInfo()
 /*
  *** Give startup gameplay abilities and effects + ApplyGamePlayEffectToSelf function
  */
-void AProjectN_CharacterBase::GiveAbilities()
+void AProjectN_CharacterBase::GiveStartupAbilities()
 {
 	if (HasAuthority() && GetAbilitySystemComponent())
 	{
 		for (const TSubclassOf DefaultAbility : CharacterData.Abilities)
 		{
-			GetAbilitySystemComponent()->GiveAbility(FGameplayAbilitySpec(DefaultAbility));
+			GiveAbility(DefaultAbility);
 		}
 	}
+}
+FGameplayAbilitySpecHandle AProjectN_CharacterBase::GiveAbility(const TSubclassOf<UGameplayAbility> DefaultAbility) const
+{
+	if (HasAuthority() && GetAbilitySystemComponent() && IsValid(DefaultAbility))
+	{
+		return GetAbilitySystemComponent()->GiveAbility(FGameplayAbilitySpec(DefaultAbility));
+	}
+	const FGameplayAbilitySpecHandle EmptyGameplayAbilitySpecHandle;
+	return EmptyGameplayAbilitySpecHandle;
 }
 
 void AProjectN_CharacterBase::ApplyStartupEffects()
@@ -135,11 +144,13 @@ void AProjectN_CharacterBase::ApplyStartupEffects()
 	}
 }
 
-bool AProjectN_CharacterBase::ApplyGamePlayEffectToSelf(const TSubclassOf<UGameplayEffect> Effect, const FGameplayEffectContextHandle& InEffectContext, const float Level) const
+FActiveGameplayEffectHandle AProjectN_CharacterBase::ApplyGamePlayEffectToSelf(const TSubclassOf<UGameplayEffect> Effect, const FGameplayEffectContextHandle& InEffectContext, const float Level) const
 {
+	const FActiveGameplayEffectHandle EmptyGameplayEffectHandle;
+	
 	if (!Effect.Get())
 	{
-		return false;
+		return EmptyGameplayEffectHandle;
 	}
 
 	const FGameplayEffectSpecHandle SpecHandle = GetAbilitySystemComponent()->MakeOutgoingSpec(Effect, Level,InEffectContext);
@@ -147,10 +158,11 @@ bool AProjectN_CharacterBase::ApplyGamePlayEffectToSelf(const TSubclassOf<UGamep
 	{
 		const FActiveGameplayEffectHandle ActiveGameplayEffectHandle = GetAbilitySystemComponent()->ApplyGameplayEffectSpecToSelf(*SpecHandle.Data.Get());
 
-		return ActiveGameplayEffectHandle.WasSuccessfullyApplied();
+		return ActiveGameplayEffectHandle;
+		//return ActiveGameplayEffectHandle.WasSuccessfullyApplied();
 	}
 	
-	return true;
+	return EmptyGameplayEffectHandle;
 }
 /*
  *

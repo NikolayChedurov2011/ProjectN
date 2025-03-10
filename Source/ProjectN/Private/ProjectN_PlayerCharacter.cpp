@@ -74,7 +74,7 @@ void AProjectN_PlayerCharacter::OnCharacterInitAbilityEnd_Implementation()
 {
 	if (HasAuthority())
 	{		
-		GiveAbilities();
+		GiveStartupAbilities();
 		ApplyStartupEffects();
 	}
 }

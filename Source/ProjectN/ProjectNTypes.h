@@ -48,6 +48,26 @@ struct FAnimationData
 	UAnimSequenceBase* IdleAnimation = nullptr;
 };
 
+UENUM(BlueprintType)
+enum class EItemState : uint8
+{
+	None		UMETA(DisplayName = "None"),
+	Equipped	UMETA(DisplayName = "Equipped"),
+	Dropped		UMETA(DisplayName = "Dropped"),
+};
+
+UENUM(BlueprintType)
+enum class EItemSlot : uint8
+{
+	None		UMETA(DisplayName = "None"),
+	Head		UMETA(DisplayName = "Head"),
+	Body		UMETA(DisplayName = "Body"),
+	Legs		UMETA(DisplayName = "Legs"),
+	Feet		UMETA(DisplayName = "Feet"),
+	LeftArm		UMETA(DisplayName = "LeftArm"),
+	RightArm	UMETA(DisplayName = "RightArm"),
+};
+
 UCLASS(BlueprintType, Blueprintable)
 class UItemStaticClass : public UObject
 {
@@ -62,9 +82,18 @@ public:
 
 	UFUNCTION(BlueprintCallable, BlueprintPure)
 	FORCEINLINE bool CanBeEquipped() const { return bCanBeEquipped; }
+
+	UFUNCTION(BlueprintCallable, BlueprintPure)
+	FORCEINLINE EItemSlot GetItemSlot() const { return ItemSlot; }
 	
 	UFUNCTION(BlueprintCallable, BlueprintPure)
 	FORCEINLINE TSubclassOf<AProjectN_ItemActor_Base> GetItemActorClass() const { return ItemActorClass; }
+
+	UFUNCTION(BlueprintCallable, BlueprintPure)
+	FORCEINLINE TArray<TSubclassOf<UGameplayAbility>> GetItemAbilities() const { return ItemAbilities; }
+
+	UFUNCTION(BlueprintCallable, BlueprintPure)
+	FORCEINLINE TArray<TSubclassOf<UGameplayEffect>> GetItemEffects() const { return ItemEffects; }
 
 protected:
 
@@ -73,6 +102,9 @@ protected:
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	FName SocketToAttach = NAME_None;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	EItemSlot ItemSlot = EItemSlot::None;
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	TSubclassOf<AProjectN_ItemActor_Base> ItemActorClass;
@@ -82,12 +114,10 @@ protected:
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	bool bCanBeEquipped = false;
-};
 
-UENUM(BlueprintType)
-enum class EItemState : uint8
-{
-	None		UMETA(DisplayName = "None"),
-	Equipped	UMETA(DisplayName = "Equipped"),
-	Dropped		UMETA(DisplayName = "Dropped"),
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	TArray<TSubclassOf<UGameplayAbility>> ItemAbilities;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	TArray<TSubclassOf<UGameplayEffect>> ItemEffects;
 };

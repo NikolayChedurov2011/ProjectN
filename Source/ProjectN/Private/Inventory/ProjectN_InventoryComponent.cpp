@@ -6,6 +6,7 @@
 #include "AbilitySystemBlueprintLibrary.h"
 #include "AbilitySystemComponent.h"
 #include "GameplayTagsManager.h"
+#include "ProjectN_CharacterBase.h"
 #include "ProjectN_GameplayTags.h"
 #include "Engine/ActorChannel.h"
 #include "GameFramework/PlayerState.h"
@@ -47,6 +48,7 @@ void UProjectN_InventoryComponent::GetLifetimeReplicatedProps(TArray<class FLife
 
 	DOREPLIFETIME(UProjectN_InventoryComponent, InventoryList);
 	DOREPLIFETIME(UProjectN_InventoryComponent, CurrentItemInstance);
+	DOREPLIFETIME(UProjectN_InventoryComponent, EquippedItemsData);
 }
 
 bool UProjectN_InventoryComponent::ReplicateSubobjects(class UActorChannel* Channel, class FOutBunch* Bunch, FReplicationFlags* RepFlags)
@@ -71,7 +73,7 @@ void UProjectN_InventoryComponent::InitializeComponent()
 
 	if (GetOwner()->HasAuthority())
 	{
-		for (const auto& ItemClass : DefaultItems)
+		for (const TSubclassOf<UItemStaticClass>& ItemClass : DefaultItems)
         {
         	InventoryList.AddItemByStaticClass(ItemClass);
         }
@@ -210,15 +212,38 @@ void UProjectN_InventoryComponent::EquipItemByStaticClass(const TSubclassOf<UIte
 
 void UProjectN_InventoryComponent::EquipItemByInstance(UProjectN_ItemInstance* InItemInstance)
 {
-	if (GetOwner()->HasAuthority() && IsValid(Cast<APlayerState>(GetOwner())->GetPawn()))
+	AProjectN_CharacterBase* BaseCharacter = Cast<AProjectN_CharacterBase>(Cast<APlayerState>(GetOwner())->GetPawn());
+	
+	if (GetOwner()->HasAuthority() && IsValid(BaseCharacter))
 	{
+		if (!IsEquippableItem(InItemInstance))
+		{
+			return;
+		}
+		
+		for (const FEquippedItemData& ItemData : EquippedItemsData)
+		{
+			if (ItemData.ItemInstance == InItemInstance)
+			{
+				return;
+			}
+			
+			if (ItemData.ItemSlot == InItemInstance->GetItemStaticClass()->GetItemSlot())
+			{
+				UnEquipItemByInstance(ItemData.ItemInstance);
+				break;
+			}
+		}
+	
 		// Just check if item has in our inventory
 		for (const FInventoryItem& Item : InventoryList.GetItemsRef())
 		{
 			if (Item.ItemInstance == InItemInstance)
 			{
-				Item.ItemInstance->OnEquip(Cast<APlayerState>(GetOwner())->GetPawn());
-				CurrentItemInstance = Item.ItemInstance;
+				Item.ItemInstance->OnEquip(BaseCharacter);
+				//CurrentItemInstance = Item.ItemInstance;
+
+				ApplyItemAbilityAndEffects(BaseCharacter, Item.ItemInstance);
 				break;
 			}
 		}
@@ -238,17 +263,27 @@ void UProjectN_InventoryComponent::UnEquipItemByStaticClass(const TSubclassOf<UI
 	}
 }
 
+// @TODO: Replace effects and abilities initialization with their handles to instance
 void UProjectN_InventoryComponent::UnEquipItemByInstance(UProjectN_ItemInstance* InItemInstance)
 {
 	if (GetOwner()->HasAuthority())
 	{
+		FEquippedItemData ItemToRemove;
 		for (const FInventoryItem& Item : InventoryList.GetItemsRef())
 		{
 			if (Item.ItemInstance == InItemInstance)
 			{
-				Item.ItemInstance->OnUnEquip();
-				CurrentItemInstance = nullptr;
-				break;
+				for (const FEquippedItemData& ItemData : EquippedItemsData)
+				{
+					if (ItemData.ItemInstance == Item.ItemInstance)
+					{
+						ItemToRemove = ItemData;
+						RemoveItemAbilityAndEffects(ItemData);
+						Item.ItemInstance->OnUnEquip();
+						//CurrentItemInstance = nullptr;
+						break;
+					}
+				}
 			}
 		}
 	}
@@ -265,4 +300,48 @@ void UProjectN_InventoryComponent::DropItem(UProjectN_ItemInstance* InItemInstan
 			CurrentItemInstance = nullptr;
 		}
 	}
+}
+
+void UProjectN_InventoryComponent::ApplyItemAbilityAndEffects(const AProjectN_CharacterBase* BaseCharacter,	UProjectN_ItemInstance* ItemInstance)
+{
+	TArray<FGameplayAbilitySpecHandle> GameplayAbilitySpecHandles;
+	for (const TSubclassOf<UGameplayAbility> Ability : ItemInstance->GetItemStaticClass()->GetItemAbilities())
+	{
+		GameplayAbilitySpecHandles.Add(BaseCharacter->GiveAbility(Ability));
+	}
+
+	FGameplayEffectContextHandle EffectContext = BaseCharacter->GetAbilitySystemComponent()->MakeEffectContext();
+	EffectContext.AddSourceObject(BaseCharacter);
+	
+	TArray<FActiveGameplayEffectHandle> ActiveGameplayEffectHandles;
+	for (const TSubclassOf<UGameplayEffect> Effect : ItemInstance->GetItemStaticClass()->GetItemEffects())
+	{
+		ActiveGameplayEffectHandles.Add(BaseCharacter->ApplyGamePlayEffectToSelf(Effect, EffectContext, 1.f));
+	}
+	
+	const FEquippedItemData NewItemData = FEquippedItemData(ItemInstance, ItemInstance->GetItemStaticClass()->GetItemSlot(), GameplayAbilitySpecHandles, ActiveGameplayEffectHandles);
+	EquippedItemsData.Add(NewItemData);
+}
+
+void UProjectN_InventoryComponent::RemoveItemAbilityAndEffects(const FEquippedItemData& ItemData)
+{
+	AProjectN_CharacterBase* BaseCharacter = Cast<AProjectN_CharacterBase>(Cast<APlayerState>(GetOwner())->GetPawn());
+	
+	for (const FGameplayAbilitySpecHandle& AbilitySpecHandle : ItemData.GameplayAbilitySpecHandles)
+	{
+		BaseCharacter->GetAbilitySystemComponent()->ClearAbility(AbilitySpecHandle);
+	}
+	for (const FActiveGameplayEffectHandle& ActiveGameplayEffectHandle : ItemData.ActiveGameplayEffectHandles)
+	{
+		BaseCharacter->GetAbilitySystemComponent()->RemoveActiveGameplayEffect(ActiveGameplayEffectHandle);
+	}
+}
+
+bool UProjectN_InventoryComponent::IsEquippableItem(UProjectN_ItemInstance* InItemInstance) const
+{
+	if (GetOwner()->HasAuthority())
+	{
+		return InItemInstance->GetItemStaticClass()->CanBeEquipped();
+	}
+	return false;
 }

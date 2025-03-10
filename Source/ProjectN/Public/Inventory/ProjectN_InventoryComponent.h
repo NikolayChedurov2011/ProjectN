@@ -8,6 +8,31 @@
 #include "Inventory/PojectN_InventoryItemsRecord.h"
 #include "ProjectN_InventoryComponent.generated.h"
 
+class AProjectN_CharacterBase;
+
+USTRUCT()
+struct FEquippedItemData
+{
+	GENERATED_BODY()
+
+public:
+
+	FEquippedItemData(){}
+	FEquippedItemData(UProjectN_ItemInstance* InItemInstance, const EItemSlot InItemSlot, const TArray<FGameplayAbilitySpecHandle>& InGameplayAbilitySpecHandles, const TArray<FActiveGameplayEffectHandle>& InActiveGameplayEffectHandles)
+	: ItemInstance(InItemInstance), ItemSlot(InItemSlot), GameplayAbilitySpecHandles(InGameplayAbilitySpecHandles), ActiveGameplayEffectHandles(InActiveGameplayEffectHandles) {}
+
+	UPROPERTY()
+	TObjectPtr<UProjectN_ItemInstance> ItemInstance = nullptr;
+
+	UPROPERTY()
+	EItemSlot ItemSlot = EItemSlot::None;
+	
+	UPROPERTY()
+	TArray<FGameplayAbilitySpecHandle> GameplayAbilitySpecHandles;
+	
+	UPROPERTY()
+	TArray<FActiveGameplayEffectHandle> ActiveGameplayEffectHandles;
+};
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class PROJECTN_API UProjectN_InventoryComponent : public UActorComponent
@@ -41,6 +66,12 @@ public:
 	void UnEquipItemByInstance(UProjectN_ItemInstance* InItemInstance);
 	UFUNCTION(BlueprintCallable)
 	void DropItem(UProjectN_ItemInstance* InItemInstance);
+	UFUNCTION(BlueprintCallable)
+	void ApplyItemAbilityAndEffects(const AProjectN_CharacterBase* BaseCharacter, UProjectN_ItemInstance* ItemInstance);
+	void RemoveItemAbilityAndEffects(const FEquippedItemData& ItemData);
+
+	UFUNCTION(BlueprintCallable)
+	bool IsEquippableItem(UProjectN_ItemInstance* InItemInstance) const;
 	
 	UFUNCTION(BlueprintCallable, BlueprintPure)
 	FORCEINLINE UProjectN_ItemInstance* GetEquippedItem()const { return CurrentItemInstance; }
@@ -73,6 +104,9 @@ protected:
 
 	UPROPERTY(Replicated)
 	TObjectPtr<UProjectN_ItemInstance> CurrentItemInstance = nullptr;
+
+	UPROPERTY(Replicated)
+	TArray<FEquippedItemData> EquippedItemsData;
 
 public:	
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
