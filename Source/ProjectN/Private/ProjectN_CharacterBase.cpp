@@ -2,6 +2,7 @@
 
 #include "ProjectN_CharacterBase.h"
 
+#include "ProjectN_PlayerState.h"
 #include "AbilitySystem/Attribute/ProjectN_AttributeSet.h"
 #include "DataAssets/ProjectN_CharacterDataAsset.h"
 #include "Components/ProjectN_MovementComponent.h"
@@ -43,6 +44,22 @@ void AProjectN_CharacterBase::SetCharacterData(const FCharacterData& NewCharacte
 {
 	CharacterData = NewCharacterData;
 	InitFromCharacterData(CharacterData);
+}
+/*
+ *
+ */
+
+/*
+ *** Combat interface Get function
+ */
+int32 AProjectN_CharacterBase::GetCharacterLevel()
+{
+	const AProjectN_PlayerState* ProjectNPlayerState = Cast<AProjectN_PlayerState>(GetPlayerState());
+	if (ProjectNPlayerState)
+	{
+		return ProjectNPlayerState->GetCharacterLevel();
+	}
+	return 0;
 }
 /*
  *
@@ -109,6 +126,7 @@ void AProjectN_CharacterBase::ApplyStartupEffects()
 
 		ApplyGamePlayEffectToSelf(CharacterData.PrimaryAttributes, EffectContext, 1.f);
 		ApplyGamePlayEffectToSelf(CharacterData.SecondaryAttributes, EffectContext, 1.f);
+		ApplyGamePlayEffectToSelf(CharacterData.InitializeMainAttributes, EffectContext, 1.f);
 
 		for (const TSubclassOf DefaultEffect : CharacterData.Effects)
 		{

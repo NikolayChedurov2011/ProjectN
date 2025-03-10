@@ -22,6 +22,10 @@ struct FCharacterData
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "GAS")
 	TSubclassOf<UGameplayEffect> SecondaryAttributes;
 
+	// Initialize main attributes "health", "mana", "stamina" etc. Instant
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "GAS")
+	TSubclassOf<UGameplayEffect> InitializeMainAttributes;
+
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "GAS")
 	TArray<TSubclassOf<UGameplayEffect>> Effects;
 	

@@ -25,6 +25,7 @@ void AProjectN_PlayerState::GetLifetimeReplicatedProps(TArray<class FLifetimePro
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 	DOREPLIFETIME(AProjectN_PlayerState, ProjectN_InventoryComponent);
+	DOREPLIFETIME(AProjectN_PlayerState, CharacterLevel);
 }
 
 /*
@@ -33,4 +34,12 @@ void AProjectN_PlayerState::GetLifetimeReplicatedProps(TArray<class FLifetimePro
 UAbilitySystemComponent* AProjectN_PlayerState::GetAbilitySystemComponent() const
 {
 	return ProjectN_AbilitySystemComponent;
+}
+/*
+ *
+ */
+
+void AProjectN_PlayerState::OnRep_Level(int32 OldLevel)
+{
+	
 }

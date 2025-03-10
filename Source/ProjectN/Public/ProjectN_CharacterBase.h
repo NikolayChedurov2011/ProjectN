@@ -7,6 +7,7 @@
 #include "AbilitySystemInterface.h"
 #include "ProjectN/ProjectNTypes.h"
 #include "AbilitySystem/ProjectN_AbilitySystemComponent.h"
+#include "Interfaces/CombatInterface.h"
 #include "ProjectN_CharacterBase.generated.h"
 
 class UGamePlayEffect;
@@ -14,7 +15,7 @@ class UGameplayAbility;
 class UProjectN_AttributeSet;
 
 UCLASS(Abstract)
-class PROJECTN_API AProjectN_CharacterBase : public ACharacter, public IAbilitySystemInterface
+class PROJECTN_API AProjectN_CharacterBase : public ACharacter, public IAbilitySystemInterface, public ICombatInterface
 {
 	GENERATED_BODY()
 
@@ -29,6 +30,11 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	FORCEINLINE void SetCharacterData(const FCharacterData& NewCharacterData);
+
+	/*
+	 *  Combat Interface
+	 */
+	virtual int32 GetCharacterLevel() override;
 
 protected:
 	virtual void BeginPlay() override;

@@ -10,9 +10,6 @@
 
 UProjectN_AttributeSet::UProjectN_AttributeSet()
 {
-	InitHealth(10.f);
-	InitMana(10.f);
-	InitStamina(10.f);
 }
 
 void UProjectN_AttributeSet::PostGameplayEffectExecute(const struct FGameplayEffectModCallbackData& Data)

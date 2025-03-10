@@ -24,6 +24,8 @@ public:
 	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override;
 	UProjectN_AttributeSet* GetAttributeSet() const { return ProjectN_AttributeSet; }
 
+	FORCEINLINE int32 GetCharacterLevel() const { return CharacterLevel; }
+
 protected:
 	UPROPERTY(Transient)
 	TObjectPtr<UProjectN_AttributeSet> ProjectN_AttributeSet;
@@ -33,6 +35,12 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, Replicated)
 	TObjectPtr<UProjectN_InventoryComponent> ProjectN_InventoryComponent;
+
+	UPROPERTY(VisibleAnywhere, ReplicatedUsing=OnRep_Level)
+	int32 CharacterLevel = 1;
+
+	UFUNCTION()
+	void OnRep_Level(int32 OldLevel);
 
 	void OnMaxMovementSpeedChanged(const FOnAttributeChangeData& Data) const;
 };
