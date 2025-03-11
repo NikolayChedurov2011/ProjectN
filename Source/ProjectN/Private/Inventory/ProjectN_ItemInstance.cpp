@@ -3,6 +3,7 @@
 
 #include "Inventory/ProjectN_ItemInstance.h"
 
+#include "ProjectN_CharacterBase.h"
 #include "GameFramework/Character.h"
 #include "Inventory/ProjectN_ItemActor_Base.h"
 #include "Net/UnrealNetwork.h"
@@ -16,6 +17,7 @@ void UProjectN_ItemInstance::GetLifetimeReplicatedProps(TArray<class FLifetimePr
 	DOREPLIFETIME(UProjectN_ItemInstance, ItemStaticDataClass);
 	DOREPLIFETIME(UProjectN_ItemInstance, bIsEquipped);
 	DOREPLIFETIME(UProjectN_ItemInstance, ItemActor);
+	DOREPLIFETIME(UProjectN_ItemInstance, OwnerCharacter);
 }
 
 void UProjectN_ItemInstance::Init(TSubclassOf<UItemStaticClass> InItemStaticDataClass)
@@ -30,6 +32,8 @@ const UItemStaticClass* UProjectN_ItemInstance::GetItemStaticClass() const
 
 void UProjectN_ItemInstance::OnEquip(AActor* Owner)
 {
+	OwnerCharacter = Cast<ACharacter>(Owner);
+	
 	if (UWorld* World = Owner->GetWorld())
 	{
 		const FTransform Transform;
@@ -39,15 +43,14 @@ void UProjectN_ItemInstance::OnEquip(AActor* Owner)
 		ItemActor->OnEquipped();
 		ItemActor->FinishSpawning(Transform);
 
-		const ACharacter* Character = Cast<ACharacter>(Owner);
-
-		if (USkeletalMeshComponent* SkeletalMeshComponent = Character ? Character->GetMesh() : nullptr)
+		if (USkeletalMeshComponent* SkeletalMeshComponent = OwnerCharacter ? OwnerCharacter->GetMesh() : nullptr)
 		{
 			ItemActor->AttachToComponent(SkeletalMeshComponent,  FAttachmentTransformRules::SnapToTargetNotIncludingScale, GetItemStaticClass()->GetSocketToAttach());
 		}
 	}
 	
 	bIsEquipped = true;
+	ApplyItemAbilityAndEffects(OwnerCharacter);
 }
 
 void UProjectN_ItemInstance::OnUnEquip()
@@ -59,6 +62,9 @@ void UProjectN_ItemInstance::OnUnEquip()
 	}
 	
 	bIsEquipped = false;
+	
+	RemoveItemAbilityAndEffects(OwnerCharacter);
+	OwnerCharacter = nullptr;
 }
 
 void UProjectN_ItemInstance::OnDrop()
@@ -74,4 +80,43 @@ void UProjectN_ItemInstance::OnDrop()
 void UProjectN_ItemInstance::OnRep_IsEquipped()
 {
 	
+}
+
+void UProjectN_ItemInstance::ApplyItemAbilityAndEffects(const AActor* InActor)
+{
+	for (const TSubclassOf<UGameplayAbility> Ability : GetItemStaticClass()->GetItemAbilities())
+	{
+		GameplayAbilitySpecHandles.Add(Cast<AProjectN_CharacterBase>(InActor)->GiveAbility(Ability));
+	}
+
+	const IAbilitySystemInterface* ASCInterface = Cast<IAbilitySystemInterface>(InActor);
+	FGameplayEffectContextHandle EffectContext = ASCInterface->GetAbilitySystemComponent()->MakeEffectContext();
+	EffectContext.AddSourceObject(InActor);
+	
+	for (const TSubclassOf<UGameplayEffect> Effect : GetItemStaticClass()->GetItemEffects())
+	{
+		ActiveGameplayEffectHandles.Add(Cast<AProjectN_CharacterBase>(InActor)->ApplyGamePlayEffectToSelf(Effect, EffectContext, 1.f));
+	}
+}
+
+void UProjectN_ItemInstance::RemoveItemAbilityAndEffects(const ACharacter* InCharacter)
+{
+	const IAbilitySystemInterface* ASCInterface = Cast<IAbilitySystemInterface>(InCharacter);
+	
+	if (GameplayAbilitySpecHandles.Num())
+	{
+		for (const FGameplayAbilitySpecHandle& GameplayAbilitySpecHandle : GameplayAbilitySpecHandles)
+		{
+			ASCInterface->GetAbilitySystemComponent()->ClearAbility(GameplayAbilitySpecHandle);
+		}
+	}
+	if (ActiveGameplayEffectHandles.Num())
+	{
+		for (const FActiveGameplayEffectHandle& ActiveGameplayEffectHandle : ActiveGameplayEffectHandles)
+		{
+			ASCInterface->GetAbilitySystemComponent()->RemoveActiveGameplayEffect(ActiveGameplayEffectHandle);
+		}
+	}
+	GameplayAbilitySpecHandles.Empty();
+	ActiveGameplayEffectHandles.Empty();
 }

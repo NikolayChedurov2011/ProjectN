@@ -18,20 +18,13 @@ struct FEquippedItemData
 public:
 
 	FEquippedItemData(){}
-	FEquippedItemData(UProjectN_ItemInstance* InItemInstance, const EItemSlot InItemSlot, const TArray<FGameplayAbilitySpecHandle>& InGameplayAbilitySpecHandles, const TArray<FActiveGameplayEffectHandle>& InActiveGameplayEffectHandles)
-	: ItemInstance(InItemInstance), ItemSlot(InItemSlot), GameplayAbilitySpecHandles(InGameplayAbilitySpecHandles), ActiveGameplayEffectHandles(InActiveGameplayEffectHandles) {}
+	FEquippedItemData(UProjectN_ItemInstance* InItemInstance, const EItemSlot InItemSlot) : ItemInstance(InItemInstance), ItemSlot(InItemSlot) {}
 
 	UPROPERTY()
-	TObjectPtr<UProjectN_ItemInstance> ItemInstance = nullptr;
+	UProjectN_ItemInstance* ItemInstance = nullptr;
 
 	UPROPERTY()
 	EItemSlot ItemSlot = EItemSlot::None;
-	
-	UPROPERTY()
-	TArray<FGameplayAbilitySpecHandle> GameplayAbilitySpecHandles;
-	
-	UPROPERTY()
-	TArray<FActiveGameplayEffectHandle> ActiveGameplayEffectHandles;
 };
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
@@ -40,35 +33,32 @@ class PROJECTN_API UProjectN_InventoryComponent : public UActorComponent
 	GENERATED_BODY()
 
 public:
-	UFUNCTION(BlueprintCallable)
-	void EquipTestItem();
+	//UFUNCTION(BlueprintCallable)
+	//void EquipTestItem();
 	
 	UProjectN_InventoryComponent();
 	virtual bool ReplicateSubobjects(class UActorChannel* Channel, class FOutBunch* Bunch, FReplicationFlags* RepFlags) override;
 	virtual void GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const override;
 
-	UFUNCTION(BlueprintCallable)
-	void AddItemByStaticClass(const TSubclassOf<UItemStaticClass> ItemStaticDataClass);
+	//UFUNCTION(BlueprintCallable)
+	//void AddItemByStaticClass(const TSubclassOf<UItemStaticClass> ItemStaticDataClass);
 	UFUNCTION(BlueprintCallable)
 	void AddItemByInstance(UProjectN_ItemInstance* InItemInstance);
-	UFUNCTION(BlueprintCallable)
-	void RemoveItemByStaticClass(const TSubclassOf<UItemStaticClass> ItemStaticDataClass);
+	//UFUNCTION(BlueprintCallable)
+	//void RemoveItemByStaticClass(const TSubclassOf<UItemStaticClass> ItemStaticDataClass);
 	UFUNCTION(BlueprintCallable)
 	void RemoveItemByInstance(UProjectN_ItemInstance* InItemInstance);
 
-	UFUNCTION(BlueprintCallable)
-	void EquipItemByStaticClass(const TSubclassOf<UItemStaticClass> ItemStaticDataClass);
+	//UFUNCTION(BlueprintCallable)
+	//void EquipItemByStaticClass(const TSubclassOf<UItemStaticClass> ItemStaticDataClass);
 	UFUNCTION(BlueprintCallable)
 	void EquipItemByInstance(UProjectN_ItemInstance* InItemInstance);
-	UFUNCTION(BlueprintCallable)
-	void UnEquipItemByStaticClass(const TSubclassOf<UItemStaticClass> ItemStaticDataClass);
+	//UFUNCTION(BlueprintCallable)
+	//void UnEquipItemByStaticClass(const TSubclassOf<UItemStaticClass> ItemStaticDataClass);
 	UFUNCTION(BlueprintCallable)
 	void UnEquipItemByInstance(UProjectN_ItemInstance* InItemInstance);
 	UFUNCTION(BlueprintCallable)
 	void DropItem(UProjectN_ItemInstance* InItemInstance);
-	UFUNCTION(BlueprintCallable)
-	void ApplyItemAbilityAndEffects(const AProjectN_CharacterBase* BaseCharacter, UProjectN_ItemInstance* ItemInstance);
-	void RemoveItemAbilityAndEffects(const FEquippedItemData& ItemData);
 
 	UFUNCTION(BlueprintCallable)
 	bool IsEquippableItem(UProjectN_ItemInstance* InItemInstance) const;
@@ -84,6 +74,9 @@ public:
 	//static FGameplayTag EquipItemTag;
 	//static FGameplayTag UnEquipItemTag;
 	//static FGameplayTag DropItemTag;
+	
+	UFUNCTION(BlueprintCallable)
+	FORCEINLINE TArray<FInventoryItem>& GetItems() { return InventoryList.GetItemsRef(); }
 
 protected:
 	virtual void InitializeComponent() override;
@@ -106,7 +99,22 @@ protected:
 	TObjectPtr<UProjectN_ItemInstance> CurrentItemInstance = nullptr;
 
 	UPROPERTY(Replicated)
-	TArray<FEquippedItemData> EquippedItemsData;
+	TArray<FEquippedItemData> EquippedItemSlots;
+
+	/*
+	 *  Slots managing
+	 */
+	bool IsSlotEquipped(const EItemSlot InItemSlot);
+	bool IsSlotEquipped(const UProjectN_ItemInstance* InItemInstance);
+	FEquippedItemData* FindItemDataBySlot(const EItemSlot InItemSlot);
+	FEquippedItemData* FindItemDataByInstance(const UProjectN_ItemInstance* InItemInstance);
+	void RemoveSlot(const EItemSlot InItemSlot);
+	void AddItemToSlot(const EItemSlot InItemSlot, UProjectN_ItemInstance* InItemInstance);
+
+	/*
+	 *  Debug functions
+	 */
+	void PrintMessage(const FString& InText);
 
 public:	
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;

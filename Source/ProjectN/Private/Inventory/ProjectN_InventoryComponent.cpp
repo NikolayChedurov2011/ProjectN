@@ -48,7 +48,7 @@ void UProjectN_InventoryComponent::GetLifetimeReplicatedProps(TArray<class FLife
 
 	DOREPLIFETIME(UProjectN_InventoryComponent, InventoryList);
 	DOREPLIFETIME(UProjectN_InventoryComponent, CurrentItemInstance);
-	DOREPLIFETIME(UProjectN_InventoryComponent, EquippedItemsData);
+	DOREPLIFETIME(UProjectN_InventoryComponent, EquippedItemSlots);
 }
 
 bool UProjectN_InventoryComponent::ReplicateSubobjects(class UActorChannel* Channel, class FOutBunch* Bunch, FReplicationFlags* RepFlags)
@@ -153,21 +153,21 @@ void UProjectN_InventoryComponent::ServerHandleGameplayEvent_Implementation(cons
 	HandleGameplayEventInternal(Payload);
 }
 
-void UProjectN_InventoryComponent::EquipTestItem()
+/*void UProjectN_InventoryComponent::EquipTestItem()
 {
 	if (InventoryList.GetItemsRef().Num() && GetOwner()->HasAuthority())
 	{
-		EquipItemByStaticClass(InventoryList.GetItemsRef()[0].ItemInstance->GetItemStaticSubClass());
+		//EquipItemByStaticClass(InventoryList.GetItemsRef()[0].ItemInstance->GetItemStaticSubClass());
 	}
-}
+}*/
 
-void UProjectN_InventoryComponent::AddItemByStaticClass(const TSubclassOf<UItemStaticClass> ItemStaticDataClass)
+/*void UProjectN_InventoryComponent::AddItemByStaticClass(const TSubclassOf<UItemStaticClass> ItemStaticDataClass)
 {
 	if (GetOwner()->HasAuthority())
 	{
 		InventoryList.AddItemByStaticClass(ItemStaticDataClass);
 	}
-}
+}*/
 
 void UProjectN_InventoryComponent::AddItemByInstance(UProjectN_ItemInstance* InItemInstance)
 {
@@ -177,13 +177,13 @@ void UProjectN_InventoryComponent::AddItemByInstance(UProjectN_ItemInstance* InI
 	}
 }
 
-void UProjectN_InventoryComponent::RemoveItemByStaticClass(const TSubclassOf<UItemStaticClass> ItemStaticDataClass)
+/*void UProjectN_InventoryComponent::RemoveItemByStaticClass(const TSubclassOf<UItemStaticClass> ItemStaticDataClass)
 {
 	if (GetOwner()->HasAuthority())
 	{
 		InventoryList.RemoveItemByStaticClass(ItemStaticDataClass);
 	}
-}
+}*/
 
 void UProjectN_InventoryComponent::RemoveItemByInstance(UProjectN_ItemInstance* InItemInstance)
 {
@@ -193,7 +193,7 @@ void UProjectN_InventoryComponent::RemoveItemByInstance(UProjectN_ItemInstance* 
 	}
 }
 
-void UProjectN_InventoryComponent::EquipItemByStaticClass(const TSubclassOf<UItemStaticClass> ItemStaticDataClass)
+/*void UProjectN_InventoryComponent::EquipItemByStaticClass(const TSubclassOf<UItemStaticClass> ItemStaticDataClass)
 {
 	if (GetOwner()->HasAuthority() && IsValid(Cast<APlayerState>(GetOwner())->GetPawn()))
 	{
@@ -203,12 +203,12 @@ void UProjectN_InventoryComponent::EquipItemByStaticClass(const TSubclassOf<UIte
 			if (Item.ItemInstance->GetItemStaticSubClass() == ItemStaticDataClass)
 			{
 				Item.ItemInstance->OnEquip(Cast<APlayerState>(GetOwner())->GetPawn());
-                CurrentItemInstance = Item.ItemInstance;
+                //CurrentItemInstance = Item.ItemInstance;
                 break;
 			}
 		}
 	}
-}
+}*/
 
 void UProjectN_InventoryComponent::EquipItemByInstance(UProjectN_ItemInstance* InItemInstance)
 {
@@ -216,74 +216,64 @@ void UProjectN_InventoryComponent::EquipItemByInstance(UProjectN_ItemInstance* I
 	
 	if (GetOwner()->HasAuthority() && IsValid(BaseCharacter))
 	{
+		// At first check if item can be equipped
 		if (!IsEquippableItem(InItemInstance))
 		{
+			PrintMessage(TEXT("Item is not equippable"));
 			return;
 		}
-		
-		for (const FEquippedItemData& ItemData : EquippedItemsData)
+
+		// Then check if the new item have same slot as equipped
+		if (IsSlotEquipped(InItemInstance))
 		{
-			if (ItemData.ItemInstance == InItemInstance)
+			PrintMessage(TEXT("Slot is equipped"));
+			
+			FEquippedItemData* FindItemData = FindItemDataBySlot(InItemInstance->GetItemStaticClass()->GetItemSlot());
+			
+			// If we try to equip already equipped item, don't do anything
+			if (FindItemData->ItemInstance == InItemInstance)
 			{
+				PrintMessage(TEXT("Same Slot"));
+				
 				return;
 			}
-			
-			if (ItemData.ItemSlot == InItemInstance->GetItemStaticClass()->GetItemSlot())
-			{
-				UnEquipItemByInstance(ItemData.ItemInstance);
-				break;
-			}
+
+			// Else need un equip old item
+			UnEquipItemByInstance(FindItemData->ItemInstance);
 		}
-	
+		
 		// Just check if item has in our inventory
 		for (const FInventoryItem& Item : InventoryList.GetItemsRef())
 		{
 			if (Item.ItemInstance == InItemInstance)
 			{
 				Item.ItemInstance->OnEquip(BaseCharacter);
-				//CurrentItemInstance = Item.ItemInstance;
 
-				ApplyItemAbilityAndEffects(BaseCharacter, Item.ItemInstance);
+				// Add item data to list of equipped items
+				AddItemToSlot(Item.ItemInstance->GetItemStaticClass()->GetItemSlot(), Item.ItemInstance);
+
+				PrintMessage(TEXT("Slot is equipped and added"));
 				break;
 			}
 		}
 	}
 }
 
-void UProjectN_InventoryComponent::UnEquipItemByStaticClass(const TSubclassOf<UItemStaticClass> ItemStaticDataClass)
-{
-	if (GetOwner()->HasAuthority())
-	{
-		for (const FInventoryItem& Item : InventoryList.GetItemsRef())
-		{
-			Item.ItemInstance->OnUnEquip();
-			CurrentItemInstance = nullptr;
-			break;
-		}
-	}
-}
-
-// @TODO: Replace effects and abilities initialization with their handles to instance
 void UProjectN_InventoryComponent::UnEquipItemByInstance(UProjectN_ItemInstance* InItemInstance)
 {
 	if (GetOwner()->HasAuthority())
 	{
-		FEquippedItemData ItemToRemove;
 		for (const FInventoryItem& Item : InventoryList.GetItemsRef())
 		{
 			if (Item.ItemInstance == InItemInstance)
 			{
-				for (const FEquippedItemData& ItemData : EquippedItemsData)
-				{
-					if (ItemData.ItemInstance == Item.ItemInstance)
-					{
-						ItemToRemove = ItemData;
-						RemoveItemAbilityAndEffects(ItemData);
-						Item.ItemInstance->OnUnEquip();
-						//CurrentItemInstance = nullptr;
-						break;
-					}
-				}
+				Item.ItemInstance->OnUnEquip();
+				
+				// Remove item data from list of equipped items
+				RemoveSlot(Item.ItemInstance->GetItemStaticClass()->GetItemSlot());
+				
+				PrintMessage(TEXT("Slot is un equipped and removed"));
+				break;
 			}
 		}
 	}
@@ -296,46 +286,83 @@ void UProjectN_InventoryComponent::DropItem(UProjectN_ItemInstance* InItemInstan
 		if (IsValid(CurrentItemInstance))
 		{
 			InItemInstance->OnDrop();
-			RemoveItemByStaticClass(InItemInstance->GetItemStaticSubClass());
+			//RemoveItemByStaticClass(InItemInstance->GetItemStaticSubClass());
 			CurrentItemInstance = nullptr;
 		}
 	}
 }
 
-void UProjectN_InventoryComponent::ApplyItemAbilityAndEffects(const AProjectN_CharacterBase* BaseCharacter,	UProjectN_ItemInstance* ItemInstance)
+void UProjectN_InventoryComponent::PrintMessage(const FString& InText)
 {
-	TArray<FGameplayAbilitySpecHandle> GameplayAbilitySpecHandles;
-	for (const TSubclassOf<UGameplayAbility> Ability : ItemInstance->GetItemStaticClass()->GetItemAbilities())
-	{
-		GameplayAbilitySpecHandles.Add(BaseCharacter->GiveAbility(Ability));
-	}
-
-	FGameplayEffectContextHandle EffectContext = BaseCharacter->GetAbilitySystemComponent()->MakeEffectContext();
-	EffectContext.AddSourceObject(BaseCharacter);
-	
-	TArray<FActiveGameplayEffectHandle> ActiveGameplayEffectHandles;
-	for (const TSubclassOf<UGameplayEffect> Effect : ItemInstance->GetItemStaticClass()->GetItemEffects())
-	{
-		ActiveGameplayEffectHandles.Add(BaseCharacter->ApplyGamePlayEffectToSelf(Effect, EffectContext, 1.f));
-	}
-	
-	const FEquippedItemData NewItemData = FEquippedItemData(ItemInstance, ItemInstance->GetItemStaticClass()->GetItemSlot(), GameplayAbilitySpecHandles, ActiveGameplayEffectHandles);
-	EquippedItemsData.Add(NewItemData);
+	FVector2D MessageSize = FVector2D(1.f, 1.f);
+	GEngine->AddOnScreenDebugMessage(-1, 7.f, FColor::Blue, InText, true, MessageSize);
 }
 
-void UProjectN_InventoryComponent::RemoveItemAbilityAndEffects(const FEquippedItemData& ItemData)
+/*********************************
+ *  Slots managing
+ *********************************/
+bool UProjectN_InventoryComponent::IsSlotEquipped(const EItemSlot InItemSlot)
 {
-	AProjectN_CharacterBase* BaseCharacter = Cast<AProjectN_CharacterBase>(Cast<APlayerState>(GetOwner())->GetPawn());
-	
-	for (const FGameplayAbilitySpecHandle& AbilitySpecHandle : ItemData.GameplayAbilitySpecHandles)
+	const FEquippedItemData* FindItem = FindItemDataBySlot(InItemSlot);
+	return FindItem != nullptr;
+}
+
+bool UProjectN_InventoryComponent::IsSlotEquipped(const UProjectN_ItemInstance* InItemInstance)
+{
+	return IsSlotEquipped(InItemInstance->GetItemStaticClass()->GetItemSlot());
+}
+
+FEquippedItemData* UProjectN_InventoryComponent::FindItemDataBySlot(const EItemSlot InItemSlot)
+{
+	return EquippedItemSlots.FindByPredicate([InItemSlot](const FEquippedItemData& EquippedItemData)
 	{
-		BaseCharacter->GetAbilitySystemComponent()->ClearAbility(AbilitySpecHandle);
-	}
-	for (const FActiveGameplayEffectHandle& ActiveGameplayEffectHandle : ItemData.ActiveGameplayEffectHandles)
+		return EquippedItemData.ItemSlot == InItemSlot;
+	});
+}
+
+FEquippedItemData* UProjectN_InventoryComponent::FindItemDataByInstance(const UProjectN_ItemInstance* InItemInstance)
+{
+	return EquippedItemSlots.FindByPredicate([InItemInstance](const FEquippedItemData& EquippedItemData)
 	{
-		BaseCharacter->GetAbilitySystemComponent()->RemoveActiveGameplayEffect(ActiveGameplayEffectHandle);
+		return EquippedItemData.ItemInstance == InItemInstance;
+	});
+}
+
+void UProjectN_InventoryComponent::RemoveSlot(const EItemSlot InItemSlot)
+{
+	for (auto ItemIter = EquippedItemSlots.CreateIterator(); ItemIter; ++ItemIter)
+	{
+		FEquippedItemData& Item = *ItemIter;
+		if (Item.ItemSlot == InItemSlot)
+		{
+			ItemIter.RemoveCurrent();
+			//MarkArrayDirty();
+			break;
+		}
 	}
 }
+
+void UProjectN_InventoryComponent::AddItemToSlot(const EItemSlot InItemSlot, UProjectN_ItemInstance* InItemInstance)
+{
+	FEquippedItemData& NewItem = EquippedItemSlots.AddDefaulted_GetRef();
+	NewItem.ItemInstance = InItemInstance;
+	NewItem.ItemSlot = InItemSlot;
+}
+/****************************
+ ****************************/
+
+/*void UProjectN_InventoryComponent::UnEquipItemByStaticClass(const TSubclassOf<UItemStaticClass> ItemStaticDataClass)
+{
+	if (GetOwner()->HasAuthority())
+	{
+		for (const FInventoryItem& Item : InventoryList.GetItemsRef())
+		{
+			Item.ItemInstance->OnUnEquip();
+			CurrentItemInstance = nullptr;
+			break;
+		}
+	}
+}*/
 
 bool UProjectN_InventoryComponent::IsEquippableItem(UProjectN_ItemInstance* InItemInstance) const
 {

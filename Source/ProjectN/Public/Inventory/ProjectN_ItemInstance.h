@@ -6,6 +6,9 @@
 #include "ProjectN/ProjectNTypes.h"
 #include "ProjectN_ItemInstance.generated.h"
 
+struct FGameplayAbilitySpecHandle;
+struct FActiveGameplayEffectHandle;
+
 //Runtime item data. Item parameters can be change while equipped, and we want to save it
 UCLASS(Blueprintable, BlueprintType)
 class PROJECTN_API UProjectN_ItemInstance : public UObject
@@ -38,7 +41,20 @@ protected:
 
 	UPROPERTY(Replicated)
 	TObjectPtr<AProjectN_ItemActor_Base> ItemActor = nullptr;
+	UPROPERTY(Replicated)
+	TObjectPtr<ACharacter> OwnerCharacter = nullptr;
 
 	UFUNCTION()
 	void OnRep_IsEquipped();
+
+	void ApplyItemAbilityAndEffects(const AActor* InActor);
+	void RemoveItemAbilityAndEffects(const ACharacter* InCharacter);
+
+private:
+
+	UPROPERTY()
+	TArray<FGameplayAbilitySpecHandle> GameplayAbilitySpecHandles;
+	
+	UPROPERTY()
+	TArray<FActiveGameplayEffectHandle> ActiveGameplayEffectHandles;
 };
