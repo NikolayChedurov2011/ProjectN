@@ -97,7 +97,7 @@ void AProjectN_CharacterBase::OnRep_PlayerState()
 void AProjectN_CharacterBase::InitAbilityActorInfo()
 {
 	ProjectN_AbilitySystemComponent->AbilityActorInfoSet();
-	GetAbilitySystemComponent()->GetGameplayAttributeValueChangeDelegate(GetAttributeSet()->GetMaxMovementSpeedAttribute()).AddUObject(this, &AProjectN_CharacterBase::OnMaxMovementSpeedChanged);
+	GetAbilitySystemComponent()->GetGameplayAttributeValueChangeDelegate(Cast<UProjectN_AttributeSet>(GetAttributeSet())->GetMaxMovementSpeedAttribute()).AddUObject(this, &AProjectN_CharacterBase::OnMaxMovementSpeedChanged);
 }
 /*
  *

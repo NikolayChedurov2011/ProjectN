@@ -3,6 +3,7 @@
 
 #include "UI/HUD/ProjectN_HUD.h"
 
+#include "UI/WidgetController/ProjectN_AttributeController.h"
 #include "UI/WidgetController/ProjectN_OverlayWidgetController.h"
 #include "UI/Widgets/ProjectN_WidgetBase.h"
 
@@ -20,6 +21,20 @@ UProjectN_OverlayWidgetController* AProjectN_HUD::GetOverlayWidgetController(con
 	return OverlayWidgetController;
 }
 
+UProjectN_AttributeController* AProjectN_HUD::GetAttributeWidgetController(const FWidgetControllerParams& WCParams)
+{
+	if (AttributeWidgetController == nullptr)
+	{
+		AttributeWidgetController = NewObject<UProjectN_AttributeController>(this, AttributeWidgetControllerClass);
+		AttributeWidgetController->SetWidgetControllerParams(WCParams);
+		AttributeWidgetController->BindCallbacksToResponce();
+
+		return AttributeWidgetController;
+	}
+
+	return AttributeWidgetController;
+}
+
 void AProjectN_HUD::InitOverlay(APlayerController* PC, APlayerState* PS, UAbilitySystemComponent* ASC, UAttributeSet* AS)
 {
 	checkf(OverlayWidgetClass, TEXT("Overlay widget class uninitialized, please fill out HUD data"))
@@ -28,9 +43,10 @@ void AProjectN_HUD::InitOverlay(APlayerController* PC, APlayerState* PS, UAbilit
 	OverlayWidget = CreateWidget<UProjectN_WidgetBase>(GetWorld(), OverlayWidgetClass);
 
 	const FWidgetControllerParams WidgetControllerParams(PC, PS, ASC, AS);
-	UProjectN_OverlayWidgetController* WidgetController = GetOverlayWidgetController(WidgetControllerParams);
+	UProjectN_OverlayWidgetController* TempOverlayWidgetController = GetOverlayWidgetController(WidgetControllerParams);
+	UProjectN_AttributeController* TempAttributeWidgetController = GetAttributeWidgetController(WidgetControllerParams);
 	
-	OverlayWidget->SetWidgetController(WidgetController);
+	OverlayWidget->SetWidgetController(TempOverlayWidgetController);
 	OverlayWidgetController->BroadcastInitialValues();
 	
 	OverlayWidget->AddToViewport();

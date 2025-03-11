@@ -12,7 +12,7 @@
 
 class UGamePlayEffect;
 class UGameplayAbility;
-class UProjectN_AttributeSet;
+class UAttributeSet;
 
 UCLASS(Abstract)
 class PROJECTN_API AProjectN_CharacterBase : public ACharacter, public IAbilitySystemInterface, public ICombatInterface
@@ -23,7 +23,7 @@ public:
 	AProjectN_CharacterBase(const FObjectInitializer& ObjectInitializer);
 	
 	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override;
-	UProjectN_AttributeSet* GetAttributeSet() const { return ProjectN_AttributeSet; }
+	UAttributeSet* GetAttributeSet() const { return ProjectN_AttributeSet; }
 	
 	UFUNCTION(BlueprintCallable)
 	FORCEINLINE FCharacterData GetCharacterData() const;
@@ -53,7 +53,7 @@ protected:
 	void ApplyStartupEffects();
 
 	UPROPERTY(Transient)
-	TObjectPtr<UProjectN_AttributeSet> ProjectN_AttributeSet = nullptr;
+	TObjectPtr<UAttributeSet> ProjectN_AttributeSet = nullptr;
 
 	UPROPERTY()
 	TObjectPtr<UProjectN_AbilitySystemComponent> ProjectN_AbilitySystemComponent = nullptr;

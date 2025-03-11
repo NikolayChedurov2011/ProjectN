@@ -16,7 +16,7 @@ AProjectN_ItemActor_Base::AProjectN_ItemActor_Base()
 {
 	PrimaryActorTick.bCanEverTick = true;
 	bReplicates = true;
-	SetReplicateMovement(true);
+	AActor::SetReplicateMovement(true);
 	
 	SphereComponent = CreateDefaultSubobject<USphereComponent>(TEXT("Sphere Component"));
 	SphereComponent->SetupAttachment(GetRootComponent());

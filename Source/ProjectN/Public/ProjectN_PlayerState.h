@@ -9,7 +9,7 @@
 
 struct FOnAttributeChangeData;
 class UProjectN_AbilitySystemComponent;
-class UProjectN_AttributeSet;
+class UAttributeSet;
 class UProjectN_InventoryComponent;
 
 UCLASS()
@@ -22,13 +22,13 @@ public:
 	virtual void GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const override;
 
 	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override;
-	UProjectN_AttributeSet* GetAttributeSet() const { return ProjectN_AttributeSet; }
+	UAttributeSet* GetAttributeSet() const { return ProjectN_AttributeSet; }
 
 	FORCEINLINE int32 GetCharacterLevel() const { return CharacterLevel; }
 
 protected:
 	UPROPERTY(Transient)
-	TObjectPtr<UProjectN_AttributeSet> ProjectN_AttributeSet;
+	TObjectPtr<UAttributeSet> ProjectN_AttributeSet;
 
 	UPROPERTY()
 	TObjectPtr<UProjectN_AbilitySystemComponent> ProjectN_AbilitySystemComponent;
