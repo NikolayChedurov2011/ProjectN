@@ -30,7 +30,7 @@ const UItemStaticClass* UProjectN_ItemInstance::GetItemStaticClass() const
 	return UProjectN_Statics::GetItemStaticData(ItemStaticDataClass);
 }
 
-void UProjectN_ItemInstance::OnEquip(AActor* Owner)
+void UProjectN_ItemInstance::OnEquip(AActor* Owner, const FName InSocket)
 {
 	OwnerCharacter = Cast<ACharacter>(Owner);
 	
@@ -45,7 +45,7 @@ void UProjectN_ItemInstance::OnEquip(AActor* Owner)
 
 		if (USkeletalMeshComponent* SkeletalMeshComponent = OwnerCharacter ? OwnerCharacter->GetMesh() : nullptr)
 		{
-			ItemActor->AttachToComponent(SkeletalMeshComponent,  FAttachmentTransformRules::SnapToTargetNotIncludingScale, GetItemStaticClass()->GetSocketToAttach());
+			ItemActor->AttachToComponent(SkeletalMeshComponent,  FAttachmentTransformRules::SnapToTargetNotIncludingScale, InSocket);
 		}
 	}
 	

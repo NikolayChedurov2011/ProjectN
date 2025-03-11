@@ -56,7 +56,7 @@ enum class EItemState : uint8
 	Dropped		UMETA(DisplayName = "Dropped"),
 };
 
-UENUM(BlueprintType)
+UENUM(BlueprintType, Blueprintable)
 enum class EItemSlot : uint8
 {
 	None		UMETA(DisplayName = "None"),
@@ -78,13 +78,13 @@ public:
 	FORCEINLINE FName GetItemName() const { return ItemName; }
 
 	UFUNCTION(BlueprintCallable, BlueprintPure)
-	FORCEINLINE FName GetSocketToAttach() const { return SocketToAttach; }
+	FORCEINLINE TMap<EItemSlot, FName> GetSocketsToAttach() const { return SocketToAttach; }
 
 	UFUNCTION(BlueprintCallable, BlueprintPure)
 	FORCEINLINE bool CanBeEquipped() const { return bCanBeEquipped; }
 
 	UFUNCTION(BlueprintCallable, BlueprintPure)
-	FORCEINLINE EItemSlot GetItemSlot() const { return ItemSlot; }
+	FORCEINLINE TArray<EItemSlot> GetItemAllowedSlot() const { return AllowedSlots; }
 	
 	UFUNCTION(BlueprintCallable, BlueprintPure)
 	FORCEINLINE TSubclassOf<AProjectN_ItemActor_Base> GetItemActorClass() const { return ItemActorClass; }
@@ -101,10 +101,10 @@ protected:
 	FName ItemName = NAME_None;
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	FName SocketToAttach = NAME_None;
+	TMap<EItemSlot, FName> SocketToAttach;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	EItemSlot ItemSlot = EItemSlot::None;
+	TArray<EItemSlot> AllowedSlots;
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	TSubclassOf<AProjectN_ItemActor_Base> ItemActorClass;

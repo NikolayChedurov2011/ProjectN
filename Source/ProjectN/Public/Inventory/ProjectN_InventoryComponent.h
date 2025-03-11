@@ -52,7 +52,7 @@ public:
 	//UFUNCTION(BlueprintCallable)
 	//void EquipItemByStaticClass(const TSubclassOf<UItemStaticClass> ItemStaticDataClass);
 	UFUNCTION(BlueprintCallable)
-	void EquipItemByInstance(UProjectN_ItemInstance* InItemInstance);
+	void EquipItemByInstance(UProjectN_ItemInstance* InItemInstance, const EItemSlot InSlot);
 	//UFUNCTION(BlueprintCallable)
 	//void UnEquipItemByStaticClass(const TSubclassOf<UItemStaticClass> ItemStaticDataClass);
 	UFUNCTION(BlueprintCallable)

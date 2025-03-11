@@ -27,7 +27,7 @@ public:
 	UFUNCTION(BlueprintCallable, BlueprintPure)
 	TSubclassOf<UItemStaticClass> GetItemStaticSubClass() const { return ItemStaticDataClass; }
 
-	virtual void  OnEquip(AActor* Owner = nullptr);
+	virtual void  OnEquip(AActor* Owner = nullptr, const FName InSocket = FName("hand_r"));
 	virtual void  OnUnEquip();
 	virtual void  OnDrop();
 

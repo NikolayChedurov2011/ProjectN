@@ -210,7 +210,7 @@ void UProjectN_InventoryComponent::RemoveItemByInstance(UProjectN_ItemInstance* 
 	}
 }*/
 
-void UProjectN_InventoryComponent::EquipItemByInstance(UProjectN_ItemInstance* InItemInstance)
+void UProjectN_InventoryComponent::EquipItemByInstance(UProjectN_ItemInstance* InItemInstance, const EItemSlot InSlot)
 {
 	AProjectN_CharacterBase* BaseCharacter = Cast<AProjectN_CharacterBase>(Cast<APlayerState>(GetOwner())->GetPawn());
 	
@@ -222,16 +222,22 @@ void UProjectN_InventoryComponent::EquipItemByInstance(UProjectN_ItemInstance* I
 			PrintMessage(TEXT("Item is not equippable"));
 			return;
 		}
+		// Or if item has allowed slot for equip
+		if (!InItemInstance->GetItemStaticClass()->GetItemAllowedSlot().Contains(InSlot))
+		{
+			PrintMessage(TEXT("Not allowed slot for equip"));
+			return;
+		}
 
-		// Then check if the new item have same slot as equipped
+		// Then check if this item equipped already
 		if (IsSlotEquipped(InItemInstance))
 		{
 			PrintMessage(TEXT("Slot is equipped"));
-			
-			FEquippedItemData* FindItemData = FindItemDataBySlot(InItemInstance->GetItemStaticClass()->GetItemSlot());
-			
-			// If we try to equip already equipped item, don't do anything
-			if (FindItemData->ItemInstance == InItemInstance)
+
+			FEquippedItemData* FindItemData = FindItemDataByInstance(InItemInstance);
+
+			// Check if this is same slot
+			if (FindItemData->ItemSlot == InSlot)
 			{
 				PrintMessage(TEXT("Same Slot"));
 				
@@ -241,16 +247,25 @@ void UProjectN_InventoryComponent::EquipItemByInstance(UProjectN_ItemInstance* I
 			// Else need un equip old item
 			UnEquipItemByInstance(FindItemData->ItemInstance);
 		}
+		if (IsSlotEquipped(InSlot))
+		{
+			// Check if slot already equipped
+			FEquippedItemData* FindItemData = FindItemDataBySlot(InSlot);
+	
+			PrintMessage(TEXT("Un equip old slot"));
+			// Un equip old item
+			UnEquipItemByInstance(FindItemData->ItemInstance);
+		}
 		
 		// Just check if item has in our inventory
 		for (const FInventoryItem& Item : InventoryList.GetItemsRef())
 		{
 			if (Item.ItemInstance == InItemInstance)
 			{
-				Item.ItemInstance->OnEquip(BaseCharacter);
+				Item.ItemInstance->OnEquip(BaseCharacter, *Item.ItemInstance->GetItemStaticClass()->GetSocketsToAttach().Find(InSlot));
 
 				// Add item data to list of equipped items
-				AddItemToSlot(Item.ItemInstance->GetItemStaticClass()->GetItemSlot(), Item.ItemInstance);
+				AddItemToSlot(InSlot, Item.ItemInstance);
 
 				PrintMessage(TEXT("Slot is equipped and added"));
 				break;
@@ -263,19 +278,18 @@ void UProjectN_InventoryComponent::UnEquipItemByInstance(UProjectN_ItemInstance*
 {
 	if (GetOwner()->HasAuthority())
 	{
-		for (const FInventoryItem& Item : InventoryList.GetItemsRef())
+		if (!IsSlotEquipped(InItemInstance))
 		{
-			if (Item.ItemInstance == InItemInstance)
-			{
-				Item.ItemInstance->OnUnEquip();
-				
-				// Remove item data from list of equipped items
-				RemoveSlot(Item.ItemInstance->GetItemStaticClass()->GetItemSlot());
-				
-				PrintMessage(TEXT("Slot is un equipped and removed"));
-				break;
-			}
+			return;
 		}
+		
+		InItemInstance->OnUnEquip();
+		
+		// Remove item data from list of equipped items
+		FEquippedItemData* FindItemData = FindItemDataByInstance(InItemInstance);
+		RemoveSlot(FindItemData->ItemSlot);
+		
+		PrintMessage(TEXT("Slot is un equipped and removed"));
 	}
 }
 
@@ -309,7 +323,8 @@ bool UProjectN_InventoryComponent::IsSlotEquipped(const EItemSlot InItemSlot)
 
 bool UProjectN_InventoryComponent::IsSlotEquipped(const UProjectN_ItemInstance* InItemInstance)
 {
-	return IsSlotEquipped(InItemInstance->GetItemStaticClass()->GetItemSlot());
+	const FEquippedItemData* FindItem = FindItemDataByInstance(InItemInstance);
+	return FindItem != nullptr;
 }
 
 FEquippedItemData* UProjectN_InventoryComponent::FindItemDataBySlot(const EItemSlot InItemSlot)
