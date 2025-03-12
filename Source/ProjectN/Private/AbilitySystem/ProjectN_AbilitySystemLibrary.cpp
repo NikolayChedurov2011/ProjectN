@@ -12,16 +12,18 @@
 
 UProjectN_OverlayWidgetController* UProjectN_AbilitySystemLibrary::GetOverlayWidgetController(const UObject* WorldContextObject)
 {
-	if (APlayerController* PlayerController =UGameplayStatics::GetPlayerController(WorldContextObject, 0))
+	if (APlayerController* PlayerController = UGameplayStatics::GetPlayerController(WorldContextObject, 0))
 	{
 		if (AProjectN_HUD* HUD = Cast<AProjectN_HUD>(PlayerController->GetHUD()))
 		{
-			AProjectN_PlayerState* PlayerState = PlayerController->GetPlayerState<AProjectN_PlayerState>();
-			UAbilitySystemComponent* AbilitySystemComponent = PlayerState->GetAbilitySystemComponent();
-			UAttributeSet* Attributes = PlayerState->GetAttributeSet();
-			const FWidgetControllerParams WidgetParams(PlayerController, PlayerState, AbilitySystemComponent, Attributes);
+			if (AProjectN_PlayerState* PlayerState = PlayerController->GetPlayerState<AProjectN_PlayerState>())
+			{
+				UAbilitySystemComponent* AbilitySystemComponent = PlayerState->GetAbilitySystemComponent();
+				UAttributeSet* Attributes = PlayerState->GetAttributeSet();
+				const FWidgetControllerParams WidgetParams(PlayerController, PlayerState, AbilitySystemComponent, Attributes);
 
-			return HUD->GetOverlayWidgetController(WidgetParams);
+				return HUD->GetOverlayWidgetController(WidgetParams);
+			}
 		}
 	}
 	return nullptr;
@@ -29,17 +31,26 @@ UProjectN_OverlayWidgetController* UProjectN_AbilitySystemLibrary::GetOverlayWid
 
 UProjectN_AttributeController* UProjectN_AbilitySystemLibrary::GetAttributeWidgetController(const UObject* WorldContextObject)
 {
-	if (APlayerController* PlayerController =UGameplayStatics::GetPlayerController(WorldContextObject, 0))
-	{
-		if (AProjectN_HUD* HUD = Cast<AProjectN_HUD>(PlayerController->GetHUD()))
-		{
-			AProjectN_PlayerState* PlayerState = PlayerController->GetPlayerState<AProjectN_PlayerState>();
-			UAbilitySystemComponent* AbilitySystemComponent = PlayerState->GetAbilitySystemComponent();
-			UAttributeSet* Attributes = PlayerState->GetAttributeSet();
-			const FWidgetControllerParams WidgetParams(PlayerController, PlayerState, AbilitySystemComponent, Attributes);
+	APlayerController* DefaultPlayerController = UGameplayStatics::GetPlayerController(WorldContextObject, 0);
+	APlayerState* DefaultPlayerState = UGameplayStatics::GetPlayerState(WorldContextObject, 0);
 
-			return HUD->GetAttributeWidgetController(WidgetParams);
+	if (IsValid(DefaultPlayerController) && IsValid(DefaultPlayerState))
+	{
+		APlayerController* PlayerController = Cast<APlayerController>(DefaultPlayerController);
+		AProjectN_PlayerState* PlayerState = Cast<AProjectN_PlayerState>(DefaultPlayerState);
+	
+		if (IsValid(PlayerController) && IsValid(PlayerState))
+		{
+			if (AProjectN_HUD* HUD = Cast<AProjectN_HUD>(PlayerController->GetHUD()))
+			{
+				UAbilitySystemComponent* AbilitySystemComponent = PlayerState->GetAbilitySystemComponent();
+				UAttributeSet* Attributes = PlayerState->GetAttributeSet();
+				const FWidgetControllerParams WidgetParams(PlayerController, PlayerState, AbilitySystemComponent, Attributes);
+
+				return HUD->GetAttributeWidgetController(WidgetParams);
+			}
 		}
 	}
+	
 	return nullptr;
 }
