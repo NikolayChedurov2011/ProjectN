@@ -7,7 +7,7 @@
 #include "Engine/DataAsset.h"
 #include "AttributeInfo.generated.h"
 
-USTRUCT(BlueprintType)
+USTRUCT(BlueprintType, Blueprintable)
 struct FProjectNAttributeInfo
 {
 	GENERATED_BODY()
@@ -35,5 +35,5 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	TArray<FProjectNAttributeInfo> AttributeInformation;
 
-	const FProjectNAttributeInfo* GetAttributeInfoByTag(const FGameplayTag& Tag) const;
+	FProjectNAttributeInfo& GetAttributeInfoByTag(const FGameplayTag& Tag);
 };

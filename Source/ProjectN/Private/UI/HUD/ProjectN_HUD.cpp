@@ -47,7 +47,8 @@ void AProjectN_HUD::InitOverlay(APlayerController* PC, APlayerState* PS, UAbilit
 	UProjectN_AttributeController* TempAttributeWidgetController = GetAttributeWidgetController(WidgetControllerParams);
 	
 	OverlayWidget->SetWidgetController(TempOverlayWidgetController);
-	OverlayWidgetController->BroadcastInitialValues();
+	TempOverlayWidgetController->BroadcastInitialValues();
+	TempAttributeWidgetController->BroadcastInitialValues();
 	
 	OverlayWidget->AddToViewport();
 }

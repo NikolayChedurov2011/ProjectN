@@ -47,6 +47,14 @@ public:
 	FPropertiesData TargetProperties;
 };
 
+//
+// Using this template we can implement ptr to any static function with T return type
+// For example TStaticFuncPtr<FGameplayAttribute()> can be equal to GetStrengthAttribute()
+template<class T>
+using TStaticFuncPtr = typename TBaseStaticDelegateInstance<T, FDefaultDelegateUserPolicy>::FFuncPtr;
+//
+//
+
 UCLASS()
 class PROJECTN_API UProjectN_AttributeSet : public UAttributeSet
 {
@@ -55,6 +63,8 @@ class PROJECTN_API UProjectN_AttributeSet : public UAttributeSet
 public:
 
 	UProjectN_AttributeSet();
+
+	TMap<FGameplayTag, FGameplayAttribute(*)()> TagsToAttribute;
 
 	/*
 	 ***********************

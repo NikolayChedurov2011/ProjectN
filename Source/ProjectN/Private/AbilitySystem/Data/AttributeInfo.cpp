@@ -3,9 +3,9 @@
 
 #include "AbilitySystem/Data/AttributeInfo.h"
 
-const FProjectNAttributeInfo* UAttributeInfo::GetAttributeInfoByTag(const FGameplayTag& Tag) const
+FProjectNAttributeInfo& UAttributeInfo::GetAttributeInfoByTag(const FGameplayTag& Tag)
 {
-	return AttributeInformation.FindByPredicate([Tag](const FProjectNAttributeInfo& AttributeInfo)
+	return *AttributeInformation.FindByPredicate([Tag](const FProjectNAttributeInfo& AttributeInfo)
 	{
 		return AttributeInfo.AttributeTag == Tag;
 	});
