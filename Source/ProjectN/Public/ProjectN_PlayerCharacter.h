@@ -6,7 +6,7 @@
 #include "ProjectN_CharacterBase.h"
 #include "ProjectN_PlayerCharacter.generated.h"
 
-class UDataAsset_InputConfig;
+class UProjectN_InputConfig;
 class USpringArmComponent;
 class UCameraComponent;
 class AProjectN_PlayerCameraManager;
@@ -44,10 +44,14 @@ private:
 #pragma region Inputs
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="CharacterData", meta=(AllowPrivateAccess=true))
-	UDataAsset_InputConfig* InputConfigDataAsset = nullptr;
+	UProjectN_InputConfig* InputConfigDataAsset = nullptr;
 
 	void Input_Move(const FInputActionValue& ActionValue);
 	void Input_Look(const FInputActionValue& ActionValue);
+
+	void OnActionPressed(FGameplayTag InTag);
+	void OnActionReleased(FGameplayTag InTag);
+	void OnActionHeld(FGameplayTag InTag);
 	
 #pragma endregion
 };

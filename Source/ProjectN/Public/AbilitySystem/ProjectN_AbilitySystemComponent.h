@@ -19,8 +19,12 @@ public:
 
 	FEffectAssetTagsSignature EffectAssetTags;
 
+	FActiveGameplayEffectHandle ApplyGamePlayEffectToSelf_Internal(const TSubclassOf<UGameplayEffect> Effect, const FGameplayEffectContextHandle& InEffectContext, const float Level);
+	FGameplayAbilitySpecHandle GiveAbility_Internal(const TSubclassOf<UGameplayAbility> DefaultAbility);
+
 protected:
 
+	// Broadcast tags from applied effect mainly to show UI message
 	UFUNCTION(Client, Reliable)
 	void OnEffectApply(UAbilitySystemComponent* AbilitySystemComponent, const FGameplayEffectSpec& GameplayEffectSpec, FActiveGameplayEffectHandle GameplayEffectHandle) const;
 };

@@ -31,9 +31,6 @@ public:
 	UFUNCTION(BlueprintCallable)
 	FORCEINLINE void SetCharacterData(const FCharacterData& NewCharacterData);
 
-	FGameplayAbilitySpecHandle GiveAbility(const TSubclassOf<UGameplayAbility> DefaultAbility) const;
-	FActiveGameplayEffectHandle ApplyGamePlayEffectToSelf(const TSubclassOf<UGameplayEffect> Effect, const FGameplayEffectContextHandle& InEffectContext, const float Level) const;
-
 	/*
 	 *  Combat Interface
 	 */

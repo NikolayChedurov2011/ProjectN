@@ -3,6 +3,7 @@
 
 #include "Inventory/ProjectN_ItemInstance.h"
 
+#include "AbilitySystemBlueprintLibrary.h"
 #include "ProjectN_CharacterBase.h"
 #include "GameFramework/Character.h"
 #include "Inventory/ProjectN_ItemActor_Base.h"
@@ -84,18 +85,31 @@ void UProjectN_ItemInstance::OnRep_IsEquipped()
 
 void UProjectN_ItemInstance::ApplyItemAbilityAndEffects(const AActor* InActor)
 {
+	if (!IsValid(InActor))
+	{
+		return;
+	}
+	
+	const IAbilitySystemInterface* ASCInterface = Cast<IAbilitySystemInterface>(InActor);
+
+	if (!ASCInterface)
+	{
+		return;
+	}
+	
+	UProjectN_AbilitySystemComponent* ASC = Cast<UProjectN_AbilitySystemComponent>(ASCInterface->GetAbilitySystemComponent());
+		
 	for (const TSubclassOf<UGameplayAbility> Ability : GetItemStaticClass()->GetItemAbilities())
 	{
-		GameplayAbilitySpecHandles.Add(Cast<AProjectN_CharacterBase>(InActor)->GiveAbility(Ability));
+		GameplayAbilitySpecHandles.Add(ASC->GiveAbility_Internal(Ability));
 	}
 
-	const IAbilitySystemInterface* ASCInterface = Cast<IAbilitySystemInterface>(InActor);
 	FGameplayEffectContextHandle EffectContext = ASCInterface->GetAbilitySystemComponent()->MakeEffectContext();
 	EffectContext.AddSourceObject(InActor);
 	
 	for (const TSubclassOf<UGameplayEffect> Effect : GetItemStaticClass()->GetItemEffects())
 	{
-		ActiveGameplayEffectHandles.Add(Cast<AProjectN_CharacterBase>(InActor)->ApplyGamePlayEffectToSelf(Effect, EffectContext, 1.f));
+		ActiveGameplayEffectHandles.Add(ASC->ApplyGamePlayEffectToSelf_Internal(Effect, EffectContext, 1.f));
 	}
 }
 

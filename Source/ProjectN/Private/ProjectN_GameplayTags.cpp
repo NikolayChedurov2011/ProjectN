@@ -6,8 +6,29 @@
 namespace ProjectNGameplayTags
 {
 	/**** Input Tags ****/
-	UE_DEFINE_GAMEPLAY_TAG(InputTag_Move,			"InputTag.Move")
-	UE_DEFINE_GAMEPLAY_TAG(InputTag_Look,			"InputTag.Look")
+	UE_DEFINE_GAMEPLAY_TAG(Input,							"Input")
+	UE_DEFINE_GAMEPLAY_TAG(InputTag_Move,					"InputTag.Move")
+	UE_DEFINE_GAMEPLAY_TAG(InputTag_Look,					"InputTag.Look")
+	UE_DEFINE_GAMEPLAY_TAG(InputTag_Esc,					"InputTag.Esc")
+	UE_DEFINE_GAMEPLAY_TAG(Input_Interaction,				"Input.Interaction")
+	UE_DEFINE_GAMEPLAY_TAG(Input_Inventory,					"Input.Inventory")
+	UE_DEFINE_GAMEPLAY_TAG(Input_RMB,						"Input.RMB")
+	UE_DEFINE_GAMEPLAY_TAG(Input_LMB,						"Input.LMB")
+	UE_DEFINE_GAMEPLAY_TAG(Input_Sprint,					"Input.Sprint")
+	UE_DEFINE_GAMEPLAY_TAG(Input_Alt,						"Input.Alt")
+	UE_DEFINE_GAMEPLAY_TAG(Input_Crouch,					"Input.Crouch")
+	UE_DEFINE_GAMEPLAY_TAG(Input_Jump,						"Input.Jump")
+	UE_DEFINE_GAMEPLAY_TAG(Input_Map,						"Input.Map")
+	UE_DEFINE_GAMEPLAY_TAG(Input_Slot1,						"Input.Slot1")
+	UE_DEFINE_GAMEPLAY_TAG(Input_Slot2,						"Input.Slot2")
+	UE_DEFINE_GAMEPLAY_TAG(Input_Slot3,						"Input.Slot3")
+	UE_DEFINE_GAMEPLAY_TAG(Input_Slot4,						"Input.Slot4")
+	UE_DEFINE_GAMEPLAY_TAG(Input_Slot5,						"Input.Slot5")
+	UE_DEFINE_GAMEPLAY_TAG(Input_Slot6,						"Input.Slot6")
+	UE_DEFINE_GAMEPLAY_TAG(Input_Slot7,						"Input.Slot7")
+	UE_DEFINE_GAMEPLAY_TAG(Input_Slot8,						"Input.Slot8")
+	UE_DEFINE_GAMEPLAY_TAG(Input_Slot9,						"Input.Slot9")
+	UE_DEFINE_GAMEPLAY_TAG(Input_Slot0,						"Input.Slot0")
 	
 	/**** Inventory Tags ****/
 	UE_DEFINE_GAMEPLAY_TAG(InventoryTag_Equip,		"InventoryTag.Equip")

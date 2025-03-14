@@ -112,18 +112,9 @@ void AProjectN_CharacterBase::GiveStartupAbilities()
 	{
 		for (const TSubclassOf DefaultAbility : CharacterData.Abilities)
 		{
-			GiveAbility(DefaultAbility);
+			Cast<UProjectN_AbilitySystemComponent>(GetAbilitySystemComponent())->GiveAbility_Internal(DefaultAbility);
 		}
 	}
-}
-FGameplayAbilitySpecHandle AProjectN_CharacterBase::GiveAbility(const TSubclassOf<UGameplayAbility> DefaultAbility) const
-{
-	if (HasAuthority() && GetAbilitySystemComponent() && IsValid(DefaultAbility))
-	{
-		return GetAbilitySystemComponent()->GiveAbility(FGameplayAbilitySpec(DefaultAbility));
-	}
-	const FGameplayAbilitySpecHandle EmptyGameplayAbilitySpecHandle;
-	return EmptyGameplayAbilitySpecHandle;
 }
 
 void AProjectN_CharacterBase::ApplyStartupEffects()
@@ -133,37 +124,17 @@ void AProjectN_CharacterBase::ApplyStartupEffects()
 		FGameplayEffectContextHandle EffectContext = GetAbilitySystemComponent()->MakeEffectContext();
 		EffectContext.AddSourceObject(this);
 
-		ApplyGamePlayEffectToSelf(CharacterData.PrimaryAttributes, EffectContext, 1.f);
-		ApplyGamePlayEffectToSelf(CharacterData.SecondaryAttributes, EffectContext, 1.f);
-		ApplyGamePlayEffectToSelf(CharacterData.InitializeMainAttributes, EffectContext, 1.f);
+		Cast<UProjectN_AbilitySystemComponent>(GetAbilitySystemComponent())->ApplyGamePlayEffectToSelf_Internal(CharacterData.PrimaryAttributes, EffectContext, 1.f);
+		Cast<UProjectN_AbilitySystemComponent>(GetAbilitySystemComponent())->ApplyGamePlayEffectToSelf_Internal(CharacterData.SecondaryAttributes, EffectContext, 1.f);
+		Cast<UProjectN_AbilitySystemComponent>(GetAbilitySystemComponent())->ApplyGamePlayEffectToSelf_Internal(CharacterData.InitializeMainAttributes, EffectContext, 1.f);
 
 		for (const TSubclassOf DefaultEffect : CharacterData.Effects)
 		{
-			ApplyGamePlayEffectToSelf(DefaultEffect, EffectContext, 1.f);
+			Cast<UProjectN_AbilitySystemComponent>(GetAbilitySystemComponent())->ApplyGamePlayEffectToSelf_Internal(DefaultEffect, EffectContext, 1.f);
 		}
 	}
 }
 
-FActiveGameplayEffectHandle AProjectN_CharacterBase::ApplyGamePlayEffectToSelf(const TSubclassOf<UGameplayEffect> Effect, const FGameplayEffectContextHandle& InEffectContext, const float Level) const
-{
-	const FActiveGameplayEffectHandle EmptyGameplayEffectHandle;
-	
-	if (!Effect.Get())
-	{
-		return EmptyGameplayEffectHandle;
-	}
-
-	const FGameplayEffectSpecHandle SpecHandle = GetAbilitySystemComponent()->MakeOutgoingSpec(Effect, Level,InEffectContext);
-	if (SpecHandle.IsValid())
-	{
-		const FActiveGameplayEffectHandle ActiveGameplayEffectHandle = GetAbilitySystemComponent()->ApplyGameplayEffectSpecToSelf(*SpecHandle.Data.Get());
-
-		return ActiveGameplayEffectHandle;
-		//return ActiveGameplayEffectHandle.WasSuccessfullyApplied();
-	}
-	
-	return EmptyGameplayEffectHandle;
-}
 /*
  *
  */

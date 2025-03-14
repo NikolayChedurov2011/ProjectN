@@ -103,6 +103,7 @@ void AProjectN_PlayerCharacter::SetupPlayerInputComponent(UInputComponent* Playe
 
 	ProjectNInputComponent->BindNativeInputAction(InputConfigDataAsset, ProjectNGameplayTags::InputTag_Move, ETriggerEvent::Triggered, this, &ThisClass::Input_Move);
 	ProjectNInputComponent->BindNativeInputAction(InputConfigDataAsset, ProjectNGameplayTags::InputTag_Look, ETriggerEvent::Triggered, this, &ThisClass::Input_Look);
+	ProjectNInputComponent->BindAbilityActions(InputConfigDataAsset, this, &ThisClass::OnActionPressed, &ThisClass::OnActionReleased, &ThisClass::OnActionHeld);
 }
 
 void AProjectN_PlayerCharacter::Input_Move(const FInputActionValue& ActionValue)
@@ -154,6 +155,22 @@ void AProjectN_PlayerCharacter::Input_Look(const FInputActionValue& ActionValue)
 		AddControllerPitchInput(LookAxisVector.Y);
 	}
 }
+
+void AProjectN_PlayerCharacter::OnActionPressed(FGameplayTag InTag)
+{
+	
+}
+
+void AProjectN_PlayerCharacter::OnActionReleased(FGameplayTag InTag)
+{
+	
+}
+
+void AProjectN_PlayerCharacter::OnActionHeld(FGameplayTag InTag)
+{
+	
+}
+
 /*
  *
  */
