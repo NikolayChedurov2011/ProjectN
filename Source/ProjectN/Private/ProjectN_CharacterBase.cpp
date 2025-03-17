@@ -112,7 +112,7 @@ void AProjectN_CharacterBase::GiveStartupAbilities()
 	{
 		for (const TSubclassOf DefaultAbility : CharacterData.Abilities)
 		{
-			Cast<UProjectN_AbilitySystemComponent>(GetAbilitySystemComponent())->GiveAbility_Internal(DefaultAbility);
+			Cast<UProjectN_AbilitySystemComponent>(GetAbilitySystemComponent())->AddAbility(DefaultAbility);
 		}
 	}
 }

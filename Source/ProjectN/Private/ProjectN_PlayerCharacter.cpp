@@ -88,22 +88,22 @@ void AProjectN_PlayerCharacter::OnCharacterInitAbilityEnd_Implementation()
  */
 void AProjectN_PlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
-	checkf(InputConfigDataAsset, TEXT("Forgot to assign valid data asset, please fill out Character data"));
+	//checkf(InputConfigDataAsset, TEXT("Forgot to assign valid data asset, please fill out Character data"));
 	
-	const ULocalPlayer* LocalPLayer = GetController<APlayerController>()->GetLocalPlayer();
-	UEnhancedInputLocalPlayerSubsystem* EnhancedInputSubsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(LocalPLayer);
+	//const ULocalPlayer* LocalPLayer = GetController<APlayerController>()->GetLocalPlayer();
+	//UEnhancedInputLocalPlayerSubsystem* EnhancedInputSubsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(LocalPLayer);
 
-	if (EnhancedInputSubsystem == nullptr)
-	{
-		return;
-	}
+	//if (EnhancedInputSubsystem == nullptr)
+	//{
+	//	return;
+	//}
 
-	EnhancedInputSubsystem->AddMappingContext(InputConfigDataAsset->DefaultMappingContext, 0);
-	UProjectN_InputComponent* ProjectNInputComponent = CastChecked<UProjectN_InputComponent>(PlayerInputComponent);
+	//EnhancedInputSubsystem->AddMappingContext(InputConfigDataAsset->DefaultMappingContext, 0);
+	//UProjectN_InputComponent* ProjectNInputComponent = CastChecked<UProjectN_InputComponent>(PlayerInputComponent);
 
-	ProjectNInputComponent->BindNativeInputAction(InputConfigDataAsset, ProjectNGameplayTags::InputTag_Move, ETriggerEvent::Triggered, this, &ThisClass::Input_Move);
-	ProjectNInputComponent->BindNativeInputAction(InputConfigDataAsset, ProjectNGameplayTags::InputTag_Look, ETriggerEvent::Triggered, this, &ThisClass::Input_Look);
-	ProjectNInputComponent->BindAbilityActions(InputConfigDataAsset, this, &ThisClass::OnActionPressed, &ThisClass::OnActionReleased, &ThisClass::OnActionHeld);
+	//ProjectNInputComponent->BindNativeInputAction(InputConfigDataAsset, ProjectNGameplayTags::InputTag_Move, ETriggerEvent::Triggered, this, &ThisClass::Input_Move);
+	//ProjectNInputComponent->BindNativeInputAction(InputConfigDataAsset, ProjectNGameplayTags::InputTag_Look, ETriggerEvent::Triggered, this, &ThisClass::Input_Look);
+	//ProjectNInputComponent->BindAbilityActions(InputConfigDataAsset, this, &ThisClass::OnActionPressed, &ThisClass::OnActionReleased, &ThisClass::OnActionHeld);
 }
 
 void AProjectN_PlayerCharacter::Input_Move(const FInputActionValue& ActionValue)

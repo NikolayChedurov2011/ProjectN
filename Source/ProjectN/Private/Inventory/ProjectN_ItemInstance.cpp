@@ -101,7 +101,7 @@ void UProjectN_ItemInstance::ApplyItemAbilityAndEffects(const AActor* InActor)
 		
 	for (const TSubclassOf<UGameplayAbility> Ability : GetItemStaticClass()->GetItemAbilities())
 	{
-		GameplayAbilitySpecHandles.Add(ASC->GiveAbility_Internal(Ability));
+		GameplayAbilitySpecHandles.Add(ASC->AddAbility(Ability));
 	}
 
 	FGameplayEffectContextHandle EffectContext = ASCInterface->GetAbilitySystemComponent()->MakeEffectContext();
