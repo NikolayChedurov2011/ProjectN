@@ -8,3 +8,8 @@ int32 ICombatInterface::GetCharacterLevel()
 {
 	return 0;
 }
+
+FVector ICombatInterface::GetWeaponSocketLocation(const FGameplayTag& InputTag)
+{
+	return FVector::ZeroVector;
+}

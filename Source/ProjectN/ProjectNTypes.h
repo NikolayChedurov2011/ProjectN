@@ -3,6 +3,7 @@
 #include "CoreMinimal.h"
 #include "ProjectNTypes.generated.h"
 
+struct FGameplayTag;
 class UGameplayEffect;
 class UGameplayAbility;
 class UBlendSpace;
@@ -80,6 +81,9 @@ public:
 	UFUNCTION(BlueprintCallable, BlueprintPure)
 	FORCEINLINE TMap<EItemSlot, FName> GetSocketsToAttach() const { return SocketToAttach; }
 
+	//UFUNCTION(BlueprintCallable, BlueprintPure)
+	//FORCEINLINE TMap<EItemSlot, FGameplayTag> GetAssociatedTag() const { return AssociatedTag; }
+
 	UFUNCTION(BlueprintCallable, BlueprintPure)
 	FORCEINLINE bool CanBeEquipped() const { return bCanBeEquipped; }
 
@@ -102,6 +106,9 @@ protected:
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	TMap<EItemSlot, FName> SocketToAttach;
+
+	//UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	//TMap<EItemSlot, FGameplayTag> AssociatedTag;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	TArray<EItemSlot> AllowedSlots;

@@ -3,7 +3,6 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "GameplayTagContainer.h"
 #include "GameFramework/Actor.h"
 #include "ProjectN/ProjectNTypes.h"
 #include "ProjectN_ItemActor_Base.generated.h"
@@ -27,15 +26,15 @@ public:
 	virtual void OnUnequipped();
 	virtual void OnDropped();
 
+	UFUNCTION(BlueprintImplementableEvent)
+	FVector GetWeaponSocketLocationForProjectile();
+
 protected:
 	virtual void BeginPlay() override;
 	virtual void GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const override;
 
 	UFUNCTION()
 	void OnItemOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
-
-public:	
-	virtual void Tick(float DeltaTime) override;
 
 protected:
 	// Pointer to instance of this actor, provides access to static data class 

@@ -343,6 +343,21 @@ FEquippedItemData* UProjectN_InventoryComponent::FindItemDataByInstance(const UP
 	});
 }
 
+FVector UProjectN_InventoryComponent::FindSocketLocationByTag(const FGameplayTag& InputTag)
+{
+	if (!InputTag.IsValid())
+	{
+		return FVector::ZeroVector;
+	}
+	FEquippedItemData* FindItem = FindItemDataBySlot(*AssociatedTagWithSlot.Find(InputTag));
+	if (FindItem != nullptr)
+	{
+		return FindItem->ItemInstance->GetWeaponSocketLocationForProjectile();
+	}
+	
+	return FVector::ZeroVector;
+}
+
 void UProjectN_InventoryComponent::RemoveSlot(const EItemSlot InItemSlot)
 {
 	for (auto ItemIter = EquippedItemSlots.CreateIterator(); ItemIter; ++ItemIter)

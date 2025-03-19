@@ -8,8 +8,6 @@
 #include "Inventory/PojectN_InventoryItemsRecord.h"
 #include "ProjectN_InventoryComponent.generated.h"
 
-class AProjectN_CharacterBase;
-
 USTRUCT()
 struct FEquippedItemData
 {
@@ -78,6 +76,8 @@ public:
 	UFUNCTION(BlueprintCallable)
 	FORCEINLINE TArray<FInventoryItem>& GetItems() { return InventoryList.GetItemsRef(); }
 
+	FVector FindSocketLocationByTag(const FGameplayTag& InputTag);
+	
 protected:
 	virtual void InitializeComponent() override;
 
@@ -88,6 +88,22 @@ protected:
 
 	UFUNCTION(Server, Reliable)
 	void ServerHandleGameplayEvent(const FGameplayEventData Payload);
+	
+	/****
+	 *  Slots managing
+	 ****/
+	bool IsSlotEquipped(const EItemSlot InItemSlot);
+	bool IsSlotEquipped(const UProjectN_ItemInstance* InItemInstance);
+	FEquippedItemData* FindItemDataBySlot(const EItemSlot InItemSlot);
+	FEquippedItemData* FindItemDataByInstance(const UProjectN_ItemInstance* InItemInstance);
+	//	FEquippedItemData* FindItemDataByAssociatedTag(const FGameplayTag& AssociatedTag);
+	void RemoveSlot(const EItemSlot InItemSlot);
+	void AddItemToSlot(const EItemSlot InItemSlot, UProjectN_ItemInstance* InItemInstance);
+
+	/****
+	 *  Debug functions
+	 ****/
+	void PrintMessage(const FString& InText);
 
 	UPROPERTY(Replicated, EditDefaultsOnly)
 	FInventoryList InventoryList;
@@ -101,20 +117,8 @@ protected:
 	UPROPERTY(Replicated)
 	TArray<FEquippedItemData> EquippedItemSlots;
 
-	/*
-	 *  Slots managing
-	 */
-	bool IsSlotEquipped(const EItemSlot InItemSlot);
-	bool IsSlotEquipped(const UProjectN_ItemInstance* InItemInstance);
-	FEquippedItemData* FindItemDataBySlot(const EItemSlot InItemSlot);
-	FEquippedItemData* FindItemDataByInstance(const UProjectN_ItemInstance* InItemInstance);
-	void RemoveSlot(const EItemSlot InItemSlot);
-	void AddItemToSlot(const EItemSlot InItemSlot, UProjectN_ItemInstance* InItemInstance);
-
-	/*
-	 *  Debug functions
-	 */
-	void PrintMessage(const FString& InText);
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	TMap<FGameplayTag, EItemSlot> AssociatedTagWithSlot;
 
 public:	
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;

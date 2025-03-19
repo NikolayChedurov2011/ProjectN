@@ -6,6 +6,8 @@
 #include "UObject/Interface.h"
 #include "CombatInterface.generated.h"
 
+struct FGameplayTag;
+
 UINTERFACE(MinimalAPI)
 class UCombatInterface : public UInterface
 {
@@ -19,4 +21,5 @@ class PROJECTN_API ICombatInterface
 public:
 
 	virtual int32 GetCharacterLevel();
+	virtual FVector GetWeaponSocketLocation(const FGameplayTag& InputTag);
 };

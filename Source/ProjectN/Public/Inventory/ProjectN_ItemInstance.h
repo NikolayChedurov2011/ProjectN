@@ -31,6 +31,9 @@ public:
 	virtual void  OnUnEquip();
 	virtual void  OnDrop();
 
+	FORCEINLINE AProjectN_ItemActor_Base* GetSpawnedItemActor() const { return ItemActor; };
+	FORCEINLINE FVector GetWeaponSocketLocationForProjectile() const;
+
 protected:
 
 	UPROPERTY(Replicated)

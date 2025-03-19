@@ -37,7 +37,7 @@ void UProjectN_ItemInstance::OnEquip(AActor* Owner, const FName InSocket)
 	
 	if (UWorld* World = Owner->GetWorld())
 	{
-		const FTransform Transform;
+		FTransform Transform;
 		
 		ItemActor = World->SpawnActorDeferred<AProjectN_ItemActor_Base>(GetItemStaticClass()->GetItemActorClass(), Transform, Owner);
 		ItemActor->Init(this);
@@ -133,4 +133,9 @@ void UProjectN_ItemInstance::RemoveItemAbilityAndEffects(const ACharacter* InCha
 	}
 	GameplayAbilitySpecHandles.Empty();
 	ActiveGameplayEffectHandles.Empty();
+}
+
+FVector UProjectN_ItemInstance::GetWeaponSocketLocationForProjectile() const
+{
+	return ItemActor? ItemActor->GetWeaponSocketLocationForProjectile() : FVector::ZeroVector;
 }

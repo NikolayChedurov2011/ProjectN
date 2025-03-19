@@ -9,6 +9,7 @@
 AProjectN_ProjectileBase::AProjectN_ProjectileBase()
 {
 	PrimaryActorTick.bCanEverTick = false;
+	bReplicates = true;
 
 	SphereComponent = CreateDefaultSubobject<USphereComponent>(TEXT("SphereComponent"));
 	SetRootComponent(SphereComponent);
@@ -19,8 +20,8 @@ AProjectN_ProjectileBase::AProjectN_ProjectileBase()
 	SphereComponent->SetCollisionResponseToChannel(ECC_Pawn, ECR_Overlap);
 
 	ProjectileMovementComponent = CreateDefaultSubobject<UProjectileMovementComponent>(TEXT("Projectile Movement Component"));
-	ProjectileMovementComponent->InitialSpeed = 1000.0f;
-	ProjectileMovementComponent->MaxSpeed = 1000.0f;
+	ProjectileMovementComponent->InitialSpeed = 1000.f;
+	ProjectileMovementComponent->MaxSpeed = 1000.f;
 	ProjectileMovementComponent->ProjectileGravityScale = 0.f;
 }
 

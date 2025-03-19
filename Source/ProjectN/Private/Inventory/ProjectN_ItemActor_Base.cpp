@@ -47,12 +47,6 @@ void AProjectN_ItemActor_Base::BeginPlay()
 	
 }
 
-void AProjectN_ItemActor_Base::Tick(float DeltaTime)
-{
-	Super::Tick(DeltaTime);
-
-}
-
 void AProjectN_ItemActor_Base::Init(UProjectN_ItemInstance* InItemInstance)
 {
 	ItemInstance = InItemInstance;

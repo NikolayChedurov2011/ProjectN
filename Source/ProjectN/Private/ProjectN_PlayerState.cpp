@@ -35,6 +35,12 @@ UAbilitySystemComponent* AProjectN_PlayerState::GetAbilitySystemComponent() cons
 {
 	return ProjectN_AbilitySystemComponent;
 }
+
+FVector AProjectN_PlayerState::GetWeaponSocketLocation(const FGameplayTag& InputTag)
+{
+	return ProjectN_InventoryComponent->FindSocketLocationByTag(InputTag);
+}
+
 /*
  *
  */
