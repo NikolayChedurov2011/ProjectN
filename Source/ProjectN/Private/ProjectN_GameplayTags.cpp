@@ -31,9 +31,15 @@ namespace ProjectNGameplayTags
 	UE_DEFINE_GAMEPLAY_TAG(Input_Slot0,						"Input.Slot0")
 	
 	/**** Inventory Tags ****/
-	UE_DEFINE_GAMEPLAY_TAG(InventoryTag_Equip,		"InventoryTag.Equip")
-	UE_DEFINE_GAMEPLAY_TAG(InventoryTag_UnEquip,	"InventoryTag.UnEquip")
-	UE_DEFINE_GAMEPLAY_TAG(InventoryTag_Drop,		"InventoryTag.Drop")
+	UE_DEFINE_GAMEPLAY_TAG(InventoryTag_Equip,			"InventoryTag.Equip")
+	UE_DEFINE_GAMEPLAY_TAG(InventoryTag_UnEquip,		"InventoryTag.UnEquip")
+	UE_DEFINE_GAMEPLAY_TAG(InventoryTag_Drop,			"InventoryTag.Drop")
+
+	/**** Inventory Tags ****/
+	UE_DEFINE_GAMEPLAY_TAG(Item_Weapon_Dagger,			"Item.Weapon.Dagger")
+	UE_DEFINE_GAMEPLAY_TAG(Item_Weapon_Sword,			"Item.Weapon.Sword")
+	UE_DEFINE_GAMEPLAY_TAG(Item_Weapon_GreatSword,		"Item.Weapon.GreatSword")
+	UE_DEFINE_GAMEPLAY_TAG(Item_Weapon_Bow,				"Item.Weapon.Bow")
 
 	/**** Message Tags ****/
 	UE_DEFINE_GAMEPLAY_TAG(Message,					"Message")
