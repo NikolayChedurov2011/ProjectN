@@ -94,7 +94,10 @@ public:
 	FORCEINLINE TSubclassOf<AProjectN_ItemActor_Base> GetItemActorClass() const { return ItemActorClass; }
 
 	UFUNCTION(BlueprintCallable, BlueprintPure)
-	FORCEINLINE TArray<TSubclassOf<UGameplayAbility>> GetItemAbilities() const { return ItemAbilities; }
+	FORCEINLINE TArray<TSubclassOf<UGameplayAbility>> GetItemBaseAbilities() const { return ItemBaseAbilities; }
+
+	UFUNCTION(BlueprintCallable, BlueprintPure)
+	FORCEINLINE TArray<TSubclassOf<UGameplayAbility>> GetItemAdditionAbilities() const { return ItemAdditionalAbilities; }
 
 	UFUNCTION(BlueprintCallable, BlueprintPure)
 	FORCEINLINE TArray<TSubclassOf<UGameplayEffect>> GetItemEffects() const { return ItemEffects; }
@@ -123,7 +126,10 @@ protected:
 	bool bCanBeEquipped = false;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	TArray<TSubclassOf<UGameplayAbility>> ItemAbilities;
+	TArray<TSubclassOf<UGameplayAbility>> ItemBaseAbilities;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	TArray<TSubclassOf<UGameplayAbility>> ItemAdditionalAbilities;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	TArray<TSubclassOf<UGameplayEffect>> ItemEffects;

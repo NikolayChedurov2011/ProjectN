@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "GameplayTagContainer.h"
 #include "ProjectN/ProjectNTypes.h"
 #include "ProjectN_ItemInstance.generated.h"
 
@@ -27,7 +28,7 @@ public:
 	UFUNCTION(BlueprintCallable, BlueprintPure)
 	TSubclassOf<UItemStaticClass> GetItemStaticSubClass() const { return ItemStaticDataClass; }
 
-	virtual void  OnEquip(AActor* Owner = nullptr, const FName InSocket = FName("hand_r"));
+	virtual void  OnEquip(AActor* Owner = nullptr, const FName InSocket = FName("hand_r"), const FGameplayTag& InputTag = FGameplayTag());
 	virtual void  OnUnEquip();
 	virtual void  OnDrop();
 
@@ -50,7 +51,7 @@ protected:
 	UFUNCTION()
 	void OnRep_IsEquipped();
 
-	void ApplyItemAbilityAndEffects(const AActor* InActor);
+	void ApplyItemAbilityAndEffects(const AActor* InActor, const FGameplayTag& InputTag = FGameplayTag());
 	void RemoveItemAbilityAndEffects(const ACharacter* InCharacter);
 
 private:

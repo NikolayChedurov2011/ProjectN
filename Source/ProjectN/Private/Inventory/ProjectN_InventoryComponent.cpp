@@ -262,7 +262,17 @@ void UProjectN_InventoryComponent::EquipItemByInstance(UProjectN_ItemInstance* I
 		{
 			if (Item.ItemInstance == InItemInstance)
 			{
-				Item.ItemInstance->OnEquip(BaseCharacter, *Item.ItemInstance->GetItemStaticClass()->GetSocketsToAttach().Find(InSlot));
+				// Find associated tag for slot
+				FGameplayTag Tag = FGameplayTag();
+				for (const auto& Pair : AssociatedTagWithSlot)
+				{
+					if (Pair.Value == InSlot)
+					{
+						Tag = Pair.Key;
+						break;
+					}
+				}
+				Item.ItemInstance->OnEquip(BaseCharacter, *Item.ItemInstance->GetItemStaticClass()->GetSocketsToAttach().Find(InSlot), Tag);
 
 				// Add item data to list of equipped items
 				AddItemToSlot(InSlot, Item.ItemInstance);

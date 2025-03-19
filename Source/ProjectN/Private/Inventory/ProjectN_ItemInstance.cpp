@@ -31,7 +31,7 @@ const UItemStaticClass* UProjectN_ItemInstance::GetItemStaticClass() const
 	return UProjectN_Statics::GetItemStaticData(ItemStaticDataClass);
 }
 
-void UProjectN_ItemInstance::OnEquip(AActor* Owner, const FName InSocket)
+void UProjectN_ItemInstance::OnEquip(AActor* Owner, const FName InSocket, const FGameplayTag& InputTag)
 {
 	OwnerCharacter = Cast<ACharacter>(Owner);
 	
@@ -51,7 +51,7 @@ void UProjectN_ItemInstance::OnEquip(AActor* Owner, const FName InSocket)
 	}
 	
 	bIsEquipped = true;
-	ApplyItemAbilityAndEffects(OwnerCharacter);
+	ApplyItemAbilityAndEffects(OwnerCharacter, InputTag);
 }
 
 void UProjectN_ItemInstance::OnUnEquip()
@@ -83,7 +83,7 @@ void UProjectN_ItemInstance::OnRep_IsEquipped()
 	
 }
 
-void UProjectN_ItemInstance::ApplyItemAbilityAndEffects(const AActor* InActor)
+void UProjectN_ItemInstance::ApplyItemAbilityAndEffects(const AActor* InActor, const FGameplayTag& InputTag)
 {
 	if (!IsValid(InActor))
 	{
@@ -99,9 +99,9 @@ void UProjectN_ItemInstance::ApplyItemAbilityAndEffects(const AActor* InActor)
 	
 	UProjectN_AbilitySystemComponent* ASC = Cast<UProjectN_AbilitySystemComponent>(ASCInterface->GetAbilitySystemComponent());
 		
-	for (const TSubclassOf<UGameplayAbility> Ability : GetItemStaticClass()->GetItemAbilities())
+	for (const TSubclassOf<UGameplayAbility> Ability : GetItemStaticClass()->GetItemBaseAbilities())
 	{
-		GameplayAbilitySpecHandles.Add(ASC->AddAbility(Ability));
+		GameplayAbilitySpecHandles.Add(ASC->AddAbility(Ability, InputTag));
 	}
 
 	FGameplayEffectContextHandle EffectContext = ASCInterface->GetAbilitySystemComponent()->MakeEffectContext();

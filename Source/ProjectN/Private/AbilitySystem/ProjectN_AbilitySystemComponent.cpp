@@ -18,14 +18,14 @@ void UProjectN_AbilitySystemComponent::OnEffectApply_Implementation(UAbilitySyst
 	EffectAssetTags.Broadcast(AssetTagsContainer);
 }
 
-FGameplayAbilitySpecHandle UProjectN_AbilitySystemComponent::AddAbility(const TSubclassOf<UGameplayAbility> DefaultAbility)
+FGameplayAbilitySpecHandle UProjectN_AbilitySystemComponent::AddAbility(const TSubclassOf<UGameplayAbility> DefaultAbility, const FGameplayTag& InputTag)
 {
 	if (IsValid(DefaultAbility))
 	{
 		FGameplayAbilitySpec AbilitySpec = FGameplayAbilitySpec(DefaultAbility, 1.f);
 		if (const UProjectN_GameplayAbilityBase* ProjectN_Ability = Cast<UProjectN_GameplayAbilityBase>(AbilitySpec.Ability))
 		{
-			AbilitySpec.DynamicAbilityTags.AddTag(ProjectN_Ability->GetStartupTag());
+			AbilitySpec.DynamicAbilityTags.AddTag(InputTag.IsValid()? InputTag : ProjectN_Ability->GetStartupTag());
 			return GiveAbility(AbilitySpec);
 		}
 		return GiveAbility(AbilitySpec);

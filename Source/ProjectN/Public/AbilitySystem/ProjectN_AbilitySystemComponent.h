@@ -20,7 +20,7 @@ public:
 	FEffectAssetTagsSignature EffectAssetTags;
 
 	FActiveGameplayEffectHandle ApplyGamePlayEffectToSelf_Internal(const TSubclassOf<UGameplayEffect> Effect, const FGameplayEffectContextHandle& InEffectContext, const float Level);
-	FGameplayAbilitySpecHandle AddAbility(const TSubclassOf<UGameplayAbility> DefaultAbility);
+	FGameplayAbilitySpecHandle AddAbility(const TSubclassOf<UGameplayAbility> DefaultAbility, const FGameplayTag& InputTag = FGameplayTag());
 
 	void OnActionHeld(const FGameplayTag& InputTag);
 	void OnActionReleased(const FGameplayTag& InputTag);
