@@ -8,20 +8,17 @@
 #include "GameplayTagsManager.h"
 #include "ProjectN_CharacterBase.h"
 #include "ProjectN_GameplayTags.h"
+#include "DataAssets/ProjectN_LootDataAsset.h"
 #include "Engine/ActorChannel.h"
 #include "GameFramework/PlayerState.h"
+#include "Kismet/KismetSystemLibrary.h"
 #include "Net/UnrealNetwork.h"
-
-//FGameplayTag UProjectN_InventoryComponent::EquipItemTag;
-//FGameplayTag UProjectN_InventoryComponent::UnEquipItemTag;
-//FGameplayTag UProjectN_InventoryComponent::DropItemTag;
 
 /*
  **************
  * Initialize
  **************
  */
-
 UProjectN_InventoryComponent::UProjectN_InventoryComponent()
 {
 	PrimaryComponentTick.bCanEverTick = true;
@@ -73,10 +70,18 @@ void UProjectN_InventoryComponent::InitializeComponent()
 
 	if (GetOwner()->HasAuthority())
 	{
-		for (const TSubclassOf<UItemStaticClass>& ItemClass : DefaultItems)
+		/*for (const TSubclassOf<UItemStaticClass>& ItemClass : DefaultItems)
         {
         	InventoryList.AddItemByStaticClass(ItemClass);
         }
+		for (const TObjectPtr<UProjectN_ItemInstance>& ItemClass : DefaultItemInstance)
+        {
+        	AddItemByInstance(ItemClass);
+        }*/
+		for (const auto& Loot : DefaultLootData->LootData)
+		{
+			AddItemByStaticClass(Loot.ItemStaticClass, Loot.MaxCount);
+		}
 	}
 
 	if (UAbilitySystemComponent* ASC = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(GetOwner()))
@@ -90,7 +95,6 @@ void UProjectN_InventoryComponent::InitializeComponent()
 void UProjectN_InventoryComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-
 }
 
 /*
@@ -161,20 +165,40 @@ void UProjectN_InventoryComponent::ServerHandleGameplayEvent_Implementation(cons
 	}
 }*/
 
-/*void UProjectN_InventoryComponent::AddItemByStaticClass(const TSubclassOf<UItemStaticClass> ItemStaticDataClass)
+void UProjectN_InventoryComponent::AddItemByStaticClass(const TSubclassOf<UItemStaticClass> ItemStaticDataClass, const int32 ItemStack)
 {
-	if (GetOwner()->HasAuthority())
+	if (GetOwner()->HasAuthority() && ItemStaticDataClass)
 	{
-		InventoryList.AddItemByStaticClass(ItemStaticDataClass);
+		if (ItemStaticDataClass.GetDefaultObject()->CanStack())
+		{
+			if (const FInventoryItem* Item = InventoryList.FindItemByClass(ItemStaticDataClass.GetDefaultObject()))
+			{
+				Item->ItemInstance->AddItemStack(ItemStack);
+				return;
+			}
+		}
+		
+		InventoryList.AddItemByStaticClass(ItemStaticDataClass, ItemStack);
 	}
-}*/
+}
 
 void UProjectN_InventoryComponent::AddItemByInstance(UProjectN_ItemInstance* InItemInstance)
 {
-	if (GetOwner()->HasAuthority())
+	if (!GetOwner()->HasAuthority() && InItemInstance)
 	{
-		InventoryList.AddItemByInstance(InItemInstance);
+		return;
 	}
+	
+	if (InItemInstance->GetItemStaticClass()->CanStack())
+	{
+		if (const FInventoryItem* Item = InventoryList.FindItemByClassWithInstance(InItemInstance))
+		{
+			Item->ItemInstance->AddItemStack(InItemInstance->GetItemStack());
+			return;
+		}
+	}
+	
+	InventoryList.AddItemByInstance(InItemInstance, InItemInstance->GetItemStack());
 }
 
 /*void UProjectN_InventoryComponent::RemoveItemByStaticClass(const TSubclassOf<UItemStaticClass> ItemStaticDataClass)
@@ -217,13 +241,14 @@ void UProjectN_InventoryComponent::EquipItemByInstance(UProjectN_ItemInstance* I
 	if (GetOwner()->HasAuthority() && IsValid(BaseCharacter))
 	{
 		// At first check if item can be equipped
-		if (!IsEquippableItem(InItemInstance))
+		if (!IsEquippableItem(InItemInstance) || !Cast<UProjectN_EquippableItemInstance>(InItemInstance))
 		{
 			PrintMessage(TEXT("Item is not equippable"));
 			return;
 		}
+		
 		// Or if item has allowed slot for equip
-		if (!InItemInstance->GetItemStaticClass()->GetItemAllowedSlot().Contains(InSlot))
+		if (!Cast<UEquippableItemStaticClass>(InItemInstance->GetItemStaticClass())->GetItemAllowedSlot().Contains(InSlot))
 		{
 			PrintMessage(TEXT("Not allowed slot for equip"));
 			return;
@@ -258,7 +283,29 @@ void UProjectN_InventoryComponent::EquipItemByInstance(UProjectN_ItemInstance* I
 		}
 		
 		// Just check if item has in our inventory
-		for (const FInventoryItem& Item : InventoryList.GetItemsRef())
+		const FInventoryItem* Item = InventoryList.FindItemByInstance(InItemInstance);
+		if (Item)
+		{
+			// Find associated tag for slot
+			FGameplayTag Tag = FGameplayTag();
+			for (const auto& Pair : AssociatedTagWithSlot)
+			{
+				if (Pair.Value == InSlot)
+				{
+					Tag = Pair.Key;
+					break;
+				}
+			}
+			Cast<UProjectN_EquippableItemInstance>(Item->ItemInstance)->OnEquip(BaseCharacter, *Cast<UEquippableItemStaticClass>(Item->ItemInstance->GetItemStaticClass())->GetSocketsToAttach().Find(InSlot), Tag);
+
+			// Add item data to list of equipped items
+			AddItemToSlot(InSlot, Item->ItemInstance);
+
+			PrintMessage(TEXT("Slot is equipped and added"));
+		}
+
+		
+		/*for (const FInventoryItem& Item : InventoryList.GetItemsRef())
 		{
 			if (Item.ItemInstance == InItemInstance)
 			{
@@ -272,7 +319,7 @@ void UProjectN_InventoryComponent::EquipItemByInstance(UProjectN_ItemInstance* I
 						break;
 					}
 				}
-				Item.ItemInstance->OnEquip(BaseCharacter, *Item.ItemInstance->GetItemStaticClass()->GetSocketsToAttach().Find(InSlot), Tag);
+				Item.ItemInstance->OnEquip(BaseCharacter, *Cast<UEquippableItemStaticClass>(Item.ItemInstance->GetItemStaticClass())->GetSocketsToAttach().Find(InSlot), Tag);
 
 				// Add item data to list of equipped items
 				AddItemToSlot(InSlot, Item.ItemInstance);
@@ -280,7 +327,7 @@ void UProjectN_InventoryComponent::EquipItemByInstance(UProjectN_ItemInstance* I
 				PrintMessage(TEXT("Slot is equipped and added"));
 				break;
 			}
-		}
+		}*/
 	}
 }
 
@@ -288,12 +335,12 @@ void UProjectN_InventoryComponent::UnEquipItemByInstance(UProjectN_ItemInstance*
 {
 	if (GetOwner()->HasAuthority())
 	{
-		if (!IsSlotEquipped(InItemInstance))
+		if (!IsSlotEquipped(InItemInstance) || !Cast<UProjectN_EquippableItemInstance>(InItemInstance))
 		{
 			return;
 		}
 		
-		InItemInstance->OnUnEquip();
+		Cast<UProjectN_EquippableItemInstance>(InItemInstance)->OnUnEquip();
 		
 		// Remove item data from list of equipped items
 		FEquippedItemData* FindItemData = FindItemDataByInstance(InItemInstance);
@@ -307,10 +354,9 @@ void UProjectN_InventoryComponent::DropItem(UProjectN_ItemInstance* InItemInstan
 {
 	if (GetOwner()->HasAuthority())
 	{
-		if (IsValid(CurrentItemInstance))
+		if (IsValid(CurrentItemInstance) && Cast<UProjectN_EquippableItemInstance>(InItemInstance))
 		{
-			InItemInstance->OnDrop();
-			//RemoveItemByStaticClass(InItemInstance->GetItemStaticSubClass());
+			Cast<UProjectN_EquippableItemInstance>(InItemInstance)->OnDrop();
 			CurrentItemInstance = nullptr;
 		}
 	}
@@ -319,12 +365,14 @@ void UProjectN_InventoryComponent::DropItem(UProjectN_ItemInstance* InItemInstan
 void UProjectN_InventoryComponent::PrintMessage(const FString& InText)
 {
 	FVector2D MessageSize = FVector2D(1.f, 1.f);
-	GEngine->AddOnScreenDebugMessage(-1, 7.f, FColor::Blue, InText, true, MessageSize);
+	//GEngine->AddOnScreenDebugMessage(-1, 7.f, FColor::Blue, InText, true, MessageSize);
+	UKismetSystemLibrary::PrintString(this, InText, true, true, FColor::Blue);
 }
 
 /*********************************
  *  Slots managing
  *********************************/
+
 bool UProjectN_InventoryComponent::IsSlotEquipped(const EItemSlot InItemSlot)
 {
 	const FEquippedItemData* FindItem = FindItemDataBySlot(InItemSlot);
@@ -362,7 +410,7 @@ FVector UProjectN_InventoryComponent::FindSocketLocationByTag(const FGameplayTag
 	FEquippedItemData* FindItem = FindItemDataBySlot(*AssociatedTagWithSlot.Find(InputTag));
 	if (FindItem != nullptr)
 	{
-		return FindItem->ItemInstance->GetWeaponSocketLocationForProjectile();
+		return Cast<UProjectN_EquippableItemInstance>(FindItem->ItemInstance)->GetItemSocketLocationForProjectile();
 	}
 	
 	return FVector::ZeroVector;

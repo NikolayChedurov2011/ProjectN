@@ -42,7 +42,7 @@ struct FAnimationData
 {
 	GENERATED_USTRUCT_BODY()
 
-	UPROPERTY(EditDefaultsOnly, Category = "Animation")
+	UPROPERTY(EditAnywhere, Category = "Animation")
 	UBlendSpace* MovementBlendSpace = nullptr;
 	
 	UPROPERTY(EditAnywhere, Category = "Animation")
@@ -79,58 +79,85 @@ public:
 	FORCEINLINE FName GetItemName() const { return ItemName; }
 
 	UFUNCTION(BlueprintCallable, BlueprintPure)
-	FORCEINLINE TMap<EItemSlot, FName> GetSocketsToAttach() const { return SocketToAttach; }
-
-	//UFUNCTION(BlueprintCallable, BlueprintPure)
-	//FORCEINLINE TMap<EItemSlot, FGameplayTag> GetAssociatedTag() const { return AssociatedTag; }
-
-	UFUNCTION(BlueprintCallable, BlueprintPure)
 	FORCEINLINE bool CanBeEquipped() const { return bCanBeEquipped; }
 
 	UFUNCTION(BlueprintCallable, BlueprintPure)
-	FORCEINLINE TArray<EItemSlot> GetItemAllowedSlot() const { return AllowedSlots; }
+	FORCEINLINE bool CanStack() const { return bCanStack; }
+
+	UFUNCTION(BlueprintCallable, BlueprintPure)
+	FORCEINLINE bool CanBeConsumed() const { return bCanBeConsumed; }
+
+	UFUNCTION(BlueprintCallable, BlueprintPure)
+	FORCEINLINE bool ShouldDestroyAfterConsume() const { return bShouldDestroyAfterConsume; }
 	
 	UFUNCTION(BlueprintCallable, BlueprintPure)
 	FORCEINLINE TSubclassOf<AProjectN_ItemActor_Base> GetItemActorClass() const { return ItemActorClass; }
 
 	UFUNCTION(BlueprintCallable, BlueprintPure)
-	FORCEINLINE TArray<TSubclassOf<UGameplayAbility>> GetItemBaseAbilities() const { return ItemBaseAbilities; }
-
-	UFUNCTION(BlueprintCallable, BlueprintPure)
-	FORCEINLINE TArray<TSubclassOf<UGameplayAbility>> GetItemAdditionAbilities() const { return ItemAdditionalAbilities; }
-
-	UFUNCTION(BlueprintCallable, BlueprintPure)
-	FORCEINLINE TArray<TSubclassOf<UGameplayEffect>> GetItemEffects() const { return ItemEffects; }
+	FORCEINLINE TSubclassOf<UGameplayAbility> GetItemAbilityToUse() const { return ItemAbilityToUse; }
 
 protected:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	FName ItemName = NAME_None;
-	
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	TMap<EItemSlot, FName> SocketToAttach;
 
-	//UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	//TMap<EItemSlot, FGameplayTag> AssociatedTag;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	TArray<EItemSlot> AllowedSlots;
-	
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	TSubclassOf<AProjectN_ItemActor_Base> ItemActorClass;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	FAnimationData AnimationData;
-	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	bool bCanBeEquipped = false;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	TArray<TSubclassOf<UGameplayAbility>> ItemBaseAbilities;
+	bool bCanBeConsumed = false;
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	bool bShouldDestroyAfterConsume = false;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	TArray<TSubclassOf<UGameplayAbility>> ItemAdditionalAbilities;
+	bool bCanStack = false;
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	TSubclassOf<AProjectN_ItemActor_Base> ItemActorClass;
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	TSubclassOf<UGameplayAbility> ItemAbilityToUse;
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	FAnimationData AnimationData;
+};
 
+UCLASS(BlueprintType, Blueprintable)
+class UEquippableItemStaticClass : public UItemStaticClass
+{
+	GENERATED_BODY()
+
+public:
+
+	UEquippableItemStaticClass()
+	{
+		bCanBeEquipped = true;
+	}
+	
+	UFUNCTION(BlueprintCallable, BlueprintPure)
+	FORCEINLINE TMap<EItemSlot, FName> GetSocketsToAttach() const { return SocketToAttach; }
+
+	UFUNCTION(BlueprintCallable, BlueprintPure)
+	FORCEINLINE TArray<EItemSlot> GetItemAllowedSlot() const { return AllowedSlots; }
+	
+	UFUNCTION(BlueprintCallable, BlueprintPure)
+	FORCEINLINE TArray<TSubclassOf<UGameplayAbility>> GetItemAbilitiesToAdd() const { return ItemAbilitiesToAdd; }
+	
+	UFUNCTION(BlueprintCallable, BlueprintPure)
+	FORCEINLINE TArray<TSubclassOf<UGameplayEffect>> GetItemEffects() const { return ItemEffects; }
+
+protected:
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	TMap<EItemSlot, FName> SocketToAttach;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	TArray<EItemSlot> AllowedSlots;
+		
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	TArray<TSubclassOf<UGameplayAbility>> ItemAbilitiesToAdd;
+	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	TArray<TSubclassOf<UGameplayEffect>> ItemEffects;
 };

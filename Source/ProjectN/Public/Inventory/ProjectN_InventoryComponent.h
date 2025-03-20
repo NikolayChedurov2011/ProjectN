@@ -8,6 +8,8 @@
 #include "Inventory/PojectN_InventoryItemsRecord.h"
 #include "ProjectN_InventoryComponent.generated.h"
 
+class UProjectN_LootDataAsset;
+
 USTRUCT()
 struct FEquippedItemData
 {
@@ -38,8 +40,8 @@ public:
 	virtual bool ReplicateSubobjects(class UActorChannel* Channel, class FOutBunch* Bunch, FReplicationFlags* RepFlags) override;
 	virtual void GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const override;
 
-	//UFUNCTION(BlueprintCallable)
-	//void AddItemByStaticClass(const TSubclassOf<UItemStaticClass> ItemStaticDataClass);
+	UFUNCTION(BlueprintCallable)
+	void AddItemByStaticClass(const TSubclassOf<UItemStaticClass> ItemStaticDataClass, const int32 ItemStack);
 	UFUNCTION(BlueprintCallable)
 	void AddItemByInstance(UProjectN_ItemInstance* InItemInstance);
 	//UFUNCTION(BlueprintCallable)
@@ -67,11 +69,6 @@ public:
 	FORCEINLINE  TArray<FInventoryItem>& GetItemsList() { return InventoryList.GetItemsRef(); }
 
 	virtual void GameplayEventCallback(const FGameplayEventData* Payload);
-
-	// This implementation in case if inventory classes should be independent, for example use it as separate plugin
-	//static FGameplayTag EquipItemTag;
-	//static FGameplayTag UnEquipItemTag;
-	//static FGameplayTag DropItemTag;
 	
 	UFUNCTION(BlueprintCallable)
 	FORCEINLINE TArray<FInventoryItem>& GetItems() { return InventoryList.GetItemsRef(); }
@@ -96,7 +93,6 @@ protected:
 	bool IsSlotEquipped(const UProjectN_ItemInstance* InItemInstance);
 	FEquippedItemData* FindItemDataBySlot(const EItemSlot InItemSlot);
 	FEquippedItemData* FindItemDataByInstance(const UProjectN_ItemInstance* InItemInstance);
-	//	FEquippedItemData* FindItemDataByAssociatedTag(const FGameplayTag& AssociatedTag);
 	void RemoveSlot(const EItemSlot InItemSlot);
 	void AddItemToSlot(const EItemSlot InItemSlot, UProjectN_ItemInstance* InItemInstance);
 
@@ -110,6 +106,10 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly)
 	TArray<TSubclassOf<UItemStaticClass>> DefaultItems;
+	UPROPERTY(EditDefaultsOnly)
+	TArray<TObjectPtr<UProjectN_ItemInstance>> DefaultItemInstance;
+	UPROPERTY(EditDefaultsOnly)
+	TObjectPtr<UProjectN_LootDataAsset> DefaultLootData;
 
 	UPROPERTY(Replicated)
 	TObjectPtr<UProjectN_ItemInstance> CurrentItemInstance = nullptr;
