@@ -69,4 +69,7 @@ namespace ProjectNGameplayTags
 	PROJECTN_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Attribute_Secondary_CriticalHitDamage)
 	PROJECTN_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Attribute_Secondary_HealRegeneration)
 	PROJECTN_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Attribute_Secondary_ManaRegeneration)
+
+	/**** Event Tags ****/
+	PROJECTN_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Event_Montage_SpawnEffect)
 }

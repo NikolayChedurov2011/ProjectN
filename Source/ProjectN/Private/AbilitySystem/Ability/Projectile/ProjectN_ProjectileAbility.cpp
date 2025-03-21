@@ -9,14 +9,29 @@
 void UProjectN_ProjectileAbility::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData)
 {
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
+	
+}
 
-	const bool bIsServer = HasAuthority(&ActivationInfo);
+void UProjectN_ProjectileAbility::SpawnProjectile()
+{
+	const bool bIsServer = GetOwningActorFromActorInfo()->HasAuthority();
 
 	if (!bIsServer)
 	{
+		ServerSpawnProjectile();
 		return;
 	}
 	
+	SpawnProjectile_Internal();
+}
+
+void UProjectN_ProjectileAbility::ServerSpawnProjectile_Implementation()
+{
+	SpawnProjectile_Internal();
+}
+
+void UProjectN_ProjectileAbility::SpawnProjectile_Internal()
+{
 	ICombatInterface* CombatInterface = Cast<ICombatInterface>(GetOwningActorFromActorInfo());
 	if (CombatInterface)
 	{

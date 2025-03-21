@@ -8,6 +8,7 @@
 
 class UProjectN_AttributeController;
 class UProjectN_OverlayWidgetController;
+class UProjectN_InventoryController;
 /**
  * 
  */
@@ -23,4 +24,7 @@ public:
 
 	UFUNCTION(BlueprintPure, Category = "AbilitySystem | Attribure Widget Controller")
 	static UProjectN_AttributeController* GetAttributeWidgetController(const UObject* WorldContextObject);
+
+	UFUNCTION(BlueprintPure, Category = "AbilitySystem | Inventory Widget Controller")
+	static UProjectN_InventoryController* GetInventoryWidgetController(const UObject* WorldContextObject);
 };

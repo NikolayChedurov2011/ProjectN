@@ -4,6 +4,7 @@
 #include "UI/HUD/ProjectN_HUD.h"
 
 #include "UI/WidgetController/ProjectN_AttributeController.h"
+#include "UI/WidgetController/ProjectN_InventoryController.h"
 #include "UI/WidgetController/ProjectN_OverlayWidgetController.h"
 #include "UI/Widgets/ProjectN_WidgetBase.h"
 
@@ -33,6 +34,20 @@ UProjectN_AttributeController* AProjectN_HUD::GetAttributeWidgetController(const
 	}
 
 	return AttributeWidgetController;
+}
+
+UProjectN_InventoryController* AProjectN_HUD::GetInventoryWidgetController(const FWidgetControllerParams& WCParams)
+{
+	if (InventoryWidgetController == nullptr)
+	{
+		InventoryWidgetController = NewObject<UProjectN_InventoryController>(this, InventoryWidgetControllerClass);
+		InventoryWidgetController->SetWidgetControllerParams(WCParams);
+		InventoryWidgetController->BindCallbacksToResponce();
+
+		return InventoryWidgetController;
+	}
+
+	return InventoryWidgetController;
 }
 
 void AProjectN_HUD::InitOverlay(APlayerController* PC, APlayerState* PS, UAbilitySystemComponent* ASC, UAttributeSet* AS)

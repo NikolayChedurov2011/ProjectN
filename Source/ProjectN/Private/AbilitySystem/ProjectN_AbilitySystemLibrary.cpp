@@ -54,3 +54,29 @@ UProjectN_AttributeController* UProjectN_AbilitySystemLibrary::GetAttributeWidge
 	
 	return nullptr;
 }
+
+UProjectN_InventoryController* UProjectN_AbilitySystemLibrary::GetInventoryWidgetController(const UObject* WorldContextObject)
+{
+	APlayerController* DefaultPlayerController = UGameplayStatics::GetPlayerController(WorldContextObject, 0);
+	APlayerState* DefaultPlayerState = UGameplayStatics::GetPlayerState(WorldContextObject, 0);
+
+	if (IsValid(DefaultPlayerController) && IsValid(DefaultPlayerState))
+	{
+		APlayerController* PlayerController = Cast<APlayerController>(DefaultPlayerController);
+		AProjectN_PlayerState* PlayerState = Cast<AProjectN_PlayerState>(DefaultPlayerState);
+	
+		if (IsValid(PlayerController) && IsValid(PlayerState))
+		{
+			if (AProjectN_HUD* HUD = Cast<AProjectN_HUD>(PlayerController->GetHUD()))
+			{
+				UAbilitySystemComponent* AbilitySystemComponent = PlayerState->GetAbilitySystemComponent();
+				UAttributeSet* Attributes = PlayerState->GetAttributeSet();
+				const FWidgetControllerParams WidgetParams(PlayerController, PlayerState, AbilitySystemComponent, Attributes);
+
+				return HUD->GetInventoryWidgetController(WidgetParams);
+			}
+		}
+	}
+	
+	return nullptr;
+}

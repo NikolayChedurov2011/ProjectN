@@ -17,6 +17,14 @@ protected:
 
 	virtual void ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData) override;
 
+	UFUNCTION(BlueprintCallable)
+	void SpawnProjectile();
+
+	UFUNCTION(Server)
+	void ServerSpawnProjectile();
+
+	void SpawnProjectile_Internal();
+	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Ability Defaults")
 	TSubclassOf<AProjectN_ProjectileBase> ProjectileToSpawn = nullptr;
 };
