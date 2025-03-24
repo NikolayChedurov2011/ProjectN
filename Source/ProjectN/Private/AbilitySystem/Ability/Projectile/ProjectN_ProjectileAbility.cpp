@@ -18,25 +18,44 @@ void UProjectN_ProjectileAbility::SpawnProjectile()
 
 	if (!bIsServer)
 	{
-		ServerSpawnProjectile();
+		//ServerSpawnProjectile(TargetLocation);
 		return;
 	}
 	
-	SpawnProjectile_Internal();
+	//SpawnProjectile_Internal(TargetLocation);
+
+	ICombatInterface* CombatInterface = Cast<ICombatInterface>(GetOwningActorFromActorInfo());
+	if (CombatInterface)
+	{
+		FTransform SpawnTransform;
+		const FVector SocketLocation = CombatInterface->GetWeaponSocketLocation(GetCurrentAbilitySpec()->DynamicAbilityTags.First());
+		//const FRotator Rotation = (TargetLocation - SocketLocation).Rotation();
+
+		SpawnTransform.SetLocation(SocketLocation);
+		//SpawnTransform.SetRotation(Rotation.Quaternion());
+		SpawnTransform.SetRotation(GetAvatarActorFromActorInfo()->GetActorRotation().Quaternion());
+	
+		AProjectN_ProjectileBase* SpawnedProjectile = GetWorld()->SpawnActorDeferred<AProjectN_ProjectileBase>(ProjectileToSpawn, SpawnTransform, GetOwningActorFromActorInfo(), Cast<APawn>(GetAvatarActorFromActorInfo()),  ESpawnActorCollisionHandlingMethod::AlwaysSpawn);
+		SpawnedProjectile->FinishSpawning(SpawnTransform);
+	}
 }
 
-void UProjectN_ProjectileAbility::ServerSpawnProjectile_Implementation()
+void UProjectN_ProjectileAbility::ServerSpawnProjectile_Implementation(const FVector& TargetLocation)
 {
-	SpawnProjectile_Internal();
+	SpawnProjectile_Internal(TargetLocation);
 }
 
-void UProjectN_ProjectileAbility::SpawnProjectile_Internal()
+void UProjectN_ProjectileAbility::SpawnProjectile_Internal(const FVector& TargetLocation)
 {
 	ICombatInterface* CombatInterface = Cast<ICombatInterface>(GetOwningActorFromActorInfo());
 	if (CombatInterface)
 	{
 		FTransform SpawnTransform;
-		SpawnTransform.SetLocation(CombatInterface->GetWeaponSocketLocation(GetCurrentAbilitySpec()->DynamicAbilityTags.First()));
+		const FVector SocketLocation = CombatInterface->GetWeaponSocketLocation(GetCurrentAbilitySpec()->DynamicAbilityTags.First());
+		const FRotator Rotation = (TargetLocation - SocketLocation).Rotation();
+
+		SpawnTransform.SetLocation(SocketLocation);
+		SpawnTransform.SetRotation(Rotation.Quaternion());
 	
 		AProjectN_ProjectileBase* SpawnedProjectile = GetWorld()->SpawnActorDeferred<AProjectN_ProjectileBase>(ProjectileToSpawn, SpawnTransform, GetOwningActorFromActorInfo(), Cast<APawn>(GetAvatarActorFromActorInfo()),  ESpawnActorCollisionHandlingMethod::AlwaysSpawn);
 		SpawnedProjectile->FinishSpawning(SpawnTransform);

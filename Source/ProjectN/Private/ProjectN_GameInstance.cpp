@@ -9,5 +9,6 @@ void UProjectN_GameInstance::Init()
 {
 	Super::Init();
 
+	// Required to use target data
 	UAbilitySystemGlobals::Get().InitGlobalData();
 }
