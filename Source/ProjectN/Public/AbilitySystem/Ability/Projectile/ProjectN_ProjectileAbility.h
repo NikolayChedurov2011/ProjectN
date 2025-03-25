@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "AbilitySystem/ProjectN_GameplayAbilityBase.h"
+#include "AbilitySystem/Ability/ProjectN_GameplayAbilityBase.h"
 #include "ProjectN_ProjectileAbility.generated.h"
 
 class AProjectN_ProjectileBase;

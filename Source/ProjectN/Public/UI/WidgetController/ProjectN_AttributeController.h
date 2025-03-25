@@ -26,10 +26,19 @@ public:
 	virtual void BroadcastInitialValues() override;
 	virtual void BindCallbacksToResponce() override;
 
+	UFUNCTION(BlueprintCallable)
+	void SaveAttributes();
+	UFUNCTION(BlueprintCallable)
+	void ChangeAttribute(const FGameplayTag& AttributeTag, float Value) const;
+
 protected:
 
-	void BroadcastAttributeInfo(const FGameplayTag& InTag, const FGameplayAttribute& InAttribute) const;
+	UFUNCTION(Server, Reliable)
+	void ServerCreateEffect(const FGameplayTag& AttributeTag, const float Value) const;
 	
+	void BroadcastAttributeInfo(const FGameplayTag& InTag, const FGameplayAttribute& InAttribute) const;
+	void CreateEffect(const FGameplayTag& AttributeTag, const float Value) const;
+
 	UPROPERTY(EditDefaultsOnly)
 	TObjectPtr<UAttributeInfo> AttributeInfo;
 };

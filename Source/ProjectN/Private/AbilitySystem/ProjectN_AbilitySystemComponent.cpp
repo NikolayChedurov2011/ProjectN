@@ -3,7 +3,7 @@
 
 #include "AbilitySystem/ProjectN_AbilitySystemComponent.h"
 
-#include "AbilitySystem/ProjectN_GameplayAbilityBase.h"
+#include "AbilitySystem/Ability/ProjectN_GameplayAbilityBase.h"
 
 void UProjectN_AbilitySystemComponent::AbilityActorInfoSet()
 {

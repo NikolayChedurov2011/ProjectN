@@ -7,9 +7,6 @@
 #include "ProjectN/ProjectNTypes.h"
 #include "ProjectN_CharacterDataAsset.generated.h"
 
-/**
- * 
- */
 UCLASS(BlueprintType, Blueprintable)
 class PROJECTN_API UProjectN_CharacterDataAsset : public UDataAsset
 {

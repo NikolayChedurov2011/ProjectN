@@ -6,9 +6,7 @@
 #include "Abilities/GameplayAbility.h"
 #include "ProjectN_GameplayAbilityBase.generated.h"
 
-/**
- * 
- */
+
 UCLASS()
 class PROJECTN_API UProjectN_GameplayAbilityBase : public UGameplayAbility
 {

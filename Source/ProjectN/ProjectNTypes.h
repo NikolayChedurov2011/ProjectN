@@ -10,6 +10,24 @@ class UBlendSpace;
 class UAnimSequenceBase;
 class AProjectN_ItemActor_Base;
 
+USTRUCT(BlueprintType, Blueprintable)
+struct FCharacterSavedAttributes
+{
+	GENERATED_USTRUCT_BODY()
+	
+	UPROPERTY(EditAnywhere, Category = "Character Attribute")
+	float Strength = 0.f;
+
+	UPROPERTY(EditAnywhere, Category = "Character Attribute")
+	float Intelligence = 0.f;
+
+	UPROPERTY(EditAnywhere, Category = "Character Attribute")
+	float Dexterity = 0.f;
+
+	UPROPERTY(EditAnywhere, Category = "Character Attribute")
+	float Vitality = 0.f;
+};
+
 USTRUCT(BlueprintType)
 struct FCharacterData
 {

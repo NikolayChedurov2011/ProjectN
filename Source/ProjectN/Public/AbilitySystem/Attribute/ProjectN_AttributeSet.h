@@ -64,7 +64,8 @@ public:
 
 	UProjectN_AttributeSet();
 
-	TMap<FGameplayTag, FGameplayAttribute(*)()> TagsToAttribute;
+	TMap<FGameplayTag, FGameplayAttribute(*)()> TagsToAttributeFunction;
+	TMap<FGameplayTag, FGameplayAttribute> TagsToAttribute;
 
 	/*
 	 ***********************

@@ -12,31 +12,60 @@
 UProjectN_AttributeSet::UProjectN_AttributeSet()
 {
 	// Add primary attributes to map
-	TagsToAttribute.Add(ProjectNGameplayTags::Attribute_Primary_Strength, GetStrengthAttribute);
-	TagsToAttribute.Add(ProjectNGameplayTags::Attribute_Primary_Intelligence, GetIntelligenceAttribute);
-	TagsToAttribute.Add(ProjectNGameplayTags::Attribute_Primary_Dexterity, GetDexterityAttribute);
-	TagsToAttribute.Add(ProjectNGameplayTags::Attribute_Primary_Vitality, GetVitalityAttribute);
+	TagsToAttribute.Add(ProjectNGameplayTags::Attribute_Primary_Strength, GetStrengthAttribute());
+	TagsToAttribute.Add(ProjectNGameplayTags::Attribute_Primary_Intelligence, GetIntelligenceAttribute());
+	TagsToAttribute.Add(ProjectNGameplayTags::Attribute_Primary_Dexterity, GetDexterityAttribute());
+	TagsToAttribute.Add(ProjectNGameplayTags::Attribute_Primary_Vitality, GetVitalityAttribute());
 
 	// Add main attributes to map
-	TagsToAttribute.Add(ProjectNGameplayTags::Attribute_Main_Health, GetHealthAttribute);
-	TagsToAttribute.Add(ProjectNGameplayTags::Attribute_Main_MaxHealth, GetMaxHealthAttribute);
-	TagsToAttribute.Add(ProjectNGameplayTags::Attribute_Main_Mana, GetManaAttribute);
-	TagsToAttribute.Add(ProjectNGameplayTags::Attribute_Main_MaxMana, GetMaxManaAttribute);
-	TagsToAttribute.Add(ProjectNGameplayTags::Attribute_Main_Stamina, GetStaminaAttribute);
-	TagsToAttribute.Add(ProjectNGameplayTags::Attribute_Main_MaxStamina, GetMaxStaminaAttribute);
-	TagsToAttribute.Add(ProjectNGameplayTags::Attribute_Main_Poise, GetPoiseAttribute);
-	TagsToAttribute.Add(ProjectNGameplayTags::Attribute_Main_MaxPoise, GetMaxPoiseAttribute);
+	TagsToAttribute.Add(ProjectNGameplayTags::Attribute_Main_Health, GetHealthAttribute());
+	TagsToAttribute.Add(ProjectNGameplayTags::Attribute_Main_MaxHealth, GetMaxHealthAttribute());
+	TagsToAttribute.Add(ProjectNGameplayTags::Attribute_Main_Mana, GetManaAttribute());
+	TagsToAttribute.Add(ProjectNGameplayTags::Attribute_Main_MaxMana, GetMaxManaAttribute());
+	TagsToAttribute.Add(ProjectNGameplayTags::Attribute_Main_Stamina, GetStaminaAttribute());
+	TagsToAttribute.Add(ProjectNGameplayTags::Attribute_Main_MaxStamina, GetMaxStaminaAttribute());
+	TagsToAttribute.Add(ProjectNGameplayTags::Attribute_Main_Poise, GetPoiseAttribute());
+	TagsToAttribute.Add(ProjectNGameplayTags::Attribute_Main_MaxPoise, GetMaxPoiseAttribute());
 	
-	TagsToAttribute.Add(ProjectNGameplayTags::Attribute_Main_MovementSpeed, GetMaxMovementSpeedAttribute);
+	TagsToAttribute.Add(ProjectNGameplayTags::Attribute_Main_MovementSpeed, GetMaxMovementSpeedAttribute());
 
 	// Add secondary attributes to map
-	TagsToAttribute.Add(ProjectNGameplayTags::Attribute_Secondary_Armor, GetArmorAttribute);
-	TagsToAttribute.Add(ProjectNGameplayTags::Attribute_Secondary_Evasion, GetEvasionAttribute);
-	TagsToAttribute.Add(ProjectNGameplayTags::Attribute_Secondary_ArmorPenetration, GetArmorPenetrationAttribute);
-	TagsToAttribute.Add(ProjectNGameplayTags::Attribute_Secondary_CriticalHitChance, GetCriticalHitChanceAttribute);
-	TagsToAttribute.Add(ProjectNGameplayTags::Attribute_Secondary_CriticalHitDamage, GetCriticalHitDamageAttribute);
-	TagsToAttribute.Add(ProjectNGameplayTags::Attribute_Secondary_HealRegeneration, GetHealRegenerationAttribute);
-	TagsToAttribute.Add(ProjectNGameplayTags::Attribute_Secondary_ManaRegeneration, GetManaRegenerationAttribute);
+	TagsToAttribute.Add(ProjectNGameplayTags::Attribute_Secondary_Armor, GetArmorAttribute());
+	TagsToAttribute.Add(ProjectNGameplayTags::Attribute_Secondary_Evasion, GetEvasionAttribute());
+	TagsToAttribute.Add(ProjectNGameplayTags::Attribute_Secondary_ArmorPenetration, GetArmorPenetrationAttribute());
+	TagsToAttribute.Add(ProjectNGameplayTags::Attribute_Secondary_CriticalHitChance, GetCriticalHitChanceAttribute());
+	TagsToAttribute.Add(ProjectNGameplayTags::Attribute_Secondary_CriticalHitDamage, GetCriticalHitDamageAttribute());
+	TagsToAttribute.Add(ProjectNGameplayTags::Attribute_Secondary_HealRegeneration, GetHealRegenerationAttribute());
+	TagsToAttribute.Add(ProjectNGameplayTags::Attribute_Secondary_ManaRegeneration, GetManaRegenerationAttribute());
+
+
+	
+	// Add primary attributes to map
+	TagsToAttributeFunction.Add(ProjectNGameplayTags::Attribute_Primary_Strength, GetStrengthAttribute);
+	TagsToAttributeFunction.Add(ProjectNGameplayTags::Attribute_Primary_Intelligence, GetIntelligenceAttribute);
+	TagsToAttributeFunction.Add(ProjectNGameplayTags::Attribute_Primary_Dexterity, GetDexterityAttribute);
+	TagsToAttributeFunction.Add(ProjectNGameplayTags::Attribute_Primary_Vitality, GetVitalityAttribute);
+
+	// Add main attributes to map
+	TagsToAttributeFunction.Add(ProjectNGameplayTags::Attribute_Main_Health, GetHealthAttribute);
+	TagsToAttributeFunction.Add(ProjectNGameplayTags::Attribute_Main_MaxHealth, GetMaxHealthAttribute);
+	TagsToAttributeFunction.Add(ProjectNGameplayTags::Attribute_Main_Mana, GetManaAttribute);
+	TagsToAttributeFunction.Add(ProjectNGameplayTags::Attribute_Main_MaxMana, GetMaxManaAttribute);
+	TagsToAttributeFunction.Add(ProjectNGameplayTags::Attribute_Main_Stamina, GetStaminaAttribute);
+	TagsToAttributeFunction.Add(ProjectNGameplayTags::Attribute_Main_MaxStamina, GetMaxStaminaAttribute);
+	TagsToAttributeFunction.Add(ProjectNGameplayTags::Attribute_Main_Poise, GetPoiseAttribute);
+	TagsToAttributeFunction.Add(ProjectNGameplayTags::Attribute_Main_MaxPoise, GetMaxPoiseAttribute);
+	
+	TagsToAttributeFunction.Add(ProjectNGameplayTags::Attribute_Main_MovementSpeed, GetMaxMovementSpeedAttribute);
+
+	// Add secondary attributes to map
+	TagsToAttributeFunction.Add(ProjectNGameplayTags::Attribute_Secondary_Armor, GetArmorAttribute);
+	TagsToAttributeFunction.Add(ProjectNGameplayTags::Attribute_Secondary_Evasion, GetEvasionAttribute);
+	TagsToAttributeFunction.Add(ProjectNGameplayTags::Attribute_Secondary_ArmorPenetration, GetArmorPenetrationAttribute);
+	TagsToAttributeFunction.Add(ProjectNGameplayTags::Attribute_Secondary_CriticalHitChance, GetCriticalHitChanceAttribute);
+	TagsToAttributeFunction.Add(ProjectNGameplayTags::Attribute_Secondary_CriticalHitDamage, GetCriticalHitDamageAttribute);
+	TagsToAttributeFunction.Add(ProjectNGameplayTags::Attribute_Secondary_HealRegeneration, GetHealRegenerationAttribute);
+	TagsToAttributeFunction.Add(ProjectNGameplayTags::Attribute_Secondary_ManaRegeneration, GetManaRegenerationAttribute);
 }
 
 void UProjectN_AttributeSet::PostGameplayEffectExecute(const struct FGameplayEffectModCallbackData& Data)
