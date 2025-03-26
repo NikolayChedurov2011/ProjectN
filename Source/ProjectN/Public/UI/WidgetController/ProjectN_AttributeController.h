@@ -6,6 +6,7 @@
 #include "UI/WidgetController/ProjectN_WidgetControllerBase.h"
 #include "ProjectN_AttributeController.generated.h"
 
+struct FProjectNAttributeSaveInfo;
 struct FProjectNAttributeInfo;
 struct FGameplayTag;
 struct FGameplayAttribute;
@@ -26,10 +27,10 @@ public:
 	virtual void BroadcastInitialValues() override;
 	virtual void BindCallbacksToResponce() override;
 
+	UFUNCTION(BlueprintCallable, BlueprintPure)
+	TArray<FProjectNAttributeSaveInfo> GetAttributesForSave() const;
 	UFUNCTION(BlueprintCallable)
-	void SaveAttributes();
-	UFUNCTION(BlueprintCallable)
-	void ChangeAttribute(const FGameplayTag& AttributeTag, float Value) const;
+	void ChangeAttribute(const FGameplayTag& AttributeTag, float Value);
 
 protected:
 

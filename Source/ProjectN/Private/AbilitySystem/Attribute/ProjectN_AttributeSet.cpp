@@ -38,6 +38,9 @@ UProjectN_AttributeSet::UProjectN_AttributeSet()
 	TagsToAttribute.Add(ProjectNGameplayTags::Attribute_Secondary_HealRegeneration, GetHealRegenerationAttribute());
 	TagsToAttribute.Add(ProjectNGameplayTags::Attribute_Secondary_ManaRegeneration, GetManaRegenerationAttribute());
 
+	// Add progression attributes to map
+	TagsToAttribute.Add(ProjectNGameplayTags::Progression_AttributePoint, GetAttributePointAttribute());
+
 
 	
 	// Add primary attributes to map
@@ -66,6 +69,9 @@ UProjectN_AttributeSet::UProjectN_AttributeSet()
 	TagsToAttributeFunction.Add(ProjectNGameplayTags::Attribute_Secondary_CriticalHitDamage, GetCriticalHitDamageAttribute);
 	TagsToAttributeFunction.Add(ProjectNGameplayTags::Attribute_Secondary_HealRegeneration, GetHealRegenerationAttribute);
 	TagsToAttributeFunction.Add(ProjectNGameplayTags::Attribute_Secondary_ManaRegeneration, GetManaRegenerationAttribute);
+
+	// Add progression attributes to map
+	TagsToAttributeFunction.Add(ProjectNGameplayTags::Progression_AttributePoint, GetAttributePointAttribute);
 }
 
 void UProjectN_AttributeSet::PostGameplayEffectExecute(const struct FGameplayEffectModCallbackData& Data)
@@ -159,6 +165,9 @@ void UProjectN_AttributeSet::GetLifetimeReplicatedProps(TArray<class FLifetimePr
 	DOREPLIFETIME_CONDITION_NOTIFY(UProjectN_AttributeSet, CriticalHitDamage, COND_None, REPNOTIFY_Always);
 	DOREPLIFETIME_CONDITION_NOTIFY(UProjectN_AttributeSet, HealRegeneration, COND_None, REPNOTIFY_Always);
 	DOREPLIFETIME_CONDITION_NOTIFY(UProjectN_AttributeSet, ManaRegeneration, COND_None, REPNOTIFY_Always);
+
+	// Progression
+	DOREPLIFETIME_CONDITION_NOTIFY(UProjectN_AttributeSet, AttributePoint, COND_None, REPNOTIFY_Always);
 }
 
 void UProjectN_AttributeSet::SetEffectProperties(const FGameplayEffectModCallbackData& Data, FEffectProperties& Props) const
@@ -294,4 +303,8 @@ void UProjectN_AttributeSet::OnRep_HealRegeneration(const FGameplayAttributeData
 void UProjectN_AttributeSet::OnRep_ManaRegeneration(const FGameplayAttributeData& OldManaRegeneration)
 {
 	GAMEPLAYATTRIBUTE_REPNOTIFY(UProjectN_AttributeSet, ManaRegeneration, OldManaRegeneration);
+	
+}void UProjectN_AttributeSet::OnRep_AttributePoint(const FGameplayAttributeData& OldAttributePoint)
+{
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UProjectN_AttributeSet, AttributePoint, OldAttributePoint);
 }

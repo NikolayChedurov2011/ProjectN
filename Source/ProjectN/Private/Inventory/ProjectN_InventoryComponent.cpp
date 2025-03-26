@@ -78,9 +78,12 @@ void UProjectN_InventoryComponent::InitializeComponent()
         {
         	AddItemByInstance(ItemClass);
         }*/
-		for (const auto& Loot : DefaultLootData->LootData)
+		if (DefaultLootData)
 		{
-			AddItemByStaticClass(Loot.ItemStaticClass, Loot.MaxCount);
+			for (const auto& Loot : DefaultLootData->LootData)
+            {
+            	AddItemByStaticClass(Loot.ItemStaticClass, Loot.MaxCount);
+            }
 		}
 	}
 

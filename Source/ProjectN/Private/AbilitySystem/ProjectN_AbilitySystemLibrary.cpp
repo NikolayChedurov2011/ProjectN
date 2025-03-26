@@ -80,3 +80,55 @@ UProjectN_InventoryController* UProjectN_AbilitySystemLibrary::GetInventoryWidge
 	
 	return nullptr;
 }
+
+UProjectN_MainMenuWidgetController* UProjectN_AbilitySystemLibrary::GetMainMenuWidgetController(const UObject* WorldContextObject)
+{
+	APlayerController* DefaultPlayerController = UGameplayStatics::GetPlayerController(WorldContextObject, 0);
+	APlayerState* DefaultPlayerState = UGameplayStatics::GetPlayerState(WorldContextObject, 0);
+
+	if (IsValid(DefaultPlayerController) && IsValid(DefaultPlayerState))
+	{
+		APlayerController* PlayerController = Cast<APlayerController>(DefaultPlayerController);
+		AProjectN_PlayerState* PlayerState = Cast<AProjectN_PlayerState>(DefaultPlayerState);
+	
+		if (IsValid(PlayerController) && IsValid(PlayerState))
+		{
+			if (AProjectN_HUD* HUD = Cast<AProjectN_HUD>(PlayerController->GetHUD()))
+			{
+				UAbilitySystemComponent* AbilitySystemComponent = PlayerState->GetAbilitySystemComponent();
+				UAttributeSet* Attributes = PlayerState->GetAttributeSet();
+				const FWidgetControllerParams WidgetParams(PlayerController, PlayerState, AbilitySystemComponent, Attributes);
+
+				return HUD->GetMainMenuWidgetController(WidgetParams);
+			}
+		}
+	}
+	
+	return nullptr;
+}
+
+UProjectN_SaveGameWidgetController* UProjectN_AbilitySystemLibrary::GetSaveGameWidgetController(const UObject* WorldContextObject)
+{
+	APlayerController* DefaultPlayerController = UGameplayStatics::GetPlayerController(WorldContextObject, 0);
+	APlayerState* DefaultPlayerState = UGameplayStatics::GetPlayerState(WorldContextObject, 0);
+
+	if (IsValid(DefaultPlayerController) && IsValid(DefaultPlayerState))
+	{
+		APlayerController* PlayerController = Cast<APlayerController>(DefaultPlayerController);
+		AProjectN_PlayerState* PlayerState = Cast<AProjectN_PlayerState>(DefaultPlayerState);
+	
+		if (IsValid(PlayerController) && IsValid(PlayerState))
+		{
+			if (AProjectN_HUD* HUD = Cast<AProjectN_HUD>(PlayerController->GetHUD()))
+			{
+				UAbilitySystemComponent* AbilitySystemComponent = PlayerState->GetAbilitySystemComponent();
+				UAttributeSet* Attributes = PlayerState->GetAttributeSet();
+				const FWidgetControllerParams WidgetParams(PlayerController, PlayerState, AbilitySystemComponent, Attributes);
+
+				return HUD->GetSaveGameWidgetController(WidgetParams);
+			}
+		}
+	}
+	
+	return nullptr;
+}

@@ -3,11 +3,6 @@
 
 #include "UI/HUD/ProjectN_HUD.h"
 
-#include "UI/WidgetController/ProjectN_AttributeController.h"
-#include "UI/WidgetController/ProjectN_InventoryController.h"
-#include "UI/WidgetController/ProjectN_OverlayWidgetController.h"
-#include "UI/Widgets/ProjectN_WidgetBase.h"
-
 UProjectN_OverlayWidgetController* AProjectN_HUD::GetOverlayWidgetController(const FWidgetControllerParams& WCParams)
 {
 	if (OverlayWidgetController == nullptr)
@@ -50,6 +45,34 @@ UProjectN_InventoryController* AProjectN_HUD::GetInventoryWidgetController(const
 	return InventoryWidgetController;
 }
 
+UProjectN_MainMenuWidgetController* AProjectN_HUD::GetMainMenuWidgetController(const FWidgetControllerParams& WCParams)
+{
+	if (MainMenuWidgetController == nullptr)
+	{
+		MainMenuWidgetController = NewObject<UProjectN_MainMenuWidgetController>(this, MainMenuWidgetControllerClass);
+		MainMenuWidgetController->SetWidgetControllerParams(WCParams);
+		MainMenuWidgetController->BindCallbacksToResponce();
+
+		return MainMenuWidgetController;
+	}
+
+	return MainMenuWidgetController;
+}
+
+UProjectN_SaveGameWidgetController* AProjectN_HUD::GetSaveGameWidgetController(const FWidgetControllerParams& WCParams)
+{
+	if (SaveGameWidgetController == nullptr)
+	{
+		SaveGameWidgetController = NewObject<UProjectN_SaveGameWidgetController>(this, SaveGameWidgetControllerClass);
+		SaveGameWidgetController->SetWidgetControllerParams(WCParams);
+		SaveGameWidgetController->BindCallbacksToResponce();
+
+		return SaveGameWidgetController;
+	}
+
+	return SaveGameWidgetController;
+}
+
 void AProjectN_HUD::InitOverlay(APlayerController* PC, APlayerState* PS, UAbilitySystemComponent* ASC, UAttributeSet* AS)
 {
 	checkf(OverlayWidgetClass, TEXT("Overlay widget class uninitialized, please fill out HUD data"))
@@ -58,12 +81,15 @@ void AProjectN_HUD::InitOverlay(APlayerController* PC, APlayerState* PS, UAbilit
 	OverlayWidget = CreateWidget<UProjectN_WidgetBase>(GetWorld(), OverlayWidgetClass);
 
 	const FWidgetControllerParams WidgetControllerParams(PC, PS, ASC, AS);
-	UProjectN_OverlayWidgetController* TempOverlayWidgetController = GetOverlayWidgetController(WidgetControllerParams);
-	UProjectN_AttributeController* TempAttributeWidgetController = GetAttributeWidgetController(WidgetControllerParams);
-	
-	OverlayWidget->SetWidgetController(TempOverlayWidgetController);
-	TempOverlayWidgetController->BroadcastInitialValues();
-	TempAttributeWidgetController->BroadcastInitialValues();
+	OverlayWidgetController = GetOverlayWidgetController(WidgetControllerParams);
+	AttributeWidgetController = GetAttributeWidgetController(WidgetControllerParams);
+	MainMenuWidgetController = GetMainMenuWidgetController(WidgetControllerParams);
 	
 	OverlayWidget->AddToViewport();
+}
+
+void AProjectN_HUD::BroadcastValues()
+{
+	OverlayWidgetController->BroadcastInitialValues();
+	AttributeWidgetController->BroadcastInitialValues();
 }

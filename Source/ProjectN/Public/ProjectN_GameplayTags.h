@@ -72,4 +72,10 @@ namespace ProjectNGameplayTags
 
 	/**** Event Tags ****/
 	PROJECTN_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Event_Montage_SpawnEffect)
+
+	/**** Menu Tags ****/
+	PROJECTN_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Menu_SaveSlot)
+
+	/**** Progression Tags ****/
+	PROJECTN_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Progression_AttributePoint)
 }

@@ -8,6 +8,10 @@
 
 void UProjectN_OverlayWidgetController::BroadcastInitialValues()
 {
+	if (!IsValid(AttributeSet) || !IsValid(AbilitySystemComponent))
+	{
+		return;
+	}
 	const UProjectN_AttributeSet* ProjectN_AttributeSet = CastChecked<UProjectN_AttributeSet>(AttributeSet);
 
 	OnMaxHealthChanged.Broadcast(ProjectN_AttributeSet->GetMaxHealth(), ProjectN_AttributeSet->GetMaxHealth());
@@ -20,6 +24,11 @@ void UProjectN_OverlayWidgetController::BroadcastInitialValues()
 
 void UProjectN_OverlayWidgetController::BindCallbacksToResponce()
 {
+	if (!IsValid(AttributeSet) || !IsValid(AbilitySystemComponent))
+	{
+		return;
+	}
+	
 	const UProjectN_AttributeSet* ProjectN_AttributeSet = CastChecked<UProjectN_AttributeSet>(AttributeSet);
 
 	BindGameplayAttributeValueChange(ProjectN_AttributeSet->GetHealthAttribute(), OnHealthChanged);

@@ -45,7 +45,7 @@ FActiveGameplayEffectHandle UProjectN_AbilitySystemComponent::ApplyGamePlayEffec
 		return EmptyGameplayEffectHandle;
 	}
 
-	const FGameplayEffectSpecHandle SpecHandle = MakeOutgoingSpec(Effect, Level,InEffectContext);
+	const FGameplayEffectSpecHandle SpecHandle = MakeOutgoingSpec(Effect, Level, InEffectContext);
 	if (SpecHandle.IsValid())
 	{
 		const FActiveGameplayEffectHandle ActiveGameplayEffectHandle = ApplyGameplayEffectSpecToSelf(*SpecHandle.Data.Get());

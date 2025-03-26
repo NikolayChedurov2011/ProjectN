@@ -9,6 +9,11 @@
 
 void UProjectN_AttributeController::BroadcastInitialValues()
 {
+	if (!IsValid(AttributeSet) || !IsValid(AbilitySystemComponent))
+	{
+		return;
+	}
+	
 	UProjectN_AttributeSet* Attributes = CastChecked<UProjectN_AttributeSet>(AttributeSet);
 
 	checkf(AttributeInfo, TEXT("Fill the attribute info data asset in attribute menu widget controller"))
@@ -21,6 +26,11 @@ void UProjectN_AttributeController::BroadcastInitialValues()
 
 void UProjectN_AttributeController::BindCallbacksToResponce()
 {
+	if (!IsValid(AttributeSet) || !IsValid(AbilitySystemComponent))
+	{
+		return;
+	}
+	
 	UProjectN_AttributeSet* Attributes = CastChecked<UProjectN_AttributeSet>(AttributeSet);
 
 	checkf(AttributeInfo, TEXT("Fill the attribute info data asset in attribute menu widget controller"))
@@ -42,12 +52,30 @@ void UProjectN_AttributeController::BroadcastAttributeInfo(const FGameplayTag& I
 	AttributeInfoDelegate.Broadcast(AttributeInfoElem);
 }
 
-void UProjectN_AttributeController::SaveAttributes()
+TArray<FProjectNAttributeSaveInfo> UProjectN_AttributeController::GetAttributesForSave() const
 {
+	UProjectN_AttributeSet* Attributes = CastChecked<UProjectN_AttributeSet>(AttributeSet);
+
+	TArray<FProjectNAttributeSaveInfo> AttributeSaveInfo;
 	
+	for(const TTuple<FGameplayTag, FGameplayAttribute>& Pair : Attributes->TagsToAttribute)
+	{
+		bool bIsFound = false;
+		const float AttributeValue = AbilitySystemComponent->GetGameplayAttributeValue(Pair.Value, bIsFound);
+		if (bIsFound)
+		{
+			FProjectNAttributeSaveInfo WriteSaveInfo;
+			WriteSaveInfo.AttributeTag = Pair.Key;
+			WriteSaveInfo.AttributeValue = AttributeValue;
+
+			AttributeSaveInfo.Add(WriteSaveInfo);
+		}
+	}
+
+	return AttributeSaveInfo;
 }
 
-void UProjectN_AttributeController::ChangeAttribute(const FGameplayTag& AttributeTag, const float Value) const
+void UProjectN_AttributeController::ChangeAttribute(const FGameplayTag& AttributeTag, const float Value)
 {
 	// @TODO: Check if attribute + value is not < attribute. Need to load saved attributes. Maybe need bool for return
 	if (AbilitySystemComponent && PlayerState->HasAuthority())
@@ -75,17 +103,19 @@ void UProjectN_AttributeController::CreateEffect(const FGameplayTag& AttributeTa
 		
 	const int32 ModIdx = EffectTemplate->Modifiers.Num();
 	EffectTemplate->Modifiers.SetNum(ModIdx + 1);
-
+	
 	FGameplayModifierInfo& Modifier = EffectTemplate->Modifiers[ModIdx];
 	Modifier.Attribute = *Attributes->TagsToAttribute.Find(AttributeTag);
 	Modifier.ModifierOp = EGameplayModOp::Additive;
 	Modifier.ModifierMagnitude = FScalableFloat(Value);
-	//Modifier.SourceTags.RequireTags.AddTag(FGameplayTag::RequestGameplayTag(FName("AttributePreset")));
 
-	FGameplayEffectSpecHandle SpecHandle = AbilitySystemComponent->MakeOutgoingSpec(EffectTemplate->GetClass(), 1.f, AbilitySystemComponent->MakeEffectContext());
+	FGameplayEffectContextHandle EffectContext = AbilitySystemComponent->MakeEffectContext();
+	EffectContext.AddSourceObject(PlayerState);
+
+	FGameplayEffectSpecHandle SpecHandle = AbilitySystemComponent->MakeOutgoingSpec(EffectTemplate->GetClass(), 1.f, EffectContext);
 
 	if (SpecHandle.IsValid())
 	{
-		AbilitySystemComponent->ApplyGameplayEffectSpecToSelf(*SpecHandle.Data.Get());
+		AbilitySystemComponent->ApplyGameplayEffectToSelf(EffectTemplate, 1.f, EffectContext);
 	}
 }

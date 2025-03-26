@@ -4,14 +4,16 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/HUD.h"
+#include "UI/Widgets/ProjectN_WidgetBase.h"
+#include "UI/WidgetController/ProjectN_AttributeController.h"
+#include "UI/WidgetController/ProjectN_InventoryController.h"
+#include "UI/WidgetController/ProjectN_MainMenuWidgetController.h"
+#include "UI/WidgetController/ProjectN_OverlayWidgetController.h"
+#include "UI/WidgetController/ProjectN_SaveGameWidgetController.h"
 #include "ProjectN_HUD.generated.h"
 
 class UAttributeSet;
 class UAbilitySystemComponent;
-class UProjectN_OverlayWidgetController;
-class UProjectN_AttributeController;
-class UProjectN_InventoryController;
-class UProjectN_WidgetBase;
 struct FWidgetControllerParams;
 
 UCLASS()
@@ -24,13 +26,15 @@ public:
 	UProjectN_OverlayWidgetController* GetOverlayWidgetController(const FWidgetControllerParams& WCParams);
 	UProjectN_AttributeController* GetAttributeWidgetController(const FWidgetControllerParams& WCParams);
 	UProjectN_InventoryController* GetInventoryWidgetController(const FWidgetControllerParams& WCParams);
+	UProjectN_MainMenuWidgetController* GetMainMenuWidgetController(const FWidgetControllerParams& WCParams);
+	UProjectN_SaveGameWidgetController* GetSaveGameWidgetController(const FWidgetControllerParams& WCParams);
 
 	UFUNCTION(BlueprintCallable)
-	void InitOverlay(APlayerController* PC, APlayerState* PS, UAbilitySystemComponent* ASC, UAttributeSet* AS);
+	virtual void InitOverlay(APlayerController* PC, APlayerState* PS, UAbilitySystemComponent* ASC, UAttributeSet* AS);
 
 protected:
 
-private:
+	void BroadcastValues();
 
 	// Widgets
 	UPROPERTY()
@@ -40,6 +44,12 @@ private:
 	UPROPERTY(EditAnywhere)
 	TSubclassOf<UProjectN_WidgetBase> OverlayWidgetClass;
 
+	// Main menu widget controller
+	UPROPERTY(EditAnywhere)
+	TSubclassOf<UProjectN_MainMenuWidgetController> MainMenuWidgetControllerClass;
+	UPROPERTY()
+	TObjectPtr<UProjectN_MainMenuWidgetController> MainMenuWidgetController;
+	
 	// Overlay widget controller
 	UPROPERTY(EditAnywhere)
 	TSubclassOf<UProjectN_OverlayWidgetController> OverlayWidgetControllerClass;
@@ -52,6 +62,12 @@ private:
 	UPROPERTY()
 	TObjectPtr<UProjectN_AttributeController> AttributeWidgetController;
 
+	// Main menu widget controller
+	UPROPERTY(EditAnywhere)
+	TSubclassOf<UProjectN_SaveGameWidgetController> SaveGameWidgetControllerClass;
+	UPROPERTY()
+	TObjectPtr<UProjectN_SaveGameWidgetController> SaveGameWidgetController;
+	
 	// Inventory widget controller
 	UPROPERTY(EditAnywhere)
 	TSubclassOf<UProjectN_InventoryController> InventoryWidgetControllerClass;

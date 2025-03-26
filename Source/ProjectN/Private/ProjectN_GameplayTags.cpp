@@ -72,4 +72,10 @@ namespace ProjectNGameplayTags
 
 	/**** Event Tags ****/
 	UE_DEFINE_GAMEPLAY_TAG(Event_Montage_SpawnEffect,			"Event.Montage.SpawnEffect")
+
+	/**** Menu Tags ****/
+	UE_DEFINE_GAMEPLAY_TAG(Menu_SaveSlot,						"Menu.SaveSlot")
+
+	/**** Progression Tags ****/
+	UE_DEFINE_GAMEPLAY_TAG(Progression_AttributePoint,			"Progression.AttributePoint")
 }

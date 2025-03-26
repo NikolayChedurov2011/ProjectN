@@ -194,6 +194,13 @@ public:
 	FGameplayAttributeData ManaRegeneration;
 	ATTRIBUTE_ACCESSORS(UProjectN_AttributeSet, ManaRegeneration)
 
+	/*************************************
+	*  The attribute point is can be used to upgrade attribute
+	*************************************/
+	UPROPERTY(BlueprintReadOnly, Category = "AttributePoint", ReplicatedUsing = OnRep_AttributePoint)
+	FGameplayAttributeData AttributePoint;
+	ATTRIBUTE_ACCESSORS(UProjectN_AttributeSet, AttributePoint)
+
 protected:
 	virtual void PostGameplayEffectExecute(const struct FGameplayEffectModCallbackData& Data) override;
 	virtual void PreAttributeChange(const FGameplayAttribute& Attribute, float& NewValue) override;
@@ -246,6 +253,10 @@ protected:
 	UFUNCTION()
 	virtual void OnRep_ManaRegeneration(const FGameplayAttributeData& OldManaRegeneration);
 
+
+	UFUNCTION()
+	virtual void OnRep_AttributePoint(const FGameplayAttributeData& OldAttributePoint);
+	
 private:
 
 	void SetEffectProperties(const FGameplayEffectModCallbackData& Data, FEffectProperties& Props) const;
