@@ -8,25 +8,12 @@
 
 void UProjectN_MainMenuWidgetController::BroadcastInitialValues()
 {
-	if (!IsValid(AttributeSet) || !IsValid(AbilitySystemComponent))
-	{
-		return;
-	}
 	const UProjectN_AttributeSet* ProjectN_AttributeSet = CastChecked<UProjectN_AttributeSet>(AttributeSet);
-
-	
 }
 
 void UProjectN_MainMenuWidgetController::BindCallbacksToResponce()
-{
-	if (!IsValid(AttributeSet) || !IsValid(AbilitySystemComponent))
-	{
-		return;
-	}
-	
+{	
 	const UProjectN_AttributeSet* ProjectN_AttributeSet = CastChecked<UProjectN_AttributeSet>(AttributeSet);
-
-
 	
 	Cast<UProjectN_AbilitySystemComponent>(AbilitySystemComponent)->EffectAssetTags.AddLambda([this] (const FGameplayTagContainer& EffectAssetTags)
 	{

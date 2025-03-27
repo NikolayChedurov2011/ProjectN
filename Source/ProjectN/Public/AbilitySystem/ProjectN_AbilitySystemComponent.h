@@ -21,9 +21,14 @@ public:
 
 	FActiveGameplayEffectHandle ApplyGamePlayEffectToSelf_Internal(const TSubclassOf<UGameplayEffect> Effect, const FGameplayEffectContextHandle& InEffectContext, const float Level);
 	FGameplayAbilitySpecHandle AddAbility(const TSubclassOf<UGameplayAbility> DefaultAbility, const FGameplayTag& InputTag = FGameplayTag());
+	FGameplayAbilitySpecHandle AddPassiveAbility(const TSubclassOf<UGameplayAbility> DefaultAbility, const FGameplayTag& InputTag = FGameplayTag());
 
 	void OnActionHeld(const FGameplayTag& InputTag);
 	void OnActionReleased(const FGameplayTag& InputTag);
+
+	UFUNCTION(Server, Reliable)
+	void ServerSendGameplayEventWithTag(const FGameplayTag& AttributeTag, const float Value);
+	void SendGameplayEventWithTag(const FGameplayTag& AttributeTag, const float Value);
 
 protected:
 

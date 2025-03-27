@@ -6,6 +6,7 @@
 #include "UI/WidgetController/ProjectN_WidgetControllerBase.h"
 #include "ProjectN_SaveGameWidgetController.generated.h"
 
+class USaveGame;
 class UCharacter_Save;
 struct FProjectNAttributeSaveInfo;
 struct FGameplayTag;
@@ -23,7 +24,7 @@ struct FCurrentGameSlot
 	UCharacter_Save* SaveGameObj = nullptr;
 };
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnSaveGameLoadedSignature, const TArray<FProjectNAttributeSaveInfo>&, AttributeInfo, int32, Slot);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnSaveGameLoadedSignature, const TArray<FProjectNAttributeSaveInfo>&, AttributeInfo, const FString&, Slot);
 
 UCLASS(Blueprintable, BlueprintType)
 class PROJECTN_API UProjectN_SaveGameWidgetController : public UProjectN_WidgetControllerBase
@@ -36,22 +37,23 @@ public:
 	FOnSaveGameLoadedSignature AttributeInfoDelegate;
 	
 	virtual void BroadcastInitialValues() override;
-	//virtual void BindCallbacksToResponce() override;
+	
+	UFUNCTION(BlueprintCallable)
+	void SaveAttributes(const TArray<FProjectNAttributeSaveInfo> AttributesInfo, const FString& Slot) const;
 
 	UFUNCTION(BlueprintCallable)
-	void RememberCurrentGameSlot(const FString& InSlot);
-	
-	UFUNCTION(BlueprintCallable)
-	void LoadSaveGame() const;
-	
-	UFUNCTION(BlueprintCallable)
-	void SaveAttributes(const TArray<FProjectNAttributeSaveInfo> AttributesInfo) const;
+	void DeleteSave(const FString& Slot) const;
 
 protected:
 
+	USaveGame* LoadOrCreateSaveGame(const FString& Slot) const;
+	
 	UPROPERTY()
 	FCurrentGameSlot CurrentGameSlot;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	TSubclassOf<UCharacter_Save> CharacterSaveSubClass;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	int32 MaxSaveSlots = 5;
 };

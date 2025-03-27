@@ -3,50 +3,51 @@
 
 #include "UI/WidgetController/ProjectN_SaveGameWidgetController.h"
 
-#include "AbilitySystem/Attribute/ProjectN_AttributeSet.h"
 #include "Kismet/GameplayStatics.h"
 #include "Saves/Character_Save.h"
 
 void UProjectN_SaveGameWidgetController::BroadcastInitialValues()
-{
-	if (!IsValid(AttributeSet) || !IsValid(AbilitySystemComponent))
+{	
+	for (int32 SlotId = 0; SlotId < MaxSaveSlots; SlotId++)
 	{
-		return;
-	}
-}
-
-void UProjectN_SaveGameWidgetController::RememberCurrentGameSlot(const FString& InSlot)
-{
-	if (USaveGame* SaveGame = UGameplayStatics::LoadGameFromSlot(InSlot, 0))
-	{
-		CurrentGameSlot.SlotIndex = InSlot;
-		CurrentGameSlot.SaveGameObj = Cast<UCharacter_Save>(SaveGame);
-	}
-	else
-	{
-		if (USaveGame* NewSaveGame = UGameplayStatics::CreateSaveGameObject(CharacterSaveSubClass))
+		FString SlotName = FString::Printf(TEXT("AttributesSave%d"), SlotId);
+		if (USaveGame* SaveGame = UGameplayStatics::LoadGameFromSlot(SlotName, 0))
 		{
-			CurrentGameSlot.SlotIndex = InSlot;
-			CurrentGameSlot.SaveGameObj = Cast<UCharacter_Save>(NewSaveGame);
+			UCharacter_Save* SaveGameObject = Cast<UCharacter_Save>(SaveGame);
+			AttributeInfoDelegate.Broadcast(SaveGameObject->GetSavedAttributes(), SlotName);
 		}
 	}
 }
 
-void UProjectN_SaveGameWidgetController::LoadSaveGame() const
+void UProjectN_SaveGameWidgetController::SaveAttributes(const TArray<FProjectNAttributeSaveInfo> AttributesInfo, const FString& Slot) const
 {
-	for (int32 SlotId = 0; SlotId < 5; SlotId++)
-	{
-		 FString SlotName = FString::Printf(TEXT("AttributesSave%d"), SlotId);
-		 if (USaveGame* SaveGame = UGameplayStatics::LoadGameFromSlot(SlotName, 0))
-		 {
-		 	UCharacter_Save* SaveGameObject = Cast<UCharacter_Save>(SaveGame);
-		 	AttributeInfoDelegate.Broadcast(SaveGameObject->GetSavedAttributes(), SlotId);
-		 }
-	}
+	USaveGame* SaveGame = LoadOrCreateSaveGame(Slot);
+	
+	UCharacter_Save* SaveGameObject = Cast<UCharacter_Save>(SaveGame);
+	SaveGameObject->SetSavedAttributes(AttributesInfo);
+	
+	UGameplayStatics::SaveGameToSlot(SaveGameObject, Slot, 0);
+
+	AttributeInfoDelegate.Broadcast(AttributesInfo, Slot);
 }
 
-void UProjectN_SaveGameWidgetController::SaveAttributes(const TArray<FProjectNAttributeSaveInfo> AttributesInfo) const
+void UProjectN_SaveGameWidgetController::DeleteSave(const FString& Slot) const
+{	
+	UGameplayStatics::DeleteGameInSlot(Slot, 0);
+
+	TArray<FProjectNAttributeSaveInfo> EmptyAttributeInfo;
+	AttributeInfoDelegate.Broadcast(EmptyAttributeInfo, Slot);
+}
+
+USaveGame* UProjectN_SaveGameWidgetController::LoadOrCreateSaveGame(const FString& Slot) const
 {
-	CurrentGameSlot.SaveGameObj->SetSavedAttributes(AttributesInfo);
-	UGameplayStatics::SaveGameToSlot(CurrentGameSlot.SaveGameObj, CurrentGameSlot.SlotIndex, 0);
+	checkf(CharacterSaveSubClass, TEXT("Please fill out the character save sub class in BP_SaveGameWidgetController"))
+	
+	if (USaveGame* SaveGame = UGameplayStatics::LoadGameFromSlot(Slot, 0))
+	{
+		return SaveGame;
+	}
+	
+	USaveGame* NewSaveGame = UGameplayStatics::CreateSaveGameObject(CharacterSaveSubClass);
+	return NewSaveGame;
 }

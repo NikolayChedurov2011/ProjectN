@@ -11,6 +11,7 @@ struct FProjectNAttributeInfo;
 struct FGameplayTag;
 struct FGameplayAttribute;
 class UAttributeInfo;
+class UGameplayEffect;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FAttributeInfoDelegateSignature, const FProjectNAttributeInfo&, AttributeInfo);
 
@@ -23,23 +24,32 @@ public:
 
 	UPROPERTY(BlueprintAssignable, Category="Attribute Menu")
 	FAttributeInfoDelegateSignature AttributeInfoDelegate;
+
+	UPROPERTY(BlueprintAssignable, Category="Gameplay Values")
+	FOnCharacterStatChangedSignature OnAttributePointsChanged;
 	
 	virtual void BroadcastInitialValues() override;
 	virtual void BindCallbacksToResponce() override;
 
 	UFUNCTION(BlueprintCallable, BlueprintPure)
 	TArray<FProjectNAttributeSaveInfo> GetAttributesForSave() const;
+	
 	UFUNCTION(BlueprintCallable)
-	void ChangeAttribute(const FGameplayTag& AttributeTag, float Value);
+	void ChangeAttribute(const FGameplayTag& AttributeTag, int32 Value);
+
+	UFUNCTION(BlueprintCallable)
+	void NullifyAttributes() const;
 
 protected:
 
 	UFUNCTION(Server, Reliable)
-	void ServerCreateEffect(const FGameplayTag& AttributeTag, const float Value) const;
+	void ServerNullifyAttributes() const;
 	
 	void BroadcastAttributeInfo(const FGameplayTag& InTag, const FGameplayAttribute& InAttribute) const;
-	void CreateEffect(const FGameplayTag& AttributeTag, const float Value) const;
 
 	UPROPERTY(EditDefaultsOnly)
 	TObjectPtr<UAttributeInfo> AttributeInfo;
+	
+	UPROPERTY(EditDefaultsOnly)
+	const TSubclassOf<UGameplayEffect> NullifyAttributesEffect;
 };

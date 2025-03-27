@@ -30,6 +30,8 @@ struct FWidgetControllerParams
 	TObjectPtr<UAttributeSet> AttributeSet = nullptr;
 };
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnCharacterStatChangedSignature, const int32, Value);
+
 UCLASS()
 class PROJECTN_API UProjectN_WidgetControllerBase : public UObject
 {

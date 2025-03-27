@@ -3,6 +3,7 @@
 
 #include "AbilitySystem/ProjectN_AbilitySystemComponent.h"
 
+#include "AbilitySystemBlueprintLibrary.h"
 #include "AbilitySystem/Ability/ProjectN_GameplayAbilityBase.h"
 
 void UProjectN_AbilitySystemComponent::AbilityActorInfoSet()
@@ -30,6 +31,17 @@ FGameplayAbilitySpecHandle UProjectN_AbilitySystemComponent::AddAbility(const TS
 		}
 		return GiveAbility(AbilitySpec);
 		
+	}
+	const FGameplayAbilitySpecHandle EmptyGameplayAbilitySpecHandle;
+	return EmptyGameplayAbilitySpecHandle;
+}
+
+FGameplayAbilitySpecHandle UProjectN_AbilitySystemComponent::AddPassiveAbility(const TSubclassOf<UGameplayAbility> DefaultAbility, const FGameplayTag& InputTag)
+{
+	if (IsValid(DefaultAbility))
+	{
+		FGameplayAbilitySpec AbilitySpec = FGameplayAbilitySpec(DefaultAbility, 1.f);
+		return GiveAbilityAndActivateOnce(AbilitySpec);
 	}
 	const FGameplayAbilitySpecHandle EmptyGameplayAbilitySpecHandle;
 	return EmptyGameplayAbilitySpecHandle;
@@ -90,4 +102,18 @@ void UProjectN_AbilitySystemComponent::OnActionReleased(const FGameplayTag& Inpu
 			AbilitySpecInputReleased(AbilitySpec);
 		}
 	}
+}
+
+void UProjectN_AbilitySystemComponent::SendGameplayEventWithTag(const FGameplayTag& AttributeTag, const float Value)
+{
+	FGameplayEventData Payload;
+	Payload.EventTag = AttributeTag;
+	Payload.EventMagnitude = Value;
+		
+	UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(GetAvatarActor(), AttributeTag,Payload);
+}
+
+void UProjectN_AbilitySystemComponent::ServerSendGameplayEventWithTag_Implementation(const FGameplayTag& AttributeTag, const float Value)
+{
+	SendGameplayEventWithTag(AttributeTag, Value);
 }

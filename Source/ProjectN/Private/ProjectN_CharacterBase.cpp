@@ -114,6 +114,10 @@ void AProjectN_CharacterBase::GiveStartupAbilities()
 		{
 			Cast<UProjectN_AbilitySystemComponent>(GetAbilitySystemComponent())->AddAbility(DefaultAbility);
 		}
+		for (const TSubclassOf DefaultAbility : CharacterData.PassiveAbilities)
+        {
+         	Cast<UProjectN_AbilitySystemComponent>(GetAbilitySystemComponent())->AddPassiveAbility(DefaultAbility);
+        }
 	}
 }
 

@@ -3,17 +3,15 @@
 
 #include "UI/WidgetController/ProjectN_AttributeController.h"
 
+#include "AbilitySystemBlueprintLibrary.h"
+#include "ProjectN_PlayerState.h"
+#include "AbilitySystem/ProjectN_AbilitySystemComponent.h"
 #include "AbilitySystem/Attribute/ProjectN_AttributeSet.h"
 #include "AbilitySystem/Data/AttributeInfo.h"
 #include "GameFramework/PlayerState.h"
 
 void UProjectN_AttributeController::BroadcastInitialValues()
 {
-	if (!IsValid(AttributeSet) || !IsValid(AbilitySystemComponent))
-	{
-		return;
-	}
-	
 	UProjectN_AttributeSet* Attributes = CastChecked<UProjectN_AttributeSet>(AttributeSet);
 
 	checkf(AttributeInfo, TEXT("Fill the attribute info data asset in attribute menu widget controller"))
@@ -22,19 +20,17 @@ void UProjectN_AttributeController::BroadcastInitialValues()
 	{		
 		BroadcastAttributeInfo(Pair.Key, Pair.Value);
 	}
+
+	AProjectN_PlayerState* ProjectNPlayerState = CastChecked<AProjectN_PlayerState>(PlayerState);
+	OnAttributePointsChanged.Broadcast(ProjectNPlayerState->GetAttributePoints());
 }
 
 void UProjectN_AttributeController::BindCallbacksToResponce()
 {
-	if (!IsValid(AttributeSet) || !IsValid(AbilitySystemComponent))
-	{
-		return;
-	}
+	checkf(AttributeInfo, TEXT("Fill the attribute info data asset in attribute menu widget controller"))
 	
 	UProjectN_AttributeSet* Attributes = CastChecked<UProjectN_AttributeSet>(AttributeSet);
 
-	checkf(AttributeInfo, TEXT("Fill the attribute info data asset in attribute menu widget controller"))
-	
 	for(auto& Pair : Attributes->TagsToAttribute)
 	{
 		AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(Pair.Value).AddLambda([this, Pair] (const FOnAttributeChangeData& Data)
@@ -42,6 +38,12 @@ void UProjectN_AttributeController::BindCallbacksToResponce()
 			BroadcastAttributeInfo(Pair.Key, Pair.Value);
 		});
 	}
+
+	AProjectN_PlayerState* ProjectNPlayerState = CastChecked<AProjectN_PlayerState>(PlayerState);
+	ProjectNPlayerState->OnAttributePointsChanged.AddLambda([this] (const int32 Value)
+	{
+		OnAttributePointsChanged.Broadcast(Value);
+	});
 }
 
 void UProjectN_AttributeController::BroadcastAttributeInfo(const FGameplayTag& InTag, const FGameplayAttribute& InAttribute) const
@@ -75,47 +77,38 @@ TArray<FProjectNAttributeSaveInfo> UProjectN_AttributeController::GetAttributesF
 	return AttributeSaveInfo;
 }
 
-void UProjectN_AttributeController::ChangeAttribute(const FGameplayTag& AttributeTag, const float Value)
+void UProjectN_AttributeController::ChangeAttribute(const FGameplayTag& AttributeTag, const int32 Value)
 {
 	// @TODO: Check if attribute + value is not < attribute. Need to load saved attributes. Maybe need bool for return
 	if (AbilitySystemComponent && PlayerState->HasAuthority())
 	{
-		CreateEffect(AttributeTag, Value);
+		Cast<UProjectN_AbilitySystemComponent>(AbilitySystemComponent.Get())->SendGameplayEventWithTag(AttributeTag, Value);
 	}
 	else
 	{
-		ServerCreateEffect(AttributeTag, Value);
+		Cast<UProjectN_AbilitySystemComponent>(AbilitySystemComponent.Get())->ServerSendGameplayEventWithTag(AttributeTag, Value);
 	}
 }
 
-void UProjectN_AttributeController::ServerCreateEffect_Implementation(const FGameplayTag& AttributeTag, const float Value) const
+void UProjectN_AttributeController::NullifyAttributes() const
 {
-	CreateEffect(AttributeTag, Value);
-}
-
-void UProjectN_AttributeController::CreateEffect(const FGameplayTag& AttributeTag, const float Value) const
-{
-	UProjectN_AttributeSet* Attributes = CastChecked<UProjectN_AttributeSet>(AttributeSet);
-
-	UGameplayEffect* EffectTemplate = NewObject<UGameplayEffect>(GetTransientPackage(), FName(TEXT("GE_ChangeAttribute")));
-		
-	EffectTemplate->DurationPolicy = EGameplayEffectDurationType::Instant;
-		
-	const int32 ModIdx = EffectTemplate->Modifiers.Num();
-	EffectTemplate->Modifiers.SetNum(ModIdx + 1);
-	
-	FGameplayModifierInfo& Modifier = EffectTemplate->Modifiers[ModIdx];
-	Modifier.Attribute = *Attributes->TagsToAttribute.Find(AttributeTag);
-	Modifier.ModifierOp = EGameplayModOp::Additive;
-	Modifier.ModifierMagnitude = FScalableFloat(Value);
-
-	FGameplayEffectContextHandle EffectContext = AbilitySystemComponent->MakeEffectContext();
-	EffectContext.AddSourceObject(PlayerState);
-
-	FGameplayEffectSpecHandle SpecHandle = AbilitySystemComponent->MakeOutgoingSpec(EffectTemplate->GetClass(), 1.f, EffectContext);
-
-	if (SpecHandle.IsValid())
+	if (AbilitySystemComponent && PlayerState->HasAuthority())
 	{
-		AbilitySystemComponent->ApplyGameplayEffectToSelf(EffectTemplate, 1.f, EffectContext);
+		FGameplayEffectContextHandle EffectContext = AbilitySystemComponent->MakeEffectContext();
+		EffectContext.AddSourceObject(AbilitySystemComponent->GetAvatarActor());
+		
+		Cast<UProjectN_AbilitySystemComponent>(AbilitySystemComponent.Get())->ApplyGamePlayEffectToSelf_Internal(NullifyAttributesEffect, EffectContext, 1.f);
 	}
+	else
+	{		
+		ServerNullifyAttributes();
+	}
+}
+
+void UProjectN_AttributeController::ServerNullifyAttributes_Implementation() const
+{
+	FGameplayEffectContextHandle EffectContext = AbilitySystemComponent->MakeEffectContext();
+	EffectContext.AddSourceObject(AbilitySystemComponent->GetAvatarActor());
+	
+	Cast<UProjectN_AbilitySystemComponent>(AbilitySystemComponent.Get())->ApplyGamePlayEffectToSelf_Internal(NullifyAttributesEffect, EffectContext, 1.f);
 }

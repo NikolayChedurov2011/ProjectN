@@ -3,6 +3,7 @@
 
 #include "UI/WidgetController/ProjectN_OverlayWidgetController.h"
 
+#include "ProjectN_PlayerState.h"
 #include "AbilitySystem/ProjectN_AbilitySystemComponent.h"
 #include "AbilitySystem/Attribute/ProjectN_AttributeSet.h"
 
@@ -20,6 +21,9 @@ void UProjectN_OverlayWidgetController::BroadcastInitialValues()
 	OnManaChanged.Broadcast(ProjectN_AttributeSet->GetMana(), ProjectN_AttributeSet->GetMana());
 	OnMaxStaminaChanged.Broadcast(ProjectN_AttributeSet->GetMaxStamina(), ProjectN_AttributeSet->GetMaxStamina());
 	OnStaminaChanged.Broadcast(ProjectN_AttributeSet->GetStamina(), ProjectN_AttributeSet->GetStamina());
+	
+	AProjectN_PlayerState* ProjectNPlayerState = CastChecked<AProjectN_PlayerState>(PlayerState);
+	OnXPChanged.Broadcast(ProjectNPlayerState->GetXP());
 }
 
 void UProjectN_OverlayWidgetController::BindCallbacksToResponce()
@@ -49,6 +53,12 @@ void UProjectN_OverlayWidgetController::BindCallbacksToResponce()
 				OnMessageRowSignature.Broadcast(*WidgetRow);
 			}
 		}
+	});
+
+	AProjectN_PlayerState* ProjectNPlayerState = CastChecked<AProjectN_PlayerState>(PlayerState);
+	ProjectNPlayerState->OnXPChanged.AddLambda([this] (const int32 Value)
+	{
+		OnXPChanged.Broadcast(Value);
 	});
 }
 

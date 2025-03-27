@@ -25,7 +25,9 @@ void AProjectN_PlayerState::GetLifetimeReplicatedProps(TArray<class FLifetimePro
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 	DOREPLIFETIME(AProjectN_PlayerState, ProjectN_InventoryComponent);
-	DOREPLIFETIME(AProjectN_PlayerState, CharacterLevel);
+	DOREPLIFETIME(AProjectN_PlayerState, Level);
+	DOREPLIFETIME(AProjectN_PlayerState, XP);
+	DOREPLIFETIME(AProjectN_PlayerState, AttributePoints);
 }
 
 /*
@@ -45,7 +47,53 @@ FVector AProjectN_PlayerState::GetWeaponSocketLocation(const FGameplayTag& Input
  *
  */
 
+void AProjectN_PlayerState::SetLevel(int32 NewLevel)
+{
+	Level = NewLevel;
+	OnLevelChanged.Broadcast(Level);
+}
+
+void AProjectN_PlayerState::AddToLevel(int32 NewLevel)
+{
+	Level += NewLevel;
+	OnLevelChanged.Broadcast(Level);
+}
+
+void AProjectN_PlayerState::SetXP(int32 NewXP)
+{
+	XP = NewXP;
+	OnXPChanged.Broadcast(XP);
+}
+
+void AProjectN_PlayerState::AddToXP(int32 NewXP)
+{
+	XP += NewXP;
+	OnXPChanged.Broadcast(XP);
+}
+
+void AProjectN_PlayerState::SetAttributePoints(int32 NewAttributePoints)
+{
+	AttributePoints = NewAttributePoints;
+	OnAttributePointsChanged.Broadcast(AttributePoints);
+}
+
+void AProjectN_PlayerState::AddToAttributePoints(int32 NewAttributePoints)
+{
+	AttributePoints += NewAttributePoints;
+	OnAttributePointsChanged.Broadcast(AttributePoints);
+}
+
 void AProjectN_PlayerState::OnRep_Level(int32 OldLevel)
 {
-	
+	OnLevelChanged.Broadcast(Level);
+}
+
+void AProjectN_PlayerState::OnRep_XP(int32 OldXP)
+{
+	OnXPChanged.Broadcast(XP);
+}
+
+void AProjectN_PlayerState::OnRep_AttributePoints(int32 OldAttributePoints)
+{
+	OnAttributePointsChanged.Broadcast(AttributePoints);
 }

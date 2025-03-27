@@ -32,6 +32,9 @@ struct FCharacterData
 	
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "GAS")
 	TArray<TSubclassOf<UGameplayAbility>> Abilities;
+
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "GAS")
+	TArray<TSubclassOf<UGameplayAbility>> PassiveAbilities;
 	
 	UPROPERTY(EditAnywhere, Category = "Animation")
 	class UProjectN_AnimationDataAsset* DefaultAnimationDataAsset;
