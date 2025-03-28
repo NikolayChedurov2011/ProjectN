@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "AbilitySystem/Data/AttributeInfo.h"
+#include "AbilitySystem/Data/SaveDataInfo.h"
 #include "GameFramework/SaveGame.h"
 #include "Character_Save.generated.h"
 

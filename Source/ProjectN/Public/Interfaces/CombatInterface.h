@@ -20,6 +20,6 @@ class PROJECTN_API ICombatInterface
 
 public:
 
-	virtual int32 GetCharacterLevel();
-	virtual FVector GetWeaponSocketLocation(const FGameplayTag& InputTag);
+	virtual int32 GetCharacterLevel() const;
+	virtual FVector GetWeaponSocketLocation(const FGameplayTag& InputTag) const;
 };

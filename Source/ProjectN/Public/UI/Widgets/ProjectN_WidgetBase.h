@@ -18,6 +18,9 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	void SetWidgetController(UObject* InWidgetController);
+
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
+	void BlueprintInitializeWidget();
 	
 protected:
 

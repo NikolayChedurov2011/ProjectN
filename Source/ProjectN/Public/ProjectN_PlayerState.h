@@ -27,9 +27,9 @@ public:
 	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override;
 	UAttributeSet* GetAttributeSet() const { return ProjectN_AttributeSet; }
 
-	FORCEINLINE int32 GetCharacterLevel() const { return Level; }
+	FORCEINLINE virtual int32 GetCharacterLevel() const override { return Level; }
 
-	virtual FVector GetWeaponSocketLocation(const FGameplayTag& InputTag) override;
+	virtual FVector GetWeaponSocketLocation(const FGameplayTag& InputTag) const override;
 	
 	FOnGameplayValueChangedSignature OnLevelChanged;
 	FOnGameplayValueChangedSignature OnXPChanged;

@@ -8,18 +8,6 @@
 #include "AttributeInfo.generated.h"
 
 USTRUCT(BlueprintType, Blueprintable)
-struct FProjectNAttributeSaveInfo
-{
-	GENERATED_BODY()
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	FGameplayTag AttributeTag = FGameplayTag();
-	
-	UPROPERTY(BlueprintReadWrite)
-	float AttributeValue = 0.f;
-};
-
-USTRUCT(BlueprintType, Blueprintable)
 struct FProjectNAttributeInfo
 {
 	GENERATED_BODY()

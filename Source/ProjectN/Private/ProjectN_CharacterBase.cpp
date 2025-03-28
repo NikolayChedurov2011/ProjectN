@@ -52,7 +52,7 @@ void AProjectN_CharacterBase::SetCharacterData(const FCharacterData& NewCharacte
 /*
  *** Combat interface Get function
  */
-int32 AProjectN_CharacterBase::GetCharacterLevel()
+int32 AProjectN_CharacterBase::GetCharacterLevel() const
 {
 	const AProjectN_PlayerState* ProjectNPlayerState = Cast<AProjectN_PlayerState>(GetPlayerState());
 	if (ProjectNPlayerState)

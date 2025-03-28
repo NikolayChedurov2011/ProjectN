@@ -34,7 +34,7 @@ public:
 	/*
 	 *  Combat Interface
 	 */
-	virtual int32 GetCharacterLevel() override;
+	virtual int32 GetCharacterLevel() const override;
 
 protected:
 	virtual void BeginPlay() override;
