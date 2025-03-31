@@ -3,12 +3,13 @@
 
 #include "UI/WidgetController/ProjectN_AttributeController.h"
 
+#include "ProjectN_GameplayTags.h"
 #include "ProjectN_PlayerState.h"
 #include "AbilitySystem/ProjectN_AbilitySystemComponent.h"
 #include "AbilitySystem/Attribute/ProjectN_AttributeSet.h"
 #include "AbilitySystem/Data/AttributeInfo.h"
-#include "AbilitySystem/Data/SaveDataInfo.h"
 #include "GameFramework/PlayerState.h"
+#include "ProjectN/ProjectNTypes.h"
 
 void UProjectN_AttributeController::BroadcastInitialValues()
 {
@@ -54,28 +55,12 @@ void UProjectN_AttributeController::BroadcastAttributeInfo(const FGameplayTag& I
 	AttributeInfoDelegate.Broadcast(AttributeInfoElem);
 }
 
+/*
 TArray<FProjectNAttributeSaveInfo> UProjectN_AttributeController::GetAttributesForSave() const
 {
-	UProjectN_AttributeSet* Attributes = CastChecked<UProjectN_AttributeSet>(AttributeSet);
-
-	TArray<FProjectNAttributeSaveInfo> AttributeSaveInfo;
-	
-	for(const TTuple<FGameplayTag, FGameplayAttribute>& Pair : Attributes->TagsToAttribute)
-	{
-		bool bIsFound = false;
-		const float AttributeValue = AbilitySystemComponent->GetGameplayAttributeValue(Pair.Value, bIsFound);
-		if (bIsFound)
-		{
-			FProjectNAttributeSaveInfo WriteSaveInfo;
-			WriteSaveInfo.AttributeTag = Pair.Key;
-			WriteSaveInfo.AttributeValue = AttributeValue;
-
-			AttributeSaveInfo.Add(WriteSaveInfo);
-		}
-	}
-
-	return AttributeSaveInfo;
+	return Cast<UProjectN_AbilitySystemComponent>(AbilitySystemComponent)->GetAttributesForSave();
 }
+*/
 
 void UProjectN_AttributeController::ChangeAttribute(const FGameplayTag& AttributeTag, const int32 Value)
 {
@@ -100,7 +85,7 @@ void UProjectN_AttributeController::NullifyAttributes() const
 		Cast<UProjectN_AbilitySystemComponent>(AbilitySystemComponent.Get())->ApplyGamePlayEffectToSelf_Internal(NullifyAttributesEffect, EffectContext, 1.f);
 	}
 	else
-	{		
+	{
 		ServerNullifyAttributes();
 	}
 }

@@ -6,6 +6,8 @@
 #include "AbilitySystemComponent.h"
 #include "ProjectN_AbilitySystemComponent.generated.h"
 
+struct FProjectNAttributeSaveInfo;
+
 DECLARE_MULTICAST_DELEGATE_OneParam(FEffectAssetTagsSignature, const FGameplayTagContainer& /* AssetTags */)
 
 UCLASS()
@@ -30,6 +32,8 @@ public:
 	void ServerSendGameplayEventWithTag(const FGameplayTag& AttributeTag, const float Value);
 	void SendGameplayEventWithTag(const FGameplayTag& AttributeTag, const float Value);
 
+	TArray<FProjectNAttributeSaveInfo> GetAttributesForSave() const;
+	
 protected:
 
 	// Broadcast tags from applied effect mainly to show UI message

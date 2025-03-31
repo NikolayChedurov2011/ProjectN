@@ -28,8 +28,8 @@ public:
 	UFUNCTION(BlueprintPure, Category = "AbilitySystem | Inventory Widget Controller")
 	static UProjectN_InventoryController* GetInventoryWidgetController(const UObject* WorldContextObject);
 
-	UFUNCTION(BlueprintPure, Category = "AbilitySystem | Main Menu Widget Controller")
-	static UProjectN_MainMenuWidgetController* GetMainMenuWidgetController(const UObject* WorldContextObject);
+//	UFUNCTION(BlueprintPure, Category = "AbilitySystem | Main Menu Widget Controller")
+//	static UProjectN_MainMenuWidgetController* GetMainMenuWidgetController(const UObject* WorldContextObject);
 
 	UFUNCTION(BlueprintPure, Category = "AbilitySystem | Save Game Widget Controller")
 	static UProjectN_SaveGameWidgetController* GetSaveGameWidgetController(const UObject* WorldContextObject);

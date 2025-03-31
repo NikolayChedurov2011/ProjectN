@@ -46,6 +46,7 @@ namespace ProjectNGameplayTags
 	PROJECTN_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Message_Potion)
 
 	/**** Attributes Tags ****/
+	PROJECTN_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Attribute_Primary)
 	PROJECTN_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Attribute_Primary_Strength)
 	PROJECTN_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Attribute_Primary_Intelligence)
 	PROJECTN_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Attribute_Primary_Dexterity)

@@ -46,6 +46,7 @@ namespace ProjectNGameplayTags
 	UE_DEFINE_GAMEPLAY_TAG(Message_Potion,			"Message.Potion")
 
 	/**** Attributes Tags ****/
+	UE_DEFINE_GAMEPLAY_TAG(Attribute_Primary,								"Attribute.Primary")
 	UE_DEFINE_GAMEPLAY_TAG(Attribute_Primary_Strength,						"Attribute.Primary.Strength")
 	UE_DEFINE_GAMEPLAY_TAG(Attribute_Primary_Intelligence,					"Attribute.Primary.Intelligence")
 	UE_DEFINE_GAMEPLAY_TAG(Attribute_Primary_Dexterity,						"Attribute.Primary.Dexterity")

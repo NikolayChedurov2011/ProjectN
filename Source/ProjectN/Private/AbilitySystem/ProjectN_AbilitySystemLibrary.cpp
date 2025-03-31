@@ -81,6 +81,7 @@ UProjectN_InventoryController* UProjectN_AbilitySystemLibrary::GetInventoryWidge
 	return nullptr;
 }
 
+/*
 UProjectN_MainMenuWidgetController* UProjectN_AbilitySystemLibrary::GetMainMenuWidgetController(const UObject* WorldContextObject)
 {
 	APlayerController* DefaultPlayerController = UGameplayStatics::GetPlayerController(WorldContextObject, 0);
@@ -105,7 +106,7 @@ UProjectN_MainMenuWidgetController* UProjectN_AbilitySystemLibrary::GetMainMenuW
 	}
 	
 	return nullptr;
-}
+}*/
 
 UProjectN_SaveGameWidgetController* UProjectN_AbilitySystemLibrary::GetSaveGameWidgetController(const UObject* WorldContextObject)
 {

@@ -12,8 +12,9 @@ void AProjectN_MainMenuHUD::InitOverlay(APlayerController* PC, APlayerState* PS,
 	
 	Super::InitOverlay(PC, PS, ASC, AS);
 	
-	OverlayWidget->SetWidgetController(MainMenuWidgetController);
+//	OverlayWidget->SetWidgetController(MainMenuWidgetController);
 	OverlayWidget->BlueprintInitializeWidget();
+//	BroadcastValues();
 	
-	BroadcastValues();
+	MainMenuViewModelPtr->LoadData();
 }

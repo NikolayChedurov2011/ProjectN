@@ -31,8 +31,8 @@ public:
 	virtual void BroadcastInitialValues() override;
 	virtual void BindCallbacksToResponce() override;
 
-	UFUNCTION(BlueprintCallable, BlueprintPure)
-	TArray<FProjectNAttributeSaveInfo> GetAttributesForSave() const;
+//	UFUNCTION(BlueprintCallable, BlueprintPure)
+//	TArray<FProjectNAttributeSaveInfo> GetAttributesForSave() const;
 	
 	UFUNCTION(BlueprintCallable)
 	void ChangeAttribute(const FGameplayTag& AttributeTag, int32 Value);

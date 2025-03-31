@@ -3,9 +3,17 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "AbilitySystem/Data/SaveDataInfo.h"
 #include "GameFramework/SaveGame.h"
+#include "ProjectN/ProjectNTypes.h"
 #include "Character_Save.generated.h"
+
+UENUM(BlueprintType)
+enum ESaveSlotStatus
+{
+	Vacant,
+	EnterName,
+	Taken
+};
 
 UCLASS()
 class PROJECTN_API UCharacter_Save : public USaveGame
@@ -23,6 +31,18 @@ public:
 		SavedAttributes.Empty();
 		SavedAttributes = AttributesToSave;
 	}
+	
+	UPROPERTY()
+	FString PlayerName = FString();
+		
+	UPROPERTY()
+	FString SlotName = FString();
+	
+	UPROPERTY()
+	int32 SlotIndex = 0;
+
+	UPROPERTY()
+	TEnumAsByte<ESaveSlotStatus> SlotStatus = ESaveSlotStatus::Vacant;
 	
 protected:
 

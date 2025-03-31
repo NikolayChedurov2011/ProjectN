@@ -45,6 +45,7 @@ UProjectN_InventoryController* AProjectN_HUD::GetInventoryWidgetController(const
 	return InventoryWidgetController;
 }
 
+/*
 UProjectN_MainMenuWidgetController* AProjectN_HUD::GetMainMenuWidgetController(const FWidgetControllerParams& WCParams)
 {
 	if (MainMenuWidgetController == nullptr)
@@ -57,7 +58,7 @@ UProjectN_MainMenuWidgetController* AProjectN_HUD::GetMainMenuWidgetController(c
 	}
 
 	return MainMenuWidgetController;
-}
+}*/
 
 UProjectN_SaveGameWidgetController* AProjectN_HUD::GetSaveGameWidgetController(const FWidgetControllerParams& WCParams)
 {
@@ -83,7 +84,7 @@ void AProjectN_HUD::InitOverlay(APlayerController* PC, APlayerState* PS, UAbilit
 	const FWidgetControllerParams WidgetControllerParams(PC, PS, ASC, AS);
 	OverlayWidgetController = GetOverlayWidgetController(WidgetControllerParams);
 	AttributeWidgetController = GetAttributeWidgetController(WidgetControllerParams);
-	MainMenuWidgetController = GetMainMenuWidgetController(WidgetControllerParams);
+	//MainMenuWidgetController = GetMainMenuWidgetController(WidgetControllerParams);
 	
 	OverlayWidget->AddToViewport();
 }

@@ -6,7 +6,11 @@
 #include "MVVMViewModelBase.h"
 #include "MVVM_MainMenu.generated.h"
 
+class USaveGame;
+class UCharacter_Save;
 class UMVVM_SaveSlot;
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FSlotSelectedSignature, int32, SlotIndex);
 
 UCLASS()
 class PROJECTN_API UMVVM_MainMenu : public UMVVMViewModelBase
@@ -14,21 +18,42 @@ class PROJECTN_API UMVVM_MainMenu : public UMVVMViewModelBase
 	GENERATED_BODY()
 
 public:
+
+	UPROPERTY(BlueprintAssignable)
+	FSlotSelectedSignature SlotSelected;
+	
 	void InitializeSaveSlots();
 
 	UFUNCTION(BlueprintPure)
 	UMVVM_SaveSlot* GetSaveSlotViewModelByIndex(const int32 Index) const;
 	
-	UPROPERTY(EditDefaultsOnly)
-	TSubclassOf<UMVVM_SaveSlot> SaveSlotViewModelClass;
-
 	UFUNCTION(BlueprintCallable)
 	void NewGameSlotSelected(const int32 Index);
 
 	UFUNCTION(BlueprintCallable)
 	void NewSlotSaved(const int32 Index, const FString& CharacterName);
+
+	UFUNCTION(BlueprintCallable)
+	void DeleteSlot(const int32 Index);
+
+	UFUNCTION(BlueprintCallable)
+	void LoadData();
+	
+	UPROPERTY(EditDefaultsOnly)
+	TSubclassOf<UMVVM_SaveSlot> SaveSlotViewModelClass;
+	
+	UPROPERTY(BlueprintReadOnly)
+	int32 CurrentSlotIndex = -1;
+
+protected:
+	
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	TSubclassOf<USaveGame> CharacterSaveClass;
 	
 private:
+
+	void SaveSlotData(const UMVVM_SaveSlot* SaveSlotViewModel, const int32 SlotIndex) const;
+	UCharacter_Save* LoadSlotData(const FString& SlotName, const int32 SlotIndex) const;
 
 	UPROPERTY()
 	TMap<int32, UMVVM_SaveSlot*> SaveSlotsMap;

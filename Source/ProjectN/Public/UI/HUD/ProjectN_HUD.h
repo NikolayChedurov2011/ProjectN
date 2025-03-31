@@ -26,7 +26,7 @@ public:
 	UProjectN_OverlayWidgetController* GetOverlayWidgetController(const FWidgetControllerParams& WCParams);
 	UProjectN_AttributeController* GetAttributeWidgetController(const FWidgetControllerParams& WCParams);
 	UProjectN_InventoryController* GetInventoryWidgetController(const FWidgetControllerParams& WCParams);
-	UProjectN_MainMenuWidgetController* GetMainMenuWidgetController(const FWidgetControllerParams& WCParams);
+//	UProjectN_MainMenuWidgetController* GetMainMenuWidgetController(const FWidgetControllerParams& WCParams);
 	UProjectN_SaveGameWidgetController* GetSaveGameWidgetController(const FWidgetControllerParams& WCParams);
 
 	UFUNCTION(BlueprintCallable)
@@ -45,10 +45,10 @@ protected:
 	TSubclassOf<UProjectN_WidgetBase> OverlayWidgetClass;
 
 	// Main menu widget controller
-	UPROPERTY(EditAnywhere)
-	TSubclassOf<UProjectN_MainMenuWidgetController> MainMenuWidgetControllerClass;
-	UPROPERTY()
-	TObjectPtr<UProjectN_MainMenuWidgetController> MainMenuWidgetController;
+//	UPROPERTY(EditAnywhere)
+//	TSubclassOf<UProjectN_MainMenuWidgetController> MainMenuWidgetControllerClass;
+//	UPROPERTY()
+//	TObjectPtr<UProjectN_MainMenuWidgetController> MainMenuWidgetController;
 	
 	// Overlay widget controller
 	UPROPERTY(EditAnywhere)

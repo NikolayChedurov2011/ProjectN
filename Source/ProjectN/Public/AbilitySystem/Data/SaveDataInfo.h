@@ -7,7 +7,7 @@
 #include "Engine/DataAsset.h"
 #include "SaveDataInfo.generated.h"
 
-USTRUCT(BlueprintType, Blueprintable)
+/*USTRUCT(BlueprintType, Blueprintable)
 struct FProjectNAttributeSaveInfo
 {
 	GENERATED_BODY()
@@ -17,7 +17,7 @@ struct FProjectNAttributeSaveInfo
 	
 	UPROPERTY(BlueprintReadWrite)
 	float AttributeValue = 0.f;
-};
+};*/
 
 UCLASS()
 class PROJECTN_API USaveDataInfo : public UDataAsset
@@ -29,9 +29,10 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
 	FString SavedName = FString();
 	
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
-	TArray<FProjectNAttributeSaveInfo> AttributeInformation;
+	/*UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
+	TArray<FProjectNAttributeSaveInfo> AttributeInformation;*/
 
+	/*
 	UFUNCTION(BlueprintCallable, BlueprintPure)
-	FProjectNAttributeSaveInfo& GetAttributeInfoByTag(const FGameplayTag& Tag);
+	FProjectNAttributeSaveInfo& GetAttributeInfoByTag(const FGameplayTag& Tag);*/
 };
