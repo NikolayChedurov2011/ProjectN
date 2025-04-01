@@ -4,7 +4,6 @@
 
 #include "CoreMinimal.h"
 #include "MVVMViewModelBase.h"
-#include "ProjectN/ProjectNTypes.h"
 #include "Saves/Character_Save.h"
 #include "MVVM_SaveSlot.generated.h"
 
@@ -25,17 +24,28 @@ public:
 	UPROPERTY()
 	int32 SlotIndex;
 
-	UPROPERTY()
+	UPROPERTY(BlueprintReadOnly)
 	TEnumAsByte<ESaveSlotStatus> SlotStatus;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
-	TArray<FProjectNAttributeSaveInfo> AttributeInformation;
+	UPROPERTY()
+	float Strength = 0.f;
+
+	UPROPERTY()
+	float Intelligence = 0.f;
+
+	UPROPERTY()
+	float Dexterity = 0.f;
+
+	UPROPERTY()
+	float Vitality = 0.f;
 
 	void SetPlayerName(const FString& InPlayerName);
 	FString GetPlayerName() const { return PlayerName; }
 
 	void SetSlotName(const FString& InSlotName);
 	FString GetSlotName() const { return SlotName; }
+
+	void ClearModel();
 
 private:
 	

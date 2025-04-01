@@ -91,36 +91,10 @@ void UProjectN_AttributeSet::PostGameplayEffectExecute(const struct FGameplayEff
 	{
 		SetPoise(FMath::Clamp(GetPoise(), 0.f, GetMaxPoise()));
 	}
-
-	// Max attribute values
-	if (Data.EvaluatedData.Attribute == GetMaxHealthAttribute())
-	{
-		if (GetHealth() > Data.EvaluatedData.Magnitude)
-		{
-			SetHealth(Data.EvaluatedData.Magnitude);
-		}
-	}
-	if (Data.EvaluatedData.Attribute == GetMaxManaAttribute())
-	{
-		if (GetMana() > Data.EvaluatedData.Magnitude)
-		{
-			SetMana(Data.EvaluatedData.Magnitude);
-		}
-	}
-	if (Data.EvaluatedData.Attribute == GetMaxStaminaAttribute())
-	{
-		if (GetStamina() > Data.EvaluatedData.Magnitude)
-		{
-			SetStamina(Data.EvaluatedData.Magnitude);
-		}
-	}
-	if (Data.EvaluatedData.Attribute == GetMaxPoiseAttribute())
-	{
-		if (GetPoise() > Data.EvaluatedData.Magnitude)
-		{
-			SetPoise(Data.EvaluatedData.Magnitude);
-		}
-	}
+	SetHealth(FMath::Clamp(GetHealth(), 0.f, GetMaxHealth()));
+	SetMana(FMath::Clamp(GetMana(), 0.f, GetMaxMana()));
+	SetStamina(FMath::Clamp(GetStamina(), 0.f, GetMaxStamina()));
+	SetPoise(FMath::Clamp(GetPoise(), 0.f, GetMaxPoise()));
 }
 
 void UProjectN_AttributeSet::PreAttributeChange(const FGameplayAttribute& Attribute, float& NewValue)

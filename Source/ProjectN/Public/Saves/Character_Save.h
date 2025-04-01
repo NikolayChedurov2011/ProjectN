@@ -4,7 +4,6 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/SaveGame.h"
-#include "ProjectN/ProjectNTypes.h"
 #include "Character_Save.generated.h"
 
 UENUM(BlueprintType)
@@ -22,16 +21,6 @@ class PROJECTN_API UCharacter_Save : public USaveGame
 
 public:
 	
-	UFUNCTION(BlueprintCallable, Category = "Character Save")
-	FORCEINLINE TArray<FProjectNAttributeSaveInfo>& GetSavedAttributes() { return SavedAttributes; }
-
-	UFUNCTION(BlueprintCallable, Category = "Character Save")
-	FORCEINLINE void SetSavedAttributes(const TArray<FProjectNAttributeSaveInfo>& AttributesToSave)
-	{
-		SavedAttributes.Empty();
-		SavedAttributes = AttributesToSave;
-	}
-	
 	UPROPERTY()
 	FString PlayerName = FString();
 		
@@ -44,8 +33,17 @@ public:
 	UPROPERTY()
 	TEnumAsByte<ESaveSlotStatus> SlotStatus = ESaveSlotStatus::Vacant;
 	
-protected:
+	UPROPERTY()
+	float Strength = 0.f;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	TArray<FProjectNAttributeSaveInfo> SavedAttributes;
+	UPROPERTY()
+	float Intelligence = 0.f;
+
+	UPROPERTY()
+	float Dexterity = 0.f;
+
+	UPROPERTY()
+	float Vitality = 0.f;
+	
+protected:
 };

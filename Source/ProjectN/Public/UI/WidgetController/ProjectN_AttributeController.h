@@ -30,20 +30,11 @@ public:
 	
 	virtual void BroadcastInitialValues() override;
 	virtual void BindCallbacksToResponce() override;
-
-//	UFUNCTION(BlueprintCallable, BlueprintPure)
-//	TArray<FProjectNAttributeSaveInfo> GetAttributesForSave() const;
 	
 	UFUNCTION(BlueprintCallable)
-	void ChangeAttribute(const FGameplayTag& AttributeTag, int32 Value);
-
-	UFUNCTION(BlueprintCallable)
-	void NullifyAttributes() const;
+	void ChangeAttribute(const FGameplayTag& AttributeTag, const float Value);
 
 protected:
-
-	UFUNCTION(Server, Reliable)
-	void ServerNullifyAttributes() const;
 	
 	void BroadcastAttributeInfo(const FGameplayTag& InTag, const FGameplayAttribute& InAttribute) const;
 

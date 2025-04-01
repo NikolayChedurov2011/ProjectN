@@ -11,6 +11,7 @@ class UAnimSequenceBase;
 class AProjectN_ItemActor_Base;
 
 
+/*
 USTRUCT(BlueprintType, Blueprintable)
 struct FProjectNAttributeSaveInfo
 {
@@ -21,7 +22,7 @@ struct FProjectNAttributeSaveInfo
 	
 	UPROPERTY(BlueprintReadWrite)
 	float AttributeValue = 0.f;
-};
+};*/
 
 USTRUCT(BlueprintType)
 struct FCharacterData
@@ -48,6 +49,9 @@ struct FCharacterData
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "GAS")
 	TArray<TSubclassOf<UGameplayAbility>> PassiveAbilities;
+
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "GAS")
+	TSubclassOf<UGameplayEffect> InitAttributeFromSaveEffects;
 	
 	UPROPERTY(EditAnywhere, Category = "Animation")
 	class UProjectN_AnimationDataAsset* DefaultAnimationDataAsset;

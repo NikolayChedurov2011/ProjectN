@@ -30,9 +30,7 @@ public:
 
 	UFUNCTION(Server, Reliable)
 	void ServerSendGameplayEventWithTag(const FGameplayTag& AttributeTag, const float Value);
-	void SendGameplayEventWithTag(const FGameplayTag& AttributeTag, const float Value);
-
-	TArray<FProjectNAttributeSaveInfo> GetAttributesForSave() const;
+	void SendGameplayEventWithTag(const FGameplayTag& AttributeTag, const float Value) const;
 	
 protected:
 

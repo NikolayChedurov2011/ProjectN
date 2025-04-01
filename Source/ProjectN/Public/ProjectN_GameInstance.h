@@ -6,9 +6,6 @@
 #include "Engine/GameInstance.h"
 #include "ProjectN_GameInstance.generated.h"
 
-/**
- * 
- */
 UCLASS()
 class PROJECTN_API UProjectN_GameInstance : public UGameInstance
 {
@@ -16,4 +13,10 @@ class PROJECTN_API UProjectN_GameInstance : public UGameInstance
 
 public:
 	virtual void Init() override;
+
+	UPROPERTY()
+	int32 CurrentSaveSlotIndex = -1;
+
+	UPROPERTY()
+	FString CurrentSaveSlotName = FString();
 };

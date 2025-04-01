@@ -128,10 +128,16 @@ void AProjectN_CharacterBase::ApplyStartupEffects()
 		FGameplayEffectContextHandle EffectContext = GetAbilitySystemComponent()->MakeEffectContext();
 		EffectContext.AddSourceObject(this);
 
-		Cast<UProjectN_AbilitySystemComponent>(GetAbilitySystemComponent())->ApplyGamePlayEffectToSelf_Internal(CharacterData.PrimaryAttributes, EffectContext, 1.f);
+		//Cast<UProjectN_AbilitySystemComponent>(GetAbilitySystemComponent())->ApplyGamePlayEffectToSelf_Internal(CharacterData.PrimaryAttributes, EffectContext, 1.f);
+
+		//  Effect for bind dependency of health or other main attribute with their primary attributes
 		Cast<UProjectN_AbilitySystemComponent>(GetAbilitySystemComponent())->ApplyGamePlayEffectToSelf_Internal(CharacterData.SecondaryAttributes, EffectContext, 1.f);
+
+		// Call to init health and other main attributes
 		Cast<UProjectN_AbilitySystemComponent>(GetAbilitySystemComponent())->ApplyGamePlayEffectToSelf_Internal(CharacterData.InitializeMainAttributes, EffectContext, 1.f);
 
+
+		// Activate base passive abilities
 		for (const TSubclassOf DefaultEffect : CharacterData.Effects)
 		{
 			Cast<UProjectN_AbilitySystemComponent>(GetAbilitySystemComponent())->ApplyGamePlayEffectToSelf_Internal(DefaultEffect, EffectContext, 1.f);

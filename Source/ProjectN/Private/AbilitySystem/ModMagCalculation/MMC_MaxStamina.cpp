@@ -1,12 +1,12 @@
 // N Chedurov All Rights Reserved
 
 
-#include "AbilitySystem/ModMagCalculation/MMC_MaxHealth.h"
+#include "AbilitySystem/ModMagCalculation/MMC_MaxStamina.h"
 
 #include "AbilitySystem/Attribute/ProjectN_AttributeSet.h"
 #include "Interfaces/CombatInterface.h"
 
-UMMC_MaxHealth::UMMC_MaxHealth()
+UMMC_MaxStamina::UMMC_MaxStamina()
 {
 	CaptureDefinition.AttributeToCapture = UProjectN_AttributeSet::GetVitalityAttribute();
 	CaptureDefinition.AttributeSource = EGameplayEffectAttributeCaptureSource::Target;
@@ -15,7 +15,7 @@ UMMC_MaxHealth::UMMC_MaxHealth()
 	RelevantAttributesToCapture.Add(CaptureDefinition);
 }
 
-float UMMC_MaxHealth::CalculateBaseMagnitude_Implementation(const FGameplayEffectSpec& Spec) const
+float UMMC_MaxStamina::CalculateBaseMagnitude_Implementation(const FGameplayEffectSpec& Spec) const
 {
 	const FGameplayTagContainer* SourceTags = Spec.CapturedSourceTags.GetAggregatedTags();
 	const FGameplayTagContainer* TargetTags = Spec.CapturedTargetTags.GetAggregatedTags();

@@ -4,11 +4,8 @@
 #include "AbilitySystem/ProjectN_AbilitySystemComponent.h"
 
 #include "AbilitySystemBlueprintLibrary.h"
-#include "ProjectN_GameplayTags.h"
-#include "ProjectN_PlayerState.h"
 #include "AbilitySystem/Ability/ProjectN_GameplayAbilityBase.h"
 #include "AbilitySystem/Attribute/ProjectN_AttributeSet.h"
-#include "ProjectN/ProjectNTypes.h"
 
 void UProjectN_AbilitySystemComponent::AbilityActorInfoSet()
 {
@@ -50,7 +47,6 @@ FGameplayAbilitySpecHandle UProjectN_AbilitySystemComponent::AddPassiveAbility(c
 	const FGameplayAbilitySpecHandle EmptyGameplayAbilitySpecHandle;
 	return EmptyGameplayAbilitySpecHandle;
 }
-
 
 FActiveGameplayEffectHandle UProjectN_AbilitySystemComponent::ApplyGamePlayEffectToSelf_Internal(const TSubclassOf<UGameplayEffect> Effect, const FGameplayEffectContextHandle& InEffectContext, const float Level)
 {
@@ -108,7 +104,8 @@ void UProjectN_AbilitySystemComponent::OnActionReleased(const FGameplayTag& Inpu
 	}
 }
 
-void UProjectN_AbilitySystemComponent::SendGameplayEventWithTag(const FGameplayTag& AttributeTag, const float Value)
+// Use to ADD value to attribute
+void UProjectN_AbilitySystemComponent::SendGameplayEventWithTag(const FGameplayTag& AttributeTag, const float Value) const
 {
 	FGameplayEventData Payload;
 	Payload.EventTag = AttributeTag;
@@ -120,33 +117,4 @@ void UProjectN_AbilitySystemComponent::SendGameplayEventWithTag(const FGameplayT
 void UProjectN_AbilitySystemComponent::ServerSendGameplayEventWithTag_Implementation(const FGameplayTag& AttributeTag, const float Value)
 {
 	SendGameplayEventWithTag(AttributeTag, Value);
-}
-
-
-TArray<FProjectNAttributeSaveInfo> UProjectN_AbilitySystemComponent::GetAttributesForSave() const
-{
-	UProjectN_AttributeSet* Attributes = CastChecked<UProjectN_AttributeSet>(Cast<AProjectN_PlayerState>(GetOwner())->GetAttributeSet());
-
-	TArray<FProjectNAttributeSaveInfo> AttributeSaveInfo;
-	
-	for(const TTuple<FGameplayTag, FGameplayAttribute>& Pair : Attributes->TagsToAttribute)
-	{
-		if (!Pair.Key.MatchesTag(ProjectNGameplayTags::Attribute_Primary))
-		{
-			continue;
-		}
-		
-		bool bIsFound = false;
-		const float AttributeValue = GetGameplayAttributeValue(Pair.Value, bIsFound);
-		if (bIsFound)
-		{
-			FProjectNAttributeSaveInfo WriteSaveInfo;
-			WriteSaveInfo.AttributeTag = Pair.Key;
-			WriteSaveInfo.AttributeValue = AttributeValue;
-
-			AttributeSaveInfo.Add(WriteSaveInfo);
-		}
-	}
-
-	return AttributeSaveInfo;
 }

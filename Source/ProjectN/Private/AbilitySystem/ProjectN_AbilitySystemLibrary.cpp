@@ -4,9 +4,13 @@
 #include "AbilitySystem/ProjectN_AbilitySystemLibrary.h"
 
 #include "AbilitySystemBlueprintLibrary.h"
+#include "AbilitySystemComponent.h"
+#include "ProjectN_CharacterBase.h"
+#include "ProjectN_GameplayTags.h"
 #include "ProjectN_PlayerState.h"
 #include "Kismet/GameplayStatics.h"
 #include "UI/HUD/ProjectN_HUD.h"
+#include "UI/VievModel/MVVM_SaveSlot.h"
 #include "UI/WidgetController/ProjectN_WidgetControllerBase.h"
 
 
@@ -81,55 +85,19 @@ UProjectN_InventoryController* UProjectN_AbilitySystemLibrary::GetInventoryWidge
 	return nullptr;
 }
 
-/*
-UProjectN_MainMenuWidgetController* UProjectN_AbilitySystemLibrary::GetMainMenuWidgetController(const UObject* WorldContextObject)
+void UProjectN_AbilitySystemLibrary::OverridePrimaryAttributes(const UObject* WorldContextObject, UAbilitySystemComponent* AbilitySystemComponent, const float Strength, const float Intelligence, const float Dexterity, const float Vitality)
 {
-	APlayerController* DefaultPlayerController = UGameplayStatics::GetPlayerController(WorldContextObject, 0);
-	APlayerState* DefaultPlayerState = UGameplayStatics::GetPlayerState(WorldContextObject, 0);
+	const AActor* AvatarActor = AbilitySystemComponent->GetAvatarActor();
 
-	if (IsValid(DefaultPlayerController) && IsValid(DefaultPlayerState))
-	{
-		APlayerController* PlayerController = Cast<APlayerController>(DefaultPlayerController);
-		AProjectN_PlayerState* PlayerState = Cast<AProjectN_PlayerState>(DefaultPlayerState);
-	
-		if (IsValid(PlayerController) && IsValid(PlayerState))
-		{
-			if (AProjectN_HUD* HUD = Cast<AProjectN_HUD>(PlayerController->GetHUD()))
-			{
-				UAbilitySystemComponent* AbilitySystemComponent = PlayerState->GetAbilitySystemComponent();
-				UAttributeSet* Attributes = PlayerState->GetAttributeSet();
-				const FWidgetControllerParams WidgetParams(PlayerController, PlayerState, AbilitySystemComponent, Attributes);
+	FGameplayEffectContextHandle EffectContextHandle = AbilitySystemComponent->MakeEffectContext();
+	EffectContextHandle.AddSourceObject(AvatarActor);
 
-				return HUD->GetMainMenuWidgetController(WidgetParams);
-			}
-		}
-	}
-	
-	return nullptr;
-}*/
+	const FGameplayEffectSpecHandle SpecHandle = AbilitySystemComponent->MakeOutgoingSpec(Cast<AProjectN_CharacterBase>(AvatarActor)->GetCharacterData().InitAttributeFromSaveEffects, 1.f, EffectContextHandle);
 
-UProjectN_SaveGameWidgetController* UProjectN_AbilitySystemLibrary::GetSaveGameWidgetController(const UObject* WorldContextObject)
-{
-	APlayerController* DefaultPlayerController = UGameplayStatics::GetPlayerController(WorldContextObject, 0);
-	APlayerState* DefaultPlayerState = UGameplayStatics::GetPlayerState(WorldContextObject, 0);
+	UAbilitySystemBlueprintLibrary::AssignTagSetByCallerMagnitude(SpecHandle, ProjectNGameplayTags::Attribute_Primary_Strength, Strength);
+	UAbilitySystemBlueprintLibrary::AssignTagSetByCallerMagnitude(SpecHandle, ProjectNGameplayTags::Attribute_Primary_Intelligence, Intelligence);
+	UAbilitySystemBlueprintLibrary::AssignTagSetByCallerMagnitude(SpecHandle, ProjectNGameplayTags::Attribute_Primary_Dexterity, Dexterity);
+	UAbilitySystemBlueprintLibrary::AssignTagSetByCallerMagnitude(SpecHandle, ProjectNGameplayTags::Attribute_Primary_Vitality, Vitality);
 
-	if (IsValid(DefaultPlayerController) && IsValid(DefaultPlayerState))
-	{
-		APlayerController* PlayerController = Cast<APlayerController>(DefaultPlayerController);
-		AProjectN_PlayerState* PlayerState = Cast<AProjectN_PlayerState>(DefaultPlayerState);
-	
-		if (IsValid(PlayerController) && IsValid(PlayerState))
-		{
-			if (AProjectN_HUD* HUD = Cast<AProjectN_HUD>(PlayerController->GetHUD()))
-			{
-				UAbilitySystemComponent* AbilitySystemComponent = PlayerState->GetAbilitySystemComponent();
-				UAttributeSet* Attributes = PlayerState->GetAttributeSet();
-				const FWidgetControllerParams WidgetParams(PlayerController, PlayerState, AbilitySystemComponent, Attributes);
-
-				return HUD->GetSaveGameWidgetController(WidgetParams);
-			}
-		}
-	}
-	
-	return nullptr;
+	AbilitySystemComponent->ApplyGameplayEffectSpecToSelf(*SpecHandle.Data.Get());
 }

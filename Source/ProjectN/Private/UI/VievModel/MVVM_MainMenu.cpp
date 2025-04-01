@@ -3,10 +3,7 @@
 
 #include "UI/VievModel/MVVM_MainMenu.h"
 
-#include "AbilitySystemBlueprintLibrary.h"
-#include "ProjectN_GameModeBase.h"
-#include "ProjectN_PlayerState.h"
-#include "AbilitySystem/ProjectN_AbilitySystemComponent.h"
+#include "ProjectN_PlayerCharacter.h"
 #include "Kismet/GameplayStatics.h"
 #include "UI/VievModel/MVVM_SaveSlot.h"
 
@@ -47,40 +44,18 @@ void UMVVM_MainMenu::LoadData()
 {	
 	for (const TTuple<int, UMVVM_SaveSlot*> Slot : SaveSlotsMap)
 	{
+		// Load or create save object
 		UCharacter_Save* SaveObj = LoadSlotData(Slot.Value->GetSlotName(), Slot.Key);
 
+		// Write data from save object to view model
 		Slot.Value->SlotStatus = SaveObj->SlotStatus;
 		Slot.Value->GetPlayerName() = SaveObj->PlayerName;
-		Slot.Value->AttributeInformation = SaveObj->GetSavedAttributes();
+		Slot.Value->Strength = SaveObj->Strength;
+		Slot.Value->Intelligence = SaveObj->Intelligence;
+		Slot.Value->Dexterity = SaveObj->Dexterity;
+		Slot.Value->Vitality = SaveObj->Vitality;
 		Slot.Value->InitializeSlot();
 	}
-}
-
-void UMVVM_MainMenu::NewGameSlotSelected(const int32 Index)
-{
-	SlotSelected.Broadcast(Index);
-	
-	CurrentSlotIndex = Index;
-	//SaveSlotsMap[Index]->SlotStatus = ESaveSlotStatus::EnterName;
-	SaveSlotsMap[Index]->InitializeSlot();
-}
-
-void UMVVM_MainMenu::NewSlotSaved(const int32 Index, const FString& CharacterName)
-{
-	const UAbilitySystemComponent* ASC = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(UGameplayStatics::GetPlayerState(this, 0));
-
-	SaveSlotsMap[Index]->SlotStatus = ESaveSlotStatus::Taken;
-	SaveSlotsMap[Index]->AttributeInformation = Cast<UProjectN_AbilitySystemComponent>(ASC)->GetAttributesForSave();
-	SaveSlotsMap[Index]->SetPlayerName(CharacterName);
-	SaveSlotsMap[Index]->InitializeSlot();
-	SaveSlotData(SaveSlotsMap[Index], Index);
-	
-	SaveSlotsMap[Index]->SetSaveSlotState.Broadcast(1);
-}
-
-void UMVVM_MainMenu::DeleteSlot(const int32 Index)
-{
-	
 }
 
 UCharacter_Save* UMVVM_MainMenu::LoadSlotData(const FString& SlotName, const int32 SlotIndex) const
@@ -95,17 +70,31 @@ UCharacter_Save* UMVVM_MainMenu::LoadSlotData(const FString& SlotName, const int
 	}
 }
 
-void UMVVM_MainMenu::SaveSlotData(const UMVVM_SaveSlot* SaveSlotViewModel, const int32 SlotIndex) const
+void UMVVM_MainMenu::NewGameSlotSelected(const int32 Index)
 {
-	if (UGameplayStatics::DoesSaveGameExist(SaveSlotViewModel->GetSlotName(), SlotIndex))
-	{
-		UGameplayStatics::DeleteGameInSlot(SaveSlotViewModel->GetSlotName(), SlotIndex);
-	}
-	USaveGame* SaveGameObject = UGameplayStatics::CreateSaveGameObject(CharacterSaveClass);
-	UCharacter_Save* CharacterSave = Cast<UCharacter_Save>(SaveGameObject);
-	CharacterSave->SetSavedAttributes(SaveSlotViewModel->AttributeInformation);
-	CharacterSave->PlayerName = SaveSlotViewModel->GetPlayerName();
-	CharacterSave->SlotStatus = ESaveSlotStatus::Taken;
+	CurrentSlotIndex = Index;
+	SlotSelected.Broadcast(Index);
+	Cast<AProjectN_PlayerCharacter>(UGameplayStatics::GetPlayerController(this, 0)->GetPawn())->ApplyPrimaryAttributeFromSave(SaveSlotsMap[Index]->GetSlotName(), Index);
+	//SaveSlotsMap[Index]->InitializeSlot();
+}
 
-	UGameplayStatics::SaveGameToSlot(CharacterSave, SaveSlotViewModel->GetSlotName(), SlotIndex);
+void UMVVM_MainMenu::NewSlotSaved(const int32 Index, const FString& CharacterName)
+{
+	// Write data to view model
+	SaveSlotsMap[Index]->SlotStatus = ESaveSlotStatus::Taken;
+	SaveSlotsMap[Index]->SetPlayerName(CharacterName);
+	
+	Cast<AProjectN_PlayerCharacter>(UGameplayStatics::GetPlayerController(this, 0)->GetPawn())->Save(SaveSlotsMap[Index]);
+
+	SaveSlotsMap[Index]->SetSaveSlotState.Broadcast(1);
+}
+
+void UMVVM_MainMenu::DeleteSlot(const int32 Index)
+{
+	if (UGameplayStatics::DoesSaveGameExist(SaveSlotsMap[Index]->GetSlotName(), SaveSlotsMap[Index]->SlotIndex))
+	{
+		UGameplayStatics::DeleteGameInSlot(SaveSlotsMap[Index]->GetSlotName(), SaveSlotsMap[Index]->SlotIndex);
+	}
+	SaveSlotsMap[Index]->ClearModel();
+	SaveSlotsMap[Index]->InitializeSlot();
 }

@@ -17,3 +17,13 @@ void UMVVM_SaveSlot::SetSlotName(const FString& InSlotName)
 {
 	UE_MVVM_SET_PROPERTY_VALUE(SlotName, InSlotName);
 }
+
+void UMVVM_SaveSlot::ClearModel()
+{
+	SlotStatus = ESaveSlotStatus::Vacant;
+	Strength = 0.f;
+	Intelligence = 0.f;
+	Dexterity = 0.f;
+	Vitality = 0.f;
+	SetPlayerName("");
+}

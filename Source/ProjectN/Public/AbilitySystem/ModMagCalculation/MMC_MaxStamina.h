@@ -4,16 +4,16 @@
 
 #include "CoreMinimal.h"
 #include "GameplayModMagnitudeCalculation.h"
-#include "MMC_MaxHealth.generated.h"
+#include "MMC_MaxStamina.generated.h"
 
 UCLASS()
-class PROJECTN_API UMMC_MaxHealth : public UGameplayModMagnitudeCalculation
+class PROJECTN_API UMMC_MaxStamina : public UGameplayModMagnitudeCalculation
 {
 	GENERATED_BODY()
 
 public:
 
-	UMMC_MaxHealth();
+	UMMC_MaxStamina();
 	virtual float CalculateBaseMagnitude_Implementation(const FGameplayEffectSpec& Spec) const override;
 	
 protected:

@@ -6,8 +6,9 @@
 #include "Kismet/BlueprintFunctionLibrary.h"
 #include "ProjectN_AbilitySystemLibrary.generated.h"
 
-class UProjectN_SaveGameWidgetController;
-class UProjectN_MainMenuWidgetController;
+class UCharacter_Save;
+class USaveGame;
+class UAbilitySystemComponent;
 class UProjectN_AttributeController;
 class UProjectN_OverlayWidgetController;
 class UProjectN_InventoryController;
@@ -28,9 +29,6 @@ public:
 	UFUNCTION(BlueprintPure, Category = "AbilitySystem | Inventory Widget Controller")
 	static UProjectN_InventoryController* GetInventoryWidgetController(const UObject* WorldContextObject);
 
-//	UFUNCTION(BlueprintPure, Category = "AbilitySystem | Main Menu Widget Controller")
-//	static UProjectN_MainMenuWidgetController* GetMainMenuWidgetController(const UObject* WorldContextObject);
-
-	UFUNCTION(BlueprintPure, Category = "AbilitySystem | Save Game Widget Controller")
-	static UProjectN_SaveGameWidgetController* GetSaveGameWidgetController(const UObject* WorldContextObject);
+	UFUNCTION(BlueprintCallable, Category = "AbilitySystem | Attributes")
+	static void OverridePrimaryAttributes(const UObject* WorldContextObject, UAbilitySystemComponent* AbilitySystemComponent, const float Strength, const float Intelligence, const float Dexterity, const float Vitality);
 };

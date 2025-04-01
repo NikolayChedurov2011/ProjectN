@@ -10,6 +10,9 @@ class UProjectN_InputConfig;
 class USpringArmComponent;
 class UCameraComponent;
 class AProjectN_PlayerCameraManager;
+class UCharacter_Save;
+class UMVVM_SaveSlot;
+class USaveGame;
 
 struct FInputActionValue;
 
@@ -23,12 +26,23 @@ public:
 	virtual void PossessedBy(AController* NewController) override;
 	virtual void OnRep_PlayerState() override;
 
-protected:
-	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
-	virtual void InitAbilityActorInfo() override;
+	void Save(UMVVM_SaveSlot* ViewModel) const;
 
 	UFUNCTION(Server, Reliable)
-	void OnCharacterInitAbilityEnd();
+	void ServerApplyPrimaryAttributeFromSave(const float Strength, const float Intelligence, const float Dexterity, const float Vitality) const;
+	void ApplyPrimaryAttributeFromSave(const FString& SlotName, const int32 SlotIndex) const;
+
+	UFUNCTION(Server, Reliable)
+	void ServerTravelToMap() const;
+	
+protected:
+	virtual void InitAbilityActorInfo() override;
+
+	//UFUNCTION(Server, Reliable)
+	//void OnCharacterInitAbilityEnd();
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	TSubclassOf<USaveGame> CharacterSaveClass;
 
 private:
 	

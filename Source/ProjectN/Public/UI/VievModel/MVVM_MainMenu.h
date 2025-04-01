@@ -52,7 +52,6 @@ protected:
 	
 private:
 
-	void SaveSlotData(const UMVVM_SaveSlot* SaveSlotViewModel, const int32 SlotIndex) const;
 	UCharacter_Save* LoadSlotData(const FString& SlotName, const int32 SlotIndex) const;
 
 	UPROPERTY()

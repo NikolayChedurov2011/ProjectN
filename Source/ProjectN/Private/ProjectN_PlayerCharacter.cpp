@@ -1,16 +1,19 @@
 // N Chedurov All Rights Reserved
 
 #include "ProjectN_PlayerCharacter.h"
+
+#include "ProjectN_GameInstance.h"
 #include "Camera/CameraComponent.h"
 #include "GameFramework/SpringArmComponent.h"
-#include "EnhancedInputSubsystems.h"
 #include "DataAssets/InputConfig/DataAsset_InputConfig.h"
 #include "Components/Input/ProjectN_InputComponent.h"
-#include "ProjectN_GameplayTags.h"
 #include "ProjectN_PlayerState.h"
+#include "AbilitySystem/ProjectN_AbilitySystemLibrary.h"
 #include "AbilitySystem/Attribute/ProjectN_AttributeSet.h"
 #include "Controllers/ProjectN_PlayerController.h"
+#include "Kismet/GameplayStatics.h"
 #include "UI/HUD/ProjectN_HUD.h"
+#include "UI/VievModel/MVVM_SaveSlot.h"
 
 AProjectN_PlayerCharacter::AProjectN_PlayerCharacter(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
 {
@@ -35,7 +38,7 @@ void AProjectN_PlayerCharacter::PossessedBy(AController* NewController)
 {
 	Super::PossessedBy(NewController);
 
-	// Init ability actor info for the Server
+	// Init ability actor info for ability system component on the Server side. Bind for some attribute changes
 	InitAbilityActorInfo();
 }
 
@@ -43,11 +46,11 @@ void AProjectN_PlayerCharacter::OnRep_PlayerState()
 {
 	Super::OnRep_PlayerState();
 
-	// Init ability actor info for the Client
+	// Init ability actor info for ability system component on  the Client side. Bind for some attribute changes. Init HUD overlay
 	InitAbilityActorInfo();
 	
 	//Send RPS from Client to Server when it's ready
-	OnCharacterInitAbilityEnd();
+	//OnCharacterInitAbilityEnd();
 }
 
 void AProjectN_PlayerCharacter::InitAbilityActorInfo()
@@ -66,45 +69,39 @@ void AProjectN_PlayerCharacter::InitAbilityActorInfo()
 			HUD->InitOverlay(ProjectN_PlayerController, ProjectN_PlayerState, ProjectN_AbilitySystemComponent, ProjectN_AttributeSet);
 		}
 	}
+
+	if (HasAuthority())
+	{
+		// At first apply saved attributes value
+		if (!Cast<UProjectN_GameInstance>(GetGameInstance())->CurrentSaveSlotName.IsEmpty())
+		{
+			const int32 Index = Cast<UProjectN_GameInstance>(GetGameInstance())->CurrentSaveSlotIndex;
+			const FString SlotName = Cast<UProjectN_GameInstance>(GetGameInstance())->CurrentSaveSlotName;
+
+			ApplyPrimaryAttributeFromSave(SlotName, Index);
+		}
+
+		GiveStartupAbilities();
+		ApplyStartupEffects();
+	}
 	
 	Super::InitAbilityActorInfo();
 }
 
+/*
 void AProjectN_PlayerCharacter::OnCharacterInitAbilityEnd_Implementation()
 {
-	if (HasAuthority())
-	{		
-		GiveStartupAbilities();
-		ApplyStartupEffects();
-	}
+
 }
+*/
 
 /*
  *
  */
 
 /*
- *** Setup InputComponent + implement move and look functions
+ *** Move and look functions
  */
-void AProjectN_PlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
-{
-	//checkf(InputConfigDataAsset, TEXT("Forgot to assign valid data asset, please fill out Character data"));
-	
-	//const ULocalPlayer* LocalPLayer = GetController<APlayerController>()->GetLocalPlayer();
-	//UEnhancedInputLocalPlayerSubsystem* EnhancedInputSubsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(LocalPLayer);
-
-	//if (EnhancedInputSubsystem == nullptr)
-	//{
-	//	return;
-	//}
-
-	//EnhancedInputSubsystem->AddMappingContext(InputConfigDataAsset->DefaultMappingContext, 0);
-	//UProjectN_InputComponent* ProjectNInputComponent = CastChecked<UProjectN_InputComponent>(PlayerInputComponent);
-
-	//ProjectNInputComponent->BindNativeInputAction(InputConfigDataAsset, ProjectNGameplayTags::InputTag_Move, ETriggerEvent::Triggered, this, &ThisClass::Input_Move);
-	//ProjectNInputComponent->BindNativeInputAction(InputConfigDataAsset, ProjectNGameplayTags::InputTag_Look, ETriggerEvent::Triggered, this, &ThisClass::Input_Look);
-	//ProjectNInputComponent->BindAbilityActions(InputConfigDataAsset, this, &ThisClass::OnActionPressed, &ThisClass::OnActionReleased, &ThisClass::OnActionHeld);
-}
 
 void AProjectN_PlayerCharacter::Input_Move(const FInputActionValue& ActionValue)
 {
@@ -174,3 +171,56 @@ void AProjectN_PlayerCharacter::OnActionHeld(FGameplayTag InTag)
 /*
  *
  */
+
+void AProjectN_PlayerCharacter::Save(UMVVM_SaveSlot* ViewModel) const
+{
+	ViewModel->Strength = Cast<UProjectN_AttributeSet>(GetAttributeSet())->GetStrength();
+	ViewModel->Intelligence = Cast<UProjectN_AttributeSet>(GetAttributeSet())->GetIntelligence();
+	ViewModel->Dexterity = Cast<UProjectN_AttributeSet>(GetAttributeSet())->GetDexterity();
+	ViewModel->Vitality = Cast<UProjectN_AttributeSet>(GetAttributeSet())->GetVitality();
+
+	if (UGameplayStatics::DoesSaveGameExist(ViewModel->GetSlotName(), ViewModel->SlotIndex))
+	{
+		UGameplayStatics::DeleteGameInSlot(ViewModel->GetSlotName(), ViewModel->SlotIndex);
+	}
+	USaveGame* SaveGameObject = UGameplayStatics::CreateSaveGameObject(CharacterSaveClass);
+	UCharacter_Save* CharacterSave = Cast<UCharacter_Save>(SaveGameObject);
+	
+	CharacterSave->PlayerName = ViewModel->GetPlayerName();
+	CharacterSave->SlotStatus = ESaveSlotStatus::Taken;
+	CharacterSave->Strength = ViewModel->Strength;
+	CharacterSave->Intelligence = ViewModel->Intelligence;
+	CharacterSave->Dexterity = ViewModel->Dexterity;
+	CharacterSave->Vitality = ViewModel->Vitality;
+
+	UGameplayStatics::SaveGameToSlot(CharacterSave, ViewModel->GetSlotName(), ViewModel->SlotIndex);
+
+	Cast<UProjectN_GameInstance>(GetGameInstance())->CurrentSaveSlotIndex = ViewModel->SlotIndex;
+	Cast<UProjectN_GameInstance>(GetGameInstance())->CurrentSaveSlotName = ViewModel->GetSlotName();
+
+	ServerTravelToMap();
+}
+
+void AProjectN_PlayerCharacter::ServerApplyPrimaryAttributeFromSave_Implementation(const float Strength, const float Intelligence, const float Dexterity, const float Vitality) const
+{
+	UProjectN_AbilitySystemLibrary::OverridePrimaryAttributes(this, GetAbilitySystemComponent(), Strength, Intelligence, Dexterity, Vitality);
+}
+
+void AProjectN_PlayerCharacter::ApplyPrimaryAttributeFromSave(const FString& SlotName, const int32 SlotIndex) const
+{
+	if (UGameplayStatics::DoesSaveGameExist(SlotName, SlotIndex))
+	{
+		USaveGame* SaveGame = UGameplayStatics::LoadGameFromSlot(SlotName, SlotIndex);
+		ServerApplyPrimaryAttributeFromSave(Cast<UCharacter_Save>(SaveGame)->Strength, Cast<UCharacter_Save>(SaveGame)->Intelligence, Cast<UCharacter_Save>(SaveGame)->Dexterity, Cast<UCharacter_Save>(SaveGame)->Vitality);
+	}
+	else
+	{
+		USaveGame* SaveGameObject = UGameplayStatics::CreateSaveGameObject(CharacterSaveClass);
+		ServerApplyPrimaryAttributeFromSave(Cast<UCharacter_Save>(SaveGameObject)->Strength, Cast<UCharacter_Save>(SaveGameObject)->Intelligence, Cast<UCharacter_Save>(SaveGameObject)->Dexterity, Cast<UCharacter_Save>(SaveGameObject)->Vitality);
+	}
+}
+
+void AProjectN_PlayerCharacter::ServerTravelToMap_Implementation() const
+{
+	UGameplayStatics::OpenLevel(this, "NewMap");
+}

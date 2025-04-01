@@ -3,13 +3,11 @@
 
 #include "UI/WidgetController/ProjectN_AttributeController.h"
 
-#include "ProjectN_GameplayTags.h"
 #include "ProjectN_PlayerState.h"
 #include "AbilitySystem/ProjectN_AbilitySystemComponent.h"
 #include "AbilitySystem/Attribute/ProjectN_AttributeSet.h"
 #include "AbilitySystem/Data/AttributeInfo.h"
 #include "GameFramework/PlayerState.h"
-#include "ProjectN/ProjectNTypes.h"
 
 void UProjectN_AttributeController::BroadcastInitialValues()
 {
@@ -55,14 +53,7 @@ void UProjectN_AttributeController::BroadcastAttributeInfo(const FGameplayTag& I
 	AttributeInfoDelegate.Broadcast(AttributeInfoElem);
 }
 
-/*
-TArray<FProjectNAttributeSaveInfo> UProjectN_AttributeController::GetAttributesForSave() const
-{
-	return Cast<UProjectN_AbilitySystemComponent>(AbilitySystemComponent)->GetAttributesForSave();
-}
-*/
-
-void UProjectN_AttributeController::ChangeAttribute(const FGameplayTag& AttributeTag, const int32 Value)
+void UProjectN_AttributeController::ChangeAttribute(const FGameplayTag& AttributeTag, const float Value)
 {
 	// @TODO: Check if attribute + value is not < attribute. Need to load saved attributes. Maybe need bool for return
 	if (AbilitySystemComponent && PlayerState->HasAuthority())
@@ -73,27 +64,4 @@ void UProjectN_AttributeController::ChangeAttribute(const FGameplayTag& Attribut
 	{
 		Cast<UProjectN_AbilitySystemComponent>(AbilitySystemComponent.Get())->ServerSendGameplayEventWithTag(AttributeTag, Value);
 	}
-}
-
-void UProjectN_AttributeController::NullifyAttributes() const
-{
-	if (AbilitySystemComponent && PlayerState->HasAuthority())
-	{
-		FGameplayEffectContextHandle EffectContext = AbilitySystemComponent->MakeEffectContext();
-		EffectContext.AddSourceObject(AbilitySystemComponent->GetAvatarActor());
-		
-		Cast<UProjectN_AbilitySystemComponent>(AbilitySystemComponent.Get())->ApplyGamePlayEffectToSelf_Internal(NullifyAttributesEffect, EffectContext, 1.f);
-	}
-	else
-	{
-		ServerNullifyAttributes();
-	}
-}
-
-void UProjectN_AttributeController::ServerNullifyAttributes_Implementation() const
-{
-	FGameplayEffectContextHandle EffectContext = AbilitySystemComponent->MakeEffectContext();
-	EffectContext.AddSourceObject(AbilitySystemComponent->GetAvatarActor());
-	
-	Cast<UProjectN_AbilitySystemComponent>(AbilitySystemComponent.Get())->ApplyGamePlayEffectToSelf_Internal(NullifyAttributesEffect, EffectContext, 1.f);
 }
