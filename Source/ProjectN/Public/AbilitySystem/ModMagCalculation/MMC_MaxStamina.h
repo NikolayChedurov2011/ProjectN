@@ -18,5 +18,6 @@ public:
 	
 protected:
 
-	FGameplayEffectAttributeCaptureDefinition CaptureDefinition;
+	FGameplayEffectAttributeCaptureDefinition VitalityCaptureDefinition;
+	FGameplayEffectAttributeCaptureDefinition DexterityCaptureDefinition;
 };

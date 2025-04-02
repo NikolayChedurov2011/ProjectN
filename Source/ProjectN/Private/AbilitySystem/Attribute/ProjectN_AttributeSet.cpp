@@ -74,7 +74,7 @@ void UProjectN_AttributeSet::PostGameplayEffectExecute(const struct FGameplayEff
 	FEffectProperties Props;
 	SetEffectProperties(Data, Props);
 
-	// Current attribute values
+	// Character's life attributes
 	if (Data.EvaluatedData.Attribute == GetHealthAttribute())
 	{
 		SetHealth(FMath::Clamp(GetHealth(), 0.f, GetMaxHealth()));
@@ -91,10 +91,37 @@ void UProjectN_AttributeSet::PostGameplayEffectExecute(const struct FGameplayEff
 	{
 		SetPoise(FMath::Clamp(GetPoise(), 0.f, GetMaxPoise()));
 	}
+
+	
+	// Secondary attributes
+	if (Data.EvaluatedData.Attribute == GetMaxPoiseAttribute())
+	{
+		SetMaxPoise(FMath::Max(GetMaxPoise(), 0.f));
+		SetPoise(FMath::Clamp(GetPoise(), 0.f, GetMaxPoise()));
+	}
+	
+
+	// Primary attributes
+	if (Data.EvaluatedData.Attribute == GetStrengthAttribute())
+	{
+		SetStrength(FMath::Max(GetStrength(), 0.f));
+	}
+	if (Data.EvaluatedData.Attribute == GetIntelligenceAttribute())
+	{
+		SetIntelligence(FMath::Max(GetIntelligence(), 0.f));
+	}
+	if (Data.EvaluatedData.Attribute == GetDexterityAttribute())
+	{
+		SetDexterity(FMath::Max(GetDexterity(), 0.f));
+	}
+	if (Data.EvaluatedData.Attribute == GetVitalityAttribute())
+	{
+		SetVitality(FMath::Max(GetVitality(), 0.f));
+	}
+
 	SetHealth(FMath::Clamp(GetHealth(), 0.f, GetMaxHealth()));
 	SetMana(FMath::Clamp(GetMana(), 0.f, GetMaxMana()));
 	SetStamina(FMath::Clamp(GetStamina(), 0.f, GetMaxStamina()));
-	SetPoise(FMath::Clamp(GetPoise(), 0.f, GetMaxPoise()));
 }
 
 void UProjectN_AttributeSet::PreAttributeChange(const FGameplayAttribute& Attribute, float& NewValue)

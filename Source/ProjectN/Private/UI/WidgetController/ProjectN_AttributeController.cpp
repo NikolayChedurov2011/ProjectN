@@ -20,7 +20,7 @@ void UProjectN_AttributeController::BroadcastInitialValues()
 		BroadcastAttributeInfo(Pair.Key, Pair.Value);
 	}
 
-	AProjectN_PlayerState* ProjectNPlayerState = CastChecked<AProjectN_PlayerState>(PlayerState);
+	const AProjectN_PlayerState* ProjectNPlayerState = CastChecked<AProjectN_PlayerState>(PlayerState);
 	OnAttributePointsChanged.Broadcast(ProjectNPlayerState->GetAttributePoints());
 }
 

@@ -6,6 +6,7 @@
 #include "ProjectN_PlayerState.h"
 #include "AbilitySystem/ProjectN_AbilitySystemComponent.h"
 #include "AbilitySystem/Attribute/ProjectN_AttributeSet.h"
+#include "AbilitySystem/Data/LevelUpDataInfo.h"
 
 void UProjectN_OverlayWidgetController::BroadcastInitialValues()
 {
@@ -22,8 +23,9 @@ void UProjectN_OverlayWidgetController::BroadcastInitialValues()
 	OnMaxStaminaChanged.Broadcast(ProjectN_AttributeSet->GetMaxStamina(), ProjectN_AttributeSet->GetMaxStamina());
 	OnStaminaChanged.Broadcast(ProjectN_AttributeSet->GetStamina(), ProjectN_AttributeSet->GetStamina());
 	
-	AProjectN_PlayerState* ProjectNPlayerState = CastChecked<AProjectN_PlayerState>(PlayerState);
+	const AProjectN_PlayerState* ProjectNPlayerState = CastChecked<AProjectN_PlayerState>(PlayerState);
 	OnXPChanged.Broadcast(ProjectNPlayerState->GetXP());
+	OnLevelChanged.Broadcast(ProjectNPlayerState->GetCharacterLevel_Internal());
 }
 
 void UProjectN_OverlayWidgetController::BindCallbacksToResponce()
@@ -56,9 +58,26 @@ void UProjectN_OverlayWidgetController::BindCallbacksToResponce()
 	});
 
 	AProjectN_PlayerState* ProjectNPlayerState = CastChecked<AProjectN_PlayerState>(PlayerState);
-	ProjectNPlayerState->OnXPChanged.AddLambda([this] (const int32 Value)
+	ProjectNPlayerState->OnXPChanged.AddLambda([this, ProjectNPlayerState] (const int32 Value)
 	{
-		OnXPChanged.Broadcast(Value);
+		const int32 CurrentLevel = ProjectNPlayerState->LevelUpInfo->GetLevelByXP(Value);
+		const int32 MaxLevel = ProjectNPlayerState->LevelUpInfo->LevelUpInformationContainer.Num();
+
+		if (CurrentLevel <= MaxLevel && CurrentLevel > 0)
+		{
+			const int32 PastRequirement = ProjectNPlayerState->LevelUpInfo->LevelUpInformationContainer[CurrentLevel - 1].XPForLevelUp;
+			const int32 DeltaRequirement = ProjectNPlayerState->LevelUpInfo->GetXPForLevelUpByLevel(CurrentLevel);
+
+			const int32 XPForThisLevel = Value - PastRequirement;
+			const float Percent = static_cast<float>(XPForThisLevel) / static_cast<float>(DeltaRequirement);
+
+			OnXPChanged.Broadcast(Percent);
+		}
+	});
+
+	ProjectNPlayerState->OnLevelChanged.AddLambda([this] (const int32 Value)
+	{
+		OnLevelChanged.Broadcast(Value);
 	});
 }
 

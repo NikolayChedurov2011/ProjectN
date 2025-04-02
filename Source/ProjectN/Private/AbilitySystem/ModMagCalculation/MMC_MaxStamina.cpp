@@ -8,11 +8,16 @@
 
 UMMC_MaxStamina::UMMC_MaxStamina()
 {
-	CaptureDefinition.AttributeToCapture = UProjectN_AttributeSet::GetVitalityAttribute();
-	CaptureDefinition.AttributeSource = EGameplayEffectAttributeCaptureSource::Target;
-	CaptureDefinition.bSnapshot = false;
+	VitalityCaptureDefinition.AttributeToCapture = UProjectN_AttributeSet::GetVitalityAttribute();
+	VitalityCaptureDefinition.AttributeSource = EGameplayEffectAttributeCaptureSource::Target;
+	VitalityCaptureDefinition.bSnapshot = false;
 
-	RelevantAttributesToCapture.Add(CaptureDefinition);
+	DexterityCaptureDefinition.AttributeToCapture = UProjectN_AttributeSet::GetDexterityAttribute();
+	DexterityCaptureDefinition.AttributeSource = EGameplayEffectAttributeCaptureSource::Target;
+	DexterityCaptureDefinition.bSnapshot = false;
+
+	RelevantAttributesToCapture.Add(VitalityCaptureDefinition);
+	RelevantAttributesToCapture.Add(DexterityCaptureDefinition);
 }
 
 float UMMC_MaxStamina::CalculateBaseMagnitude_Implementation(const FGameplayEffectSpec& Spec) const
@@ -24,9 +29,13 @@ float UMMC_MaxStamina::CalculateBaseMagnitude_Implementation(const FGameplayEffe
 	EvaluateParameters.SourceTags = SourceTags;
 	EvaluateParameters.TargetTags = TargetTags;
 	
-	float Magnitude = 0.0f;
-	GetCapturedAttributeMagnitude(CaptureDefinition, Spec, EvaluateParameters, Magnitude);
-	Magnitude = FMath::Max(Magnitude, 0.0f) + 200.0f;
+	float VitalityMagnitude = 0.0f;
+	GetCapturedAttributeMagnitude(VitalityCaptureDefinition, Spec, EvaluateParameters, VitalityMagnitude);
+
+	float DexterityMagnitude = 0.0f;
+	GetCapturedAttributeMagnitude(DexterityCaptureDefinition, Spec, EvaluateParameters, DexterityMagnitude);
+	
+	const float Magnitude = DexterityMagnitude * 3 + VitalityMagnitude * 3 + 200.0f;
 
 	const ICombatInterface* CombatInterface = Cast<ICombatInterface>(Spec.GetContext().GetSourceObject());
 	int32 Level = CombatInterface->GetCharacterLevel();

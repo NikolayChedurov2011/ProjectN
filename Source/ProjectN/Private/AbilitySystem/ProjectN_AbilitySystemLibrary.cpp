@@ -35,7 +35,7 @@ UProjectN_OverlayWidgetController* UProjectN_AbilitySystemLibrary::GetOverlayWid
 
 UProjectN_AttributeController* UProjectN_AbilitySystemLibrary::GetAttributeWidgetController(const UObject* WorldContextObject)
 {
-	APlayerController* DefaultPlayerController = UGameplayStatics::GetPlayerController(WorldContextObject, 0);
+	/*APlayerController* DefaultPlayerController = UGameplayStatics::GetPlayerController(WorldContextObject, 0);
 	APlayerState* DefaultPlayerState = UGameplayStatics::GetPlayerState(WorldContextObject, 0);
 
 	if (IsValid(DefaultPlayerController) && IsValid(DefaultPlayerState))
@@ -54,6 +54,15 @@ UProjectN_AttributeController* UProjectN_AbilitySystemLibrary::GetAttributeWidge
 				return HUD->GetAttributeWidgetController(WidgetParams);
 			}
 		}
+	}*/
+	
+	APlayerController* DefaultPlayerController = UGameplayStatics::GetPlayerController(WorldContextObject, 0);
+	const APlayerController* PlayerController = Cast<APlayerController>(DefaultPlayerController);
+	if (AProjectN_HUD* HUD = Cast<AProjectN_HUD>(PlayerController->GetHUD()))
+	{
+		const FWidgetControllerParams WidgetParams;
+
+		return HUD->GetAttributeWidgetController(WidgetParams);
 	}
 	
 	return nullptr;
@@ -92,7 +101,7 @@ void UProjectN_AbilitySystemLibrary::OverridePrimaryAttributes(const UObject* Wo
 	FGameplayEffectContextHandle EffectContextHandle = AbilitySystemComponent->MakeEffectContext();
 	EffectContextHandle.AddSourceObject(AvatarActor);
 
-	const FGameplayEffectSpecHandle SpecHandle = AbilitySystemComponent->MakeOutgoingSpec(Cast<AProjectN_CharacterBase>(AvatarActor)->GetCharacterData().InitAttributeFromSaveEffects, 1.f, EffectContextHandle);
+	const FGameplayEffectSpecHandle SpecHandle = AbilitySystemComponent->MakeOutgoingSpec(Cast<AProjectN_CharacterBase>(AvatarActor)->GetCharacterData().OverridePrimaryAttributesEffectClass, 1.f, EffectContextHandle);
 
 	UAbilitySystemBlueprintLibrary::AssignTagSetByCallerMagnitude(SpecHandle, ProjectNGameplayTags::Attribute_Primary_Strength, Strength);
 	UAbilitySystemBlueprintLibrary::AssignTagSetByCallerMagnitude(SpecHandle, ProjectNGameplayTags::Attribute_Primary_Intelligence, Intelligence);

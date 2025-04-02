@@ -20,9 +20,10 @@ class PROJECTN_API UCharacter_Save : public USaveGame
 	GENERATED_BODY()
 
 public:
-	
+
+	// Save slot data
 	UPROPERTY()
-	FString PlayerName = FString();
+	TEnumAsByte<ESaveSlotStatus> SlotStatus = ESaveSlotStatus::Vacant;
 		
 	UPROPERTY()
 	FString SlotName = FString();
@@ -30,8 +31,18 @@ public:
 	UPROPERTY()
 	int32 SlotIndex = 0;
 
+	// Player data
 	UPROPERTY()
-	TEnumAsByte<ESaveSlotStatus> SlotStatus = ESaveSlotStatus::Vacant;
+	FString PlayerName = FString();
+	
+	UPROPERTY()
+	int32 Level = 1;
+
+	UPROPERTY()
+	int32 XP = 0;
+	
+	UPROPERTY()
+	int32 AttributePoints = 10;
 	
 	UPROPERTY()
 	float Strength = 0.f;

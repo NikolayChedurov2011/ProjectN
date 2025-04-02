@@ -65,6 +65,9 @@ public:
 	UPROPERTY(BlueprintAssignable, Category="Gameplay Values")
 	FOnCharacterStatChangedSignature OnXPChanged;
 
+	UPROPERTY(BlueprintAssignable, Category="Gameplay Values")
+	FOnCharacterStatChangedSignature OnLevelChanged;
+
 	virtual void BroadcastInitialValues() override;
 	virtual void BindCallbacksToResponce() override;
 

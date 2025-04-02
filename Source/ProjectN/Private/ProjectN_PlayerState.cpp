@@ -47,53 +47,53 @@ FVector AProjectN_PlayerState::GetWeaponSocketLocation(const FGameplayTag& Input
  *
  */
 
-void AProjectN_PlayerState::SetLevel(int32 NewLevel)
+void AProjectN_PlayerState::SetLevel(const int32 NewLevel)
 {
 	Level = NewLevel;
 	OnLevelChanged.Broadcast(Level);
 }
 
-void AProjectN_PlayerState::AddToLevel(int32 NewLevel)
+void AProjectN_PlayerState::AddToLevel(const int32 NewLevel)
 {
 	Level += NewLevel;
 	OnLevelChanged.Broadcast(Level);
 }
 
-void AProjectN_PlayerState::SetXP(int32 NewXP)
+void AProjectN_PlayerState::SetXP(const int32 NewXP)
 {
 	XP = NewXP;
 	OnXPChanged.Broadcast(XP);
 }
 
-void AProjectN_PlayerState::AddToXP(int32 NewXP)
+void AProjectN_PlayerState::AddToXP(const int32 NewXP)
 {
 	XP += NewXP;
 	OnXPChanged.Broadcast(XP);
 }
 
-void AProjectN_PlayerState::SetAttributePoints(int32 NewAttributePoints)
+void AProjectN_PlayerState::SetAttributePoints(const int32 NewAttributePoints)
 {
 	AttributePoints = NewAttributePoints;
 	OnAttributePointsChanged.Broadcast(AttributePoints);
 }
 
-void AProjectN_PlayerState::AddToAttributePoints(int32 NewAttributePoints)
+void AProjectN_PlayerState::AddToAttributePoints(const int32 NewAttributePoints)
 {
 	AttributePoints += NewAttributePoints;
 	OnAttributePointsChanged.Broadcast(AttributePoints);
 }
 
-void AProjectN_PlayerState::OnRep_Level(int32 OldLevel)
+void AProjectN_PlayerState::OnRep_Level(const int32 OldLevel) const
 {
 	OnLevelChanged.Broadcast(Level);
 }
 
-void AProjectN_PlayerState::OnRep_XP(int32 OldXP)
+void AProjectN_PlayerState::OnRep_XP(const int32 OldXP) const
 {
 	OnXPChanged.Broadcast(XP);
 }
 
-void AProjectN_PlayerState::OnRep_AttributePoints(int32 OldAttributePoints)
+void AProjectN_PlayerState::OnRep_AttributePoints(const int32 OldAttributePoints) const
 {
 	OnAttributePointsChanged.Broadcast(AttributePoints);
 }

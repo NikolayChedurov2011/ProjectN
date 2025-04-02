@@ -25,14 +25,14 @@ UCharacter_Save* AProjectN_GameModeBase::LoadSlotData(const FString& SlotName, c
 
 void AProjectN_GameModeBase::SaveSlotData(UMVVM_SaveSlot* SaveSlotViewModel, const int32 SlotIndex) const
 {
-	if (UGameplayStatics::DoesSaveGameExist(SaveSlotViewModel->GetSlotName(), SlotIndex))
+	if (UGameplayStatics::DoesSaveGameExist(SaveSlotViewModel->SlotName, SlotIndex))
 	{
-		UGameplayStatics::DeleteGameInSlot(SaveSlotViewModel->GetSlotName(), SlotIndex);
+		UGameplayStatics::DeleteGameInSlot(SaveSlotViewModel->SlotName, SlotIndex);
 	}
 	USaveGame* SaveGameObject = UGameplayStatics::CreateSaveGameObject(CharacterSaveClass);
 	UCharacter_Save* CharacterSave = Cast<UCharacter_Save>(SaveGameObject);
 	CharacterSave->PlayerName = SaveSlotViewModel->GetPlayerName();
 	CharacterSave->SlotStatus = ESaveSlotStatus::Taken;
 
-	UGameplayStatics::SaveGameToSlot(CharacterSave, SaveSlotViewModel->GetSlotName(), SlotIndex);
+	UGameplayStatics::SaveGameToSlot(CharacterSave, SaveSlotViewModel->SlotName, SlotIndex);
 }

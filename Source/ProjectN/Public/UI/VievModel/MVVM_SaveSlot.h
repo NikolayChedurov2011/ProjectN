@@ -21,12 +21,23 @@ public:
 
 	void InitializeSlot();
 
+	// Save slot data
+	UPROPERTY(BlueprintReadOnly)
+	TEnumAsByte<ESaveSlotStatus> SlotStatus = ESaveSlotStatus::Vacant;
+	
 	UPROPERTY()
 	int32 SlotIndex;
 
-	UPROPERTY(BlueprintReadOnly)
-	TEnumAsByte<ESaveSlotStatus> SlotStatus;
+	UPROPERTY()
+	FString SlotName = FString();
 
+	// Player data
+	UPROPERTY()
+	int32 XP = 0;
+	
+	UPROPERTY()
+	int32 AttributePoints = 0;
+	
 	UPROPERTY()
 	float Strength = 0.f;
 
@@ -42,8 +53,8 @@ public:
 	void SetPlayerName(const FString& InPlayerName);
 	FString GetPlayerName() const { return PlayerName; }
 
-	void SetSlotName(const FString& InSlotName);
-	FString GetSlotName() const { return SlotName; }
+	void SetLevel(const int32 NewLevel);
+	int32 GetLevel() const { return Level; }
 
 	void ClearModel();
 
@@ -54,5 +65,5 @@ private:
 	FString PlayerName;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, FieldNotify, Setter, Getter, meta=(AllowPrivateAccess=true))
-	FString SlotName;
+	int32 Level;
 };

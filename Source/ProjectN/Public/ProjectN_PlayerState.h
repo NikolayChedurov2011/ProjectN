@@ -8,6 +8,7 @@
 #include "Interfaces/CombatInterface.h"
 #include "ProjectN_PlayerState.generated.h"
 
+class ULevelUpDataInfo;
 struct FOnAttributeChangeData;
 class UProjectN_AbilitySystemComponent;
 class UAttributeSet;
@@ -35,19 +36,23 @@ public:
 	FOnGameplayValueChangedSignature OnXPChanged;
 	FOnGameplayValueChangedSignature OnAttributePointsChanged;
 
-	FORCEINLINE void SetLevel(int32 NewLevel);
-	FORCEINLINE void AddToLevel(int32 NewLevel);
-	FORCEINLINE int32 GetLevel() const { return Level; }
+	void SetLevel(const int32 NewLevel);
+	void AddToLevel(const int32 NewLevel);
+	FORCEINLINE int32 GetCharacterLevel_Internal() const { return Level; }
 
-	FORCEINLINE void SetXP(int32 NewXP);
-	FORCEINLINE void AddToXP(int32 NewXP);
+	void SetXP(const int32 NewXP);
+	void AddToXP(const int32 NewXP);
 	FORCEINLINE int32 GetXP() const { return XP; }
 
-	FORCEINLINE void SetAttributePoints(int32 NewAttributePoints);
-	FORCEINLINE void AddToAttributePoints(int32 NewAttributePoints);
+	void SetAttributePoints(const int32 NewAttributePoints);
+	void AddToAttributePoints(const int32 NewAttributePoints);
 	FORCEINLINE int32 GetAttributePoints() const { return AttributePoints; }
 
+	UPROPERTY(EditDefaultsOnly)
+	TObjectPtr<ULevelUpDataInfo> LevelUpInfo;
+
 protected:
+	
 	UPROPERTY(Transient)
 	TObjectPtr<UAttributeSet> ProjectN_AttributeSet;
 
@@ -67,11 +72,11 @@ protected:
 	int32 AttributePoints = 1;
 
 	UFUNCTION()
-	void OnRep_Level(int32 OldLevel);
+	void OnRep_Level(const int32 OldLevel) const;
 	UFUNCTION()
-	void OnRep_XP(int32 OldXP);
+	void OnRep_XP(const int32 OldXP) const;
 	UFUNCTION()
-	void OnRep_AttributePoints(int32 OldAttributePoints);
+	void OnRep_AttributePoints(const int32 OldAttributePoints) const;
 
 	void OnMaxMovementSpeedChanged(const FOnAttributeChangeData& Data) const;
 };

@@ -40,6 +40,7 @@ void AProjectN_PlayerCharacter::PossessedBy(AController* NewController)
 
 	// Init ability actor info for ability system component on the Server side. Bind for some attribute changes
 	InitAbilityActorInfo();
+	GiveStartupAbilitiesAndEffects();
 }
 
 void AProjectN_PlayerCharacter::OnRep_PlayerState()
@@ -48,9 +49,6 @@ void AProjectN_PlayerCharacter::OnRep_PlayerState()
 
 	// Init ability actor info for ability system component on  the Client side. Bind for some attribute changes. Init HUD overlay
 	InitAbilityActorInfo();
-	
-	//Send RPS from Client to Server when it's ready
-	//OnCharacterInitAbilityEnd();
 }
 
 void AProjectN_PlayerCharacter::InitAbilityActorInfo()
@@ -69,35 +67,18 @@ void AProjectN_PlayerCharacter::InitAbilityActorInfo()
 			HUD->InitOverlay(ProjectN_PlayerController, ProjectN_PlayerState, ProjectN_AbilitySystemComponent, ProjectN_AttributeSet);
 		}
 	}
-
-	if (HasAuthority())
+	
+	// At first apply saved attributes value
+	if (!Cast<UProjectN_GameInstance>(GetGameInstance())->CurrentSaveSlotName.IsEmpty())
 	{
-		// At first apply saved attributes value
-		if (!Cast<UProjectN_GameInstance>(GetGameInstance())->CurrentSaveSlotName.IsEmpty())
-		{
-			const int32 Index = Cast<UProjectN_GameInstance>(GetGameInstance())->CurrentSaveSlotIndex;
-			const FString SlotName = Cast<UProjectN_GameInstance>(GetGameInstance())->CurrentSaveSlotName;
+		const int32 Index = Cast<UProjectN_GameInstance>(GetGameInstance())->CurrentSaveSlotIndex;
+		const FString SlotName = Cast<UProjectN_GameInstance>(GetGameInstance())->CurrentSaveSlotName;
 
-			ApplyPrimaryAttributeFromSave(SlotName, Index);
-		}
-
-		GiveStartupAbilities();
-		ApplyStartupEffects();
+		ApplyPrimaryAttributeFromSave(SlotName, Index);
 	}
 	
 	Super::InitAbilityActorInfo();
 }
-
-/*
-void AProjectN_PlayerCharacter::OnCharacterInitAbilityEnd_Implementation()
-{
-
-}
-*/
-
-/*
- *
- */
 
 /*
  *** Move and look functions
@@ -179,9 +160,9 @@ void AProjectN_PlayerCharacter::Save(UMVVM_SaveSlot* ViewModel) const
 	ViewModel->Dexterity = Cast<UProjectN_AttributeSet>(GetAttributeSet())->GetDexterity();
 	ViewModel->Vitality = Cast<UProjectN_AttributeSet>(GetAttributeSet())->GetVitality();
 
-	if (UGameplayStatics::DoesSaveGameExist(ViewModel->GetSlotName(), ViewModel->SlotIndex))
+	if (UGameplayStatics::DoesSaveGameExist(ViewModel->SlotName, ViewModel->SlotIndex))
 	{
-		UGameplayStatics::DeleteGameInSlot(ViewModel->GetSlotName(), ViewModel->SlotIndex);
+		UGameplayStatics::DeleteGameInSlot(ViewModel->SlotName, ViewModel->SlotIndex);
 	}
 	USaveGame* SaveGameObject = UGameplayStatics::CreateSaveGameObject(CharacterSaveClass);
 	UCharacter_Save* CharacterSave = Cast<UCharacter_Save>(SaveGameObject);
@@ -192,11 +173,13 @@ void AProjectN_PlayerCharacter::Save(UMVVM_SaveSlot* ViewModel) const
 	CharacterSave->Intelligence = ViewModel->Intelligence;
 	CharacterSave->Dexterity = ViewModel->Dexterity;
 	CharacterSave->Vitality = ViewModel->Vitality;
+	
+	CharacterSave->Level = Cast<AProjectN_PlayerState>(GetPlayerState())->GetCharacterLevel_Internal();
 
-	UGameplayStatics::SaveGameToSlot(CharacterSave, ViewModel->GetSlotName(), ViewModel->SlotIndex);
+	UGameplayStatics::SaveGameToSlot(CharacterSave, ViewModel->SlotName, ViewModel->SlotIndex);
 
 	Cast<UProjectN_GameInstance>(GetGameInstance())->CurrentSaveSlotIndex = ViewModel->SlotIndex;
-	Cast<UProjectN_GameInstance>(GetGameInstance())->CurrentSaveSlotName = ViewModel->GetSlotName();
+	Cast<UProjectN_GameInstance>(GetGameInstance())->CurrentSaveSlotName = ViewModel->SlotName;
 
 	ServerTravelToMap();
 }
@@ -208,16 +191,21 @@ void AProjectN_PlayerCharacter::ServerApplyPrimaryAttributeFromSave_Implementati
 
 void AProjectN_PlayerCharacter::ApplyPrimaryAttributeFromSave(const FString& SlotName, const int32 SlotIndex) const
 {
+	USaveGame* SaveGame = nullptr;
 	if (UGameplayStatics::DoesSaveGameExist(SlotName, SlotIndex))
 	{
-		USaveGame* SaveGame = UGameplayStatics::LoadGameFromSlot(SlotName, SlotIndex);
+		SaveGame = UGameplayStatics::LoadGameFromSlot(SlotName, SlotIndex);
 		ServerApplyPrimaryAttributeFromSave(Cast<UCharacter_Save>(SaveGame)->Strength, Cast<UCharacter_Save>(SaveGame)->Intelligence, Cast<UCharacter_Save>(SaveGame)->Dexterity, Cast<UCharacter_Save>(SaveGame)->Vitality);
 	}
 	else
 	{
-		USaveGame* SaveGameObject = UGameplayStatics::CreateSaveGameObject(CharacterSaveClass);
-		ServerApplyPrimaryAttributeFromSave(Cast<UCharacter_Save>(SaveGameObject)->Strength, Cast<UCharacter_Save>(SaveGameObject)->Intelligence, Cast<UCharacter_Save>(SaveGameObject)->Dexterity, Cast<UCharacter_Save>(SaveGameObject)->Vitality);
+		SaveGame = UGameplayStatics::CreateSaveGameObject(CharacterSaveClass);
+		ServerApplyPrimaryAttributeFromSave(Cast<UCharacter_Save>(SaveGame)->Strength, Cast<UCharacter_Save>(SaveGame)->Intelligence, Cast<UCharacter_Save>(SaveGame)->Dexterity, Cast<UCharacter_Save>(SaveGame)->Vitality);
 	}
+
+	Cast<AProjectN_PlayerState>(GetPlayerState())->SetLevel(Cast<UCharacter_Save>(SaveGame)->Level);
+	Cast<AProjectN_PlayerState>(GetPlayerState())->SetXP(Cast<UCharacter_Save>(SaveGame)->XP);
+	Cast<AProjectN_PlayerState>(GetPlayerState())->SetAttributePoints(Cast<UCharacter_Save>(SaveGame)->AttributePoints);
 }
 
 void AProjectN_PlayerCharacter::ServerTravelToMap_Implementation() const

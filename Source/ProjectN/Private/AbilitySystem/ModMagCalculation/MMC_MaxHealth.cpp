@@ -8,11 +8,16 @@
 
 UMMC_MaxHealth::UMMC_MaxHealth()
 {
-	CaptureDefinition.AttributeToCapture = UProjectN_AttributeSet::GetVitalityAttribute();
-	CaptureDefinition.AttributeSource = EGameplayEffectAttributeCaptureSource::Target;
-	CaptureDefinition.bSnapshot = false;
+	VitalityCaptureDefinition.AttributeToCapture = UProjectN_AttributeSet::GetVitalityAttribute();
+	VitalityCaptureDefinition.AttributeSource = EGameplayEffectAttributeCaptureSource::Target;
+	VitalityCaptureDefinition.bSnapshot = false;
 
-	RelevantAttributesToCapture.Add(CaptureDefinition);
+	StrengthCaptureDefinition.AttributeToCapture = UProjectN_AttributeSet::GetVitalityAttribute();
+	StrengthCaptureDefinition.AttributeSource = EGameplayEffectAttributeCaptureSource::Target;
+	StrengthCaptureDefinition.bSnapshot = false;
+
+	RelevantAttributesToCapture.Add(VitalityCaptureDefinition);
+	RelevantAttributesToCapture.Add(StrengthCaptureDefinition);
 }
 
 float UMMC_MaxHealth::CalculateBaseMagnitude_Implementation(const FGameplayEffectSpec& Spec) const
@@ -24,9 +29,13 @@ float UMMC_MaxHealth::CalculateBaseMagnitude_Implementation(const FGameplayEffec
 	EvaluateParameters.SourceTags = SourceTags;
 	EvaluateParameters.TargetTags = TargetTags;
 	
-	float Magnitude = 0.0f;
-	GetCapturedAttributeMagnitude(CaptureDefinition, Spec, EvaluateParameters, Magnitude);
-	Magnitude = FMath::Max(Magnitude, 0.0f) + 200.0f;
+	float VitalityMagnitude = 0.0f;
+	GetCapturedAttributeMagnitude(VitalityCaptureDefinition, Spec, EvaluateParameters, VitalityMagnitude);
+
+	float StrengthMagnitude = 0.0f;
+	GetCapturedAttributeMagnitude(StrengthCaptureDefinition, Spec, EvaluateParameters, StrengthMagnitude);
+	
+	const float Magnitude = StrengthMagnitude +  VitalityMagnitude * 13 + 200.0f;
 
 	const ICombatInterface* CombatInterface = Cast<ICombatInterface>(Spec.GetContext().GetSourceObject());
 	int32 Level = CombatInterface->GetCharacterLevel();

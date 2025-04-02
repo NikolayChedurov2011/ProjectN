@@ -74,7 +74,7 @@ public:
 	 */
 
 	/*************************************
-	 *  The strength is influence on damage, critical hit damage, armor penetration
+	 *  The strength is influence on max health, damage, critical hit damage, armor penetration
 	 *************************************/
 	UPROPERTY(BlueprintReadOnly, Category = "Strength", ReplicatedUsing = OnRep_Strength)
 	FGameplayAttributeData Strength;

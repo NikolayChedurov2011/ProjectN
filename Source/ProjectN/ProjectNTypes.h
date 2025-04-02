@@ -29,29 +29,26 @@ struct FCharacterData
 {
 	GENERATED_USTRUCT_BODY()
 
-	// Initialize primary attributes. Instant
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "GAS")
-	TSubclassOf<UGameplayEffect> PrimaryAttributes;
-
 	// Initialize and handle the changes for secondary attributes in runtime. Infinite
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "GAS")
-	TSubclassOf<UGameplayEffect> SecondaryAttributes;
+	TSubclassOf<UGameplayEffect> InitializeAttributeDependencies;
 
 	// Initialize main attributes "health", "mana", "stamina" etc. Instant
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "GAS")
-	TSubclassOf<UGameplayEffect> InitializeMainAttributes;
+	TSubclassOf<UGameplayEffect> SetAttributeValues;
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "GAS")
-	TArray<TSubclassOf<UGameplayEffect>> Effects;
+	TArray<TSubclassOf<UGameplayEffect>> PassiveEffects;
 	
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "GAS")
-	TArray<TSubclassOf<UGameplayAbility>> Abilities;
-
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "GAS")
 	TArray<TSubclassOf<UGameplayAbility>> PassiveAbilities;
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "GAS")
-	TSubclassOf<UGameplayEffect> InitAttributeFromSaveEffects;
+	TArray<TSubclassOf<UGameplayAbility>> DefaultAbilities;
+
+	// Apply effect with AssignTagSetByCallerMagnitude to override primary attributes. Infinite
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "GAS")
+	TSubclassOf<UGameplayEffect> OverridePrimaryAttributesEffectClass;
 	
 	UPROPERTY(EditAnywhere, Category = "Animation")
 	class UProjectN_AnimationDataAsset* DefaultAnimationDataAsset;

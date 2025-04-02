@@ -18,5 +18,5 @@ public:
 	
 protected:
 
-	FGameplayEffectAttributeCaptureDefinition CaptureDefinition;
+	FGameplayEffectAttributeCaptureDefinition IntelligenceCaptureDefinition;
 };

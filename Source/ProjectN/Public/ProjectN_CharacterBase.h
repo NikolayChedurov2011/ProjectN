@@ -46,8 +46,7 @@ protected:
 	virtual void InitFromCharacterData(const FCharacterData& InCharacterData, bool bFromReplication = false);
 	virtual void InitAbilityActorInfo();
 
-	void GiveStartupAbilities();
-	void ApplyStartupEffects();
+	void GiveStartupAbilitiesAndEffects();
 
 	UPROPERTY(Transient)
 	TObjectPtr<UAttributeSet> ProjectN_AttributeSet = nullptr;
