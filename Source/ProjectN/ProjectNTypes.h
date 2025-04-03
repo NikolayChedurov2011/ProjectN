@@ -1,7 +1,6 @@
 ﻿#pragma once
 
 #include "CoreMinimal.h"
-#include "GameplayTagContainer.h"
 #include "ProjectNTypes.generated.h"
 
 class UGameplayEffect;
@@ -9,50 +8,6 @@ class UGameplayAbility;
 class UBlendSpace;
 class UAnimSequenceBase;
 class AProjectN_ItemActor_Base;
-
-
-/*
-USTRUCT(BlueprintType, Blueprintable)
-struct FProjectNAttributeSaveInfo
-{
-	GENERATED_BODY()
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	FGameplayTag AttributeTag = FGameplayTag();
-	
-	UPROPERTY(BlueprintReadWrite)
-	float AttributeValue = 0.f;
-};*/
-
-USTRUCT(BlueprintType)
-struct FCharacterData
-{
-	GENERATED_USTRUCT_BODY()
-
-	// Initialize and handle the changes for secondary attributes in runtime. Infinite
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "GAS")
-	TSubclassOf<UGameplayEffect> InitializeAttributeDependencies;
-
-	// Initialize main attributes "health", "mana", "stamina" etc. Instant
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "GAS")
-	TSubclassOf<UGameplayEffect> SetAttributeValues;
-
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "GAS")
-	TArray<TSubclassOf<UGameplayEffect>> PassiveEffects;
-	
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "GAS")
-	TArray<TSubclassOf<UGameplayAbility>> PassiveAbilities;
-
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "GAS")
-	TArray<TSubclassOf<UGameplayAbility>> DefaultAbilities;
-
-	// Apply effect with AssignTagSetByCallerMagnitude to override primary attributes. Infinite
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "GAS")
-	TSubclassOf<UGameplayEffect> OverridePrimaryAttributesEffectClass;
-	
-	UPROPERTY(EditAnywhere, Category = "Animation")
-	class UProjectN_AnimationDataAsset* DefaultAnimationDataAsset;
-};
 
 USTRUCT(BlueprintType)
 struct FAnimationData

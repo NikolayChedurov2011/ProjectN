@@ -5,7 +5,6 @@
 #include "ProjectN_GameInstance.h"
 #include "Camera/CameraComponent.h"
 #include "GameFramework/SpringArmComponent.h"
-#include "DataAssets/InputConfig/DataAsset_InputConfig.h"
 #include "Components/Input/ProjectN_InputComponent.h"
 #include "ProjectN_PlayerState.h"
 #include "AbilitySystem/ProjectN_AbilitySystemLibrary.h"
@@ -31,9 +30,22 @@ AProjectN_PlayerCharacter::AProjectN_PlayerCharacter(const FObjectInitializer& O
 	CameraComponent->bUsePawnControlRotation = false;
 }
 
-/*
- *** Character initialize
- */
+/*********************************
+ * Combat interface Get function
+ ********************************/
+int32 AProjectN_PlayerCharacter::GetCharacterLevel() const
+{
+	const AProjectN_PlayerState* ProjectNPlayerState = Cast<AProjectN_PlayerState>(GetPlayerState());
+	if (ProjectNPlayerState)
+	{
+		return ProjectNPlayerState->GetCharacterLevel();
+	}
+	return 0;
+}
+
+/***********************
+ * Character initialize
+ ***********************/
 void AProjectN_PlayerCharacter::PossessedBy(AController* NewController)
 {
 	Super::PossessedBy(NewController);
@@ -80,9 +92,40 @@ void AProjectN_PlayerCharacter::InitAbilityActorInfo()
 	Super::InitAbilityActorInfo();
 }
 
-/*
- *** Move and look functions
- */
+void AProjectN_PlayerCharacter::GiveStartupAbilitiesAndEffects()
+{
+	if (HasAuthority() && GetAbilitySystemComponent())
+	{
+		FGameplayEffectContextHandle EffectContext = GetAbilitySystemComponent()->MakeEffectContext();
+		EffectContext.AddSourceObject(this);
+
+		// Activate base passive effects
+		for (const TSubclassOf DefaultEffect : GetCharacterData().PassiveEffects)
+		{
+			Cast<UProjectN_AbilitySystemComponent>(GetAbilitySystemComponent())->ApplyGamePlayEffectToSelf_Internal(DefaultEffect, EffectContext, 1.f);
+		}
+
+		for (const TSubclassOf DefaultAbility : GetCharacterData().DefaultAbilities)
+		{
+			Cast<UProjectN_AbilitySystemComponent>(GetAbilitySystemComponent())->AddAbility(DefaultAbility);
+		}
+		
+		for (const TSubclassOf DefaultAbility : GetCharacterData().PassiveAbilities)
+		{
+			Cast<UProjectN_AbilitySystemComponent>(GetAbilitySystemComponent())->AddPassiveAbility(DefaultAbility);
+		}
+
+		//  Effect for bind dependency of health or other main attribute with their primary attributes
+		Cast<UProjectN_AbilitySystemComponent>(GetAbilitySystemComponent())->ApplyGamePlayEffectToSelf_Internal(GetCharacterData().InitializeAttributeDependencies, EffectContext, 1.f);
+
+		// Call to init health and other main attributes
+		Cast<UProjectN_AbilitySystemComponent>(GetAbilitySystemComponent())->ApplyGamePlayEffectToSelf_Internal(GetCharacterData().SetAttributeValues, EffectContext, 1.f);
+	}
+}
+
+/***************************
+ * Move and look functions
+ ***************************/
 
 void AProjectN_PlayerCharacter::Input_Move(const FInputActionValue& ActionValue)
 {
@@ -134,25 +177,6 @@ void AProjectN_PlayerCharacter::Input_Look(const FInputActionValue& ActionValue)
 	}
 }
 
-void AProjectN_PlayerCharacter::OnActionPressed(FGameplayTag InTag)
-{
-	
-}
-
-void AProjectN_PlayerCharacter::OnActionReleased(FGameplayTag InTag)
-{
-	
-}
-
-void AProjectN_PlayerCharacter::OnActionHeld(FGameplayTag InTag)
-{
-	
-}
-
-/*
- *
- */
-
 void AProjectN_PlayerCharacter::Save(UMVVM_SaveSlot* ViewModel) const
 {
 	ViewModel->Strength = Cast<UProjectN_AttributeSet>(GetAttributeSet())->GetStrength();
@@ -175,6 +199,7 @@ void AProjectN_PlayerCharacter::Save(UMVVM_SaveSlot* ViewModel) const
 	CharacterSave->Vitality = ViewModel->Vitality;
 	
 	CharacterSave->Level = Cast<AProjectN_PlayerState>(GetPlayerState())->GetCharacterLevel_Internal();
+	CharacterSave->XP = Cast<AProjectN_PlayerState>(GetPlayerState())->GetXP();
 
 	UGameplayStatics::SaveGameToSlot(CharacterSave, ViewModel->SlotName, ViewModel->SlotIndex);
 

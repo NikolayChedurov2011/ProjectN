@@ -49,8 +49,7 @@ void UMVVM_MainMenu::LoadData()
 
 		// Write data from save object to view model
 		Slot.Value->SlotStatus = SaveObj->SlotStatus;
-		Slot.Value->GetPlayerName() = SaveObj->PlayerName;
-		
+		Slot.Value->SetPlayerName(SaveObj->PlayerName);
 		Slot.Value->SetLevel(SaveObj->Level);
 		Slot.Value->AttributePoints = SaveObj->AttributePoints;
 		Slot.Value->Strength = SaveObj->Strength;

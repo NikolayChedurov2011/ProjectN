@@ -40,7 +40,4 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly)
 	TObjectPtr<UAttributeInfo> AttributeInfo;
-	
-	UPROPERTY(EditDefaultsOnly)
-	const TSubclassOf<UGameplayEffect> NullifyAttributesEffect;
 };

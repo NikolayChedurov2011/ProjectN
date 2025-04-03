@@ -44,6 +44,7 @@ namespace ProjectNGameplayTags
 	/**** Message Tags ****/
 	UE_DEFINE_GAMEPLAY_TAG(Message,					"Message")
 	UE_DEFINE_GAMEPLAY_TAG(Message_Potion,			"Message.Potion")
+	UE_DEFINE_GAMEPLAY_TAG(Message_Damage,			"Message.Damage")
 
 	/**** Attributes Tags ****/
 	UE_DEFINE_GAMEPLAY_TAG(Attribute_Primary,								"Attribute.Primary")

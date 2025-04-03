@@ -5,12 +5,11 @@
 
 #include "AbilitySystemBlueprintLibrary.h"
 #include "AbilitySystemComponent.h"
-#include "ProjectN_CharacterBase.h"
 #include "ProjectN_GameplayTags.h"
+#include "ProjectN_PlayerCharacter.h"
 #include "ProjectN_PlayerState.h"
 #include "Kismet/GameplayStatics.h"
 #include "UI/HUD/ProjectN_HUD.h"
-#include "UI/VievModel/MVVM_SaveSlot.h"
 #include "UI/WidgetController/ProjectN_WidgetControllerBase.h"
 
 
@@ -101,7 +100,7 @@ void UProjectN_AbilitySystemLibrary::OverridePrimaryAttributes(const UObject* Wo
 	FGameplayEffectContextHandle EffectContextHandle = AbilitySystemComponent->MakeEffectContext();
 	EffectContextHandle.AddSourceObject(AvatarActor);
 
-	const FGameplayEffectSpecHandle SpecHandle = AbilitySystemComponent->MakeOutgoingSpec(Cast<AProjectN_CharacterBase>(AvatarActor)->GetCharacterData().OverridePrimaryAttributesEffectClass, 1.f, EffectContextHandle);
+	const FGameplayEffectSpecHandle SpecHandle = AbilitySystemComponent->MakeOutgoingSpec(Cast<AProjectN_PlayerCharacter>(AvatarActor)->GetCharacterData().OverridePrimaryAttributesEffectClass, 1.f, EffectContextHandle);
 
 	UAbilitySystemBlueprintLibrary::AssignTagSetByCallerMagnitude(SpecHandle, ProjectNGameplayTags::Attribute_Primary_Strength, Strength);
 	UAbilitySystemBlueprintLibrary::AssignTagSetByCallerMagnitude(SpecHandle, ProjectNGameplayTags::Attribute_Primary_Intelligence, Intelligence);

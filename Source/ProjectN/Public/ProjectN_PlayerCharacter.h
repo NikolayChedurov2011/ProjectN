@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "ProjectN_CharacterBase.h"
+#include "DataAssets/ProjectN_CharacterDataAsset.h"
 #include "ProjectN_PlayerCharacter.generated.h"
 
 class UProjectN_InputConfig;
@@ -35,14 +36,24 @@ public:
 	UFUNCTION(Server, Reliable)
 	void ServerTravelToMap() const;
 	
+	UFUNCTION(BlueprintPure)
+	FORCEINLINE FCharacterData& GetCharacterData() const { return CharacterDataAsset->CharacterData; }
+
+	/*
+	*  Combat Interface
+	*/
+	virtual int32 GetCharacterLevel() const override;
+
 protected:
 	virtual void InitAbilityActorInfo() override;
-
-	//UFUNCTION(Server, Reliable)
-	//void OnCharacterInitAbilityEnd();
+	virtual void GiveStartupAbilitiesAndEffects() override;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	TSubclassOf<USaveGame> CharacterSaveClass;
+
+	// Set default data from Default
+	UPROPERTY(EditDefaultsOnly)
+	TObjectPtr<UProjectN_CharacterDataAsset> CharacterDataAsset = nullptr;
 
 private:
 	
@@ -61,11 +72,6 @@ private:
 	UProjectN_InputConfig* InputConfigDataAsset = nullptr;
 
 	void Input_Move(const FInputActionValue& ActionValue);
-	void Input_Look(const FInputActionValue& ActionValue);
-
-	void OnActionPressed(FGameplayTag InTag);
-	void OnActionReleased(FGameplayTag InTag);
-	void OnActionHeld(FGameplayTag InTag);
-	
+	void Input_Look(const FInputActionValue& ActionValue);	
 #pragma endregion
 };
