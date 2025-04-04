@@ -4,7 +4,7 @@
 #include "AbilitySystem/ModMagCalculation/MMC_MaxStamina.h"
 
 #include "AbilitySystem/Attribute/ProjectN_AttributeSet.h"
-#include "Interfaces/CombatInterface.h"
+#include "Interfaces/AvatarInfoInterface.h"
 
 UMMC_MaxStamina::UMMC_MaxStamina()
 {
@@ -37,8 +37,11 @@ float UMMC_MaxStamina::CalculateBaseMagnitude_Implementation(const FGameplayEffe
 	
 	const float Magnitude = DexterityMagnitude * 3 + VitalityMagnitude * 3 + 200.0f;
 
-	const ICombatInterface* CombatInterface = Cast<ICombatInterface>(Spec.GetContext().GetSourceObject());
-	int32 Level = CombatInterface->GetCharacterLevel();
+	int32 Level = 1;
+	if (Spec.GetContext().GetSourceObject()->Implements<UAvatarInfoInterface>())
+	{
+		Level = IAvatarInfoInterface::Execute_GetCharacterLevel(Spec.GetContext().GetSourceObject());
+	}
 	
 	return Magnitude;
 }

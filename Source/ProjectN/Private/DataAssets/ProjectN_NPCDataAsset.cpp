@@ -3,7 +3,7 @@
 
 #include "DataAssets/ProjectN_NPCDataAsset.h"
 
-FNPCDefaultData& UProjectN_NPCDataAsset::GetNPCData(ENPCRarity NPCRarity)
+FNPCDefaultData UProjectN_NPCDataAsset::GetNPCData(const ENPCRarity NPCRarity)
 {
 	return *NPCDataMap.Find(NPCRarity);
 }

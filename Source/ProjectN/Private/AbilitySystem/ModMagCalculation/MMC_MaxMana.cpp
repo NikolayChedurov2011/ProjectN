@@ -4,7 +4,7 @@
 #include "AbilitySystem/ModMagCalculation/MMC_MaxMana.h"
 
 #include "AbilitySystem/Attribute/ProjectN_AttributeSet.h"
-#include "Interfaces/CombatInterface.h"
+#include "Interfaces/AvatarInfoInterface.h"
 
 UMMC_MaxMana::UMMC_MaxMana()
 {
@@ -28,8 +28,11 @@ float UMMC_MaxMana::CalculateBaseMagnitude_Implementation(const FGameplayEffectS
 	GetCapturedAttributeMagnitude(IntelligenceCaptureDefinition, Spec, EvaluateParameters, IntelligenceMagnitude);
 	const float Magnitude = IntelligenceMagnitude * 10 + 200.0f;
 
-	const ICombatInterface* CombatInterface = Cast<ICombatInterface>(Spec.GetContext().GetSourceObject());
-	int32 Level = CombatInterface->GetCharacterLevel();
+	int32 Level = 1;
+	if (Spec.GetContext().GetSourceObject()->Implements<UAvatarInfoInterface>())
+	{
+		Level = IAvatarInfoInterface::Execute_GetCharacterLevel(Spec.GetContext().GetSourceObject());
+	}
 	
 	return Magnitude;
 }

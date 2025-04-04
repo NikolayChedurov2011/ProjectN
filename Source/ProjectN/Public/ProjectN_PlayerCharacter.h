@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "ProjectN_CharacterBase.h"
 #include "DataAssets/ProjectN_CharacterDataAsset.h"
+#include "Interfaces/PlayerInterface.h"
 #include "ProjectN_PlayerCharacter.generated.h"
 
 class UProjectN_InputConfig;
@@ -18,7 +19,7 @@ class USaveGame;
 struct FInputActionValue;
 
 UCLASS(Abstract)
-class PROJECTN_API AProjectN_PlayerCharacter : public AProjectN_CharacterBase
+class PROJECTN_API AProjectN_PlayerCharacter : public AProjectN_CharacterBase, public IPlayerInterface
 {
 	GENERATED_BODY()
 
@@ -39,10 +40,26 @@ public:
 	UFUNCTION(BlueprintPure)
 	FORCEINLINE FCharacterData& GetCharacterData() const { return CharacterDataAsset->CharacterData; }
 
-	/*
-	*  Combat Interface
-	*/
-	virtual int32 GetCharacterLevel() const override;
+	/*************************
+	*  Avatar Actor Interface
+	**************************/
+	virtual int32 GetCharacterLevel_Implementation() const override;
+
+	/********************
+	*  Player Interface
+	*********************/
+	virtual void AddXP_Implementation(const int32 XPToAdd) override;
+	virtual void AddToLevel_Implementation(const int32 LevelsToAdd) override;
+	virtual void AddToAttributePoints_Implementation(const int32 AttributePointsToAdd) override;
+	virtual int32 GetXP_Implementation() const override;
+	virtual int32 GetAttributePointsReward_Implementation(const int32 InLevel) const override;
+	virtual int32 GetLevelByXP_Implementation(const int32 InXP) override;
+	virtual void LevelUP_Implementation() override;
+
+	UFUNCTION(Exec)
+	void Console_AddXP(const float XPToAdd);
+	UFUNCTION(Server, Reliable)
+	void ServerAddXP(const float XPToAdd);
 
 protected:
 	virtual void InitAbilityActorInfo() override;

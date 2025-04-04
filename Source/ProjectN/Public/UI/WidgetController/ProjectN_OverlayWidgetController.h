@@ -77,6 +77,8 @@ protected:
 	TObjectPtr<UDataTable> MessageWidgetDataTable; 
 
 	void BindGameplayAttributeValueChange(const FGameplayAttribute& AttributeData, const FOnAttributeChangedSignature& OnAttributeChangedDelegate) const;
+
+	void ProcessXP(const int32 Value) const;
 	
 	template <typename T>
 	T* GetTableRowByTag(UDataTable* DataTable, FGameplayTag GameplayTag);

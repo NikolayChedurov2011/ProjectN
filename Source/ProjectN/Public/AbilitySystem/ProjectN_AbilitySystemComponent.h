@@ -29,8 +29,8 @@ public:
 	void OnActionReleased(const FGameplayTag& InputTag);
 
 	UFUNCTION(Server, Reliable)
-	void ServerSendGameplayEventWithTag(const FGameplayTag& AttributeTag, const float Value);
-	void SendGameplayEventWithTag(const FGameplayTag& AttributeTag, const float Value) const;
+	void ServerSendGameplayEventForAttributeWithTag(const FGameplayTag& AttributeTag, const float Value);
+	void SendGameplayEventForAttributeWithTag(const FGameplayTag& AttributeTag, const float Value = 0.f) const;
 	
 protected:
 

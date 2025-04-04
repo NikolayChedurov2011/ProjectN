@@ -72,6 +72,8 @@ namespace ProjectNGameplayTags
 	UE_DEFINE_GAMEPLAY_TAG(Attribute_Secondary_HealRegeneration,			"Attribute.Secondary.HealRegeneration")
 	UE_DEFINE_GAMEPLAY_TAG(Attribute_Secondary_ManaRegeneration,			"Attribute.Secondary.ManaRegeneration")
 
+	UE_DEFINE_GAMEPLAY_TAG(Attribute_XP,									"Attribute.XP")
+
 	/**** Event Tags ****/
 	UE_DEFINE_GAMEPLAY_TAG(Event_Montage_SpawnEffect,			"Event.Montage.SpawnEffect")
 

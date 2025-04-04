@@ -17,11 +17,11 @@ void UProjectN_AttributeController::BroadcastInitialValues()
 	
 	for(const auto& Pair : Attributes->TagsToAttribute)
 	{		
-		BroadcastAttributeInfo(Pair.Key, Pair.Value);
+		//BroadcastAttributeInfo(Pair.Key, Pair.Value);
 	}
 
 	const AProjectN_PlayerState* ProjectNPlayerState = CastChecked<AProjectN_PlayerState>(PlayerState);
-	OnAttributePointsChanged.Broadcast(ProjectNPlayerState->GetAttributePoints());
+	//OnAttributePointsChanged.Broadcast(static_cast<float>(ProjectNPlayerState->GetAttributePoints()));
 }
 
 void UProjectN_AttributeController::BindCallbacksToResponce()
@@ -41,7 +41,7 @@ void UProjectN_AttributeController::BindCallbacksToResponce()
 	AProjectN_PlayerState* ProjectNPlayerState = CastChecked<AProjectN_PlayerState>(PlayerState);
 	ProjectNPlayerState->OnAttributePointsChanged.AddLambda([this] (const int32 Value)
 	{
-		OnAttributePointsChanged.Broadcast(Value);
+		OnAttributePointsChanged.Broadcast(static_cast<float>(Value));
 	});
 }
 
@@ -58,10 +58,10 @@ void UProjectN_AttributeController::ChangeAttribute(const FGameplayTag& Attribut
 	// @TODO: Check if attribute + value is not < attribute. Need to load saved attributes. Maybe need bool for return
 	if (AbilitySystemComponent && PlayerState->HasAuthority())
 	{
-		Cast<UProjectN_AbilitySystemComponent>(AbilitySystemComponent.Get())->SendGameplayEventWithTag(AttributeTag, Value);
+		Cast<UProjectN_AbilitySystemComponent>(AbilitySystemComponent.Get())->SendGameplayEventForAttributeWithTag(AttributeTag, Value);
 	}
 	else
 	{
-		Cast<UProjectN_AbilitySystemComponent>(AbilitySystemComponent.Get())->ServerSendGameplayEventWithTag(AttributeTag, Value);
+		Cast<UProjectN_AbilitySystemComponent>(AbilitySystemComponent.Get())->ServerSendGameplayEventForAttributeWithTag(AttributeTag, Value);
 	}
 }

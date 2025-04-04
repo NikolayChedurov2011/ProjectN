@@ -16,16 +16,16 @@ void UProjectN_OverlayWidgetController::BroadcastInitialValues()
 	}
 	const UProjectN_AttributeSet* ProjectN_AttributeSet = CastChecked<UProjectN_AttributeSet>(AttributeSet);
 
-	OnMaxHealthChanged.Broadcast(ProjectN_AttributeSet->GetMaxHealth(), ProjectN_AttributeSet->GetMaxHealth());
-	OnHealthChanged.Broadcast(ProjectN_AttributeSet->GetHealth(), ProjectN_AttributeSet->GetHealth());
-	OnMaxManaChanged.Broadcast(ProjectN_AttributeSet->GetMaxMana(), ProjectN_AttributeSet->GetMaxMana());
-	OnManaChanged.Broadcast(ProjectN_AttributeSet->GetMana(), ProjectN_AttributeSet->GetMana());
-	OnMaxStaminaChanged.Broadcast(ProjectN_AttributeSet->GetMaxStamina(), ProjectN_AttributeSet->GetMaxStamina());
-	OnStaminaChanged.Broadcast(ProjectN_AttributeSet->GetStamina(), ProjectN_AttributeSet->GetStamina());
+	//OnMaxHealthChanged.Broadcast(ProjectN_AttributeSet->GetMaxHealth(), ProjectN_AttributeSet->GetMaxHealth());
+	//OnHealthChanged.Broadcast(ProjectN_AttributeSet->GetHealth(), ProjectN_AttributeSet->GetHealth());
+	//OnMaxManaChanged.Broadcast(ProjectN_AttributeSet->GetMaxMana(), ProjectN_AttributeSet->GetMaxMana());
+	//OnManaChanged.Broadcast(ProjectN_AttributeSet->GetMana(), ProjectN_AttributeSet->GetMana());
+	//OnMaxStaminaChanged.Broadcast(ProjectN_AttributeSet->GetMaxStamina(), ProjectN_AttributeSet->GetMaxStamina());
+	//OnStaminaChanged.Broadcast(ProjectN_AttributeSet->GetStamina(), ProjectN_AttributeSet->GetStamina());
 	
-	const AProjectN_PlayerState* ProjectNPlayerState = CastChecked<AProjectN_PlayerState>(PlayerState);
-	OnXPChanged.Broadcast(ProjectNPlayerState->GetXP());
-	OnLevelChanged.Broadcast(ProjectNPlayerState->GetCharacterLevel_Internal());
+	//const AProjectN_PlayerState* ProjectNPlayerState = CastChecked<AProjectN_PlayerState>(PlayerState);
+	//ProcessXP(ProjectNPlayerState->GetXP());
+	//OnLevelChanged.Broadcast(ProjectNPlayerState->GetCharacterLevel_Internal());
 }
 
 void UProjectN_OverlayWidgetController::BindCallbacksToResponce()
@@ -58,27 +58,30 @@ void UProjectN_OverlayWidgetController::BindCallbacksToResponce()
 	});
 
 	AProjectN_PlayerState* ProjectNPlayerState = CastChecked<AProjectN_PlayerState>(PlayerState);
-	ProjectNPlayerState->OnXPChanged.AddLambda([this, ProjectNPlayerState] (const int32 Value)
-	{
-		const int32 CurrentLevel = ProjectNPlayerState->LevelUpInfo->GetLevelByXP(Value);
-		const int32 MaxLevel = ProjectNPlayerState->LevelUpInfo->LevelUpInformationContainer.Num();
-
-		if (CurrentLevel <= MaxLevel && CurrentLevel > 0)
-		{
-			const int32 PastRequirement = ProjectNPlayerState->LevelUpInfo->LevelUpInformationContainer[CurrentLevel - 1].XPForLevelUp;
-			const int32 DeltaRequirement = ProjectNPlayerState->LevelUpInfo->GetXPForLevelUpByLevel(CurrentLevel);
-
-			const int32 XPForThisLevel = Value - PastRequirement;
-			const float Percent = static_cast<float>(XPForThisLevel) / static_cast<float>(DeltaRequirement);
-
-			OnXPChanged.Broadcast(Percent);
-		}
-	});
-
+	ProjectNPlayerState->OnXPChanged.AddUObject(this, &UProjectN_OverlayWidgetController::ProcessXP);
 	ProjectNPlayerState->OnLevelChanged.AddLambda([this] (const int32 Value)
 	{
-		OnLevelChanged.Broadcast(Value);
+		OnLevelChanged.Broadcast(static_cast<float>(Value));
 	});
+}
+
+void UProjectN_OverlayWidgetController::ProcessXP(const int32 Value) const
+{
+	AProjectN_PlayerState* ProjectNPlayerState = CastChecked<AProjectN_PlayerState>(PlayerState);
+	
+	const int32 CurrentLevel = ProjectNPlayerState->GetLevelByXP(Value);
+	const int32 MaxLevel = ProjectNPlayerState->GetLevelUpInformationContainer().Num();
+
+	if (CurrentLevel <= MaxLevel && CurrentLevel > 0)
+	{
+		const int32 PastRequirement = ProjectNPlayerState->GetLevelUpInformationContainer()[CurrentLevel - 1].XPForLevelUp;
+		const int32 DeltaRequirement = ProjectNPlayerState->GetXPForNextLevelUpByLevel(CurrentLevel);
+
+		const int32 XPForThisLevel = Value - PastRequirement;
+		const float Percent = static_cast<float>(XPForThisLevel) / static_cast<float>(DeltaRequirement);
+
+		OnXPChanged.Broadcast(Percent);
+	}
 }
 
 void UProjectN_OverlayWidgetController::BindGameplayAttributeValueChange(const FGameplayAttribute& AttributeData, const FOnAttributeChangedSignature& OnAttributeChangedDelegate) const

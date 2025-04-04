@@ -105,7 +105,7 @@ void UProjectN_AbilitySystemComponent::OnActionReleased(const FGameplayTag& Inpu
 }
 
 // Use to ADD value to attribute
-void UProjectN_AbilitySystemComponent::SendGameplayEventWithTag(const FGameplayTag& AttributeTag, const float Value) const
+void UProjectN_AbilitySystemComponent::SendGameplayEventForAttributeWithTag(const FGameplayTag& AttributeTag, const float Value) const
 {
 	FGameplayEventData Payload;
 	Payload.EventTag = AttributeTag;
@@ -114,7 +114,7 @@ void UProjectN_AbilitySystemComponent::SendGameplayEventWithTag(const FGameplayT
 	UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(GetAvatarActor(), AttributeTag,Payload);
 }
 
-void UProjectN_AbilitySystemComponent::ServerSendGameplayEventWithTag_Implementation(const FGameplayTag& AttributeTag, const float Value)
+void UProjectN_AbilitySystemComponent::ServerSendGameplayEventForAttributeWithTag_Implementation(const FGameplayTag& AttributeTag, const float Value)
 {
-	SendGameplayEventWithTag(AttributeTag, Value);
+	SendGameplayEventForAttributeWithTag(AttributeTag, Value);
 }

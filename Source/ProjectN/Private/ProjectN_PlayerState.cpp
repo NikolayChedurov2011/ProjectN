@@ -4,6 +4,7 @@
 
 #include "AbilitySystem/Attribute/ProjectN_AttributeSet.h"
 #include "AbilitySystem/ProjectN_AbilitySystemComponent.h"
+#include "AbilitySystem/Data/LevelUpDataInfo.h"
 #include "Inventory/ProjectN_InventoryComponent.h"
 #include "Net/UnrealNetwork.h"
 
@@ -30,22 +31,18 @@ void AProjectN_PlayerState::GetLifetimeReplicatedProps(TArray<class FLifetimePro
 	DOREPLIFETIME(AProjectN_PlayerState, AttributePoints);
 }
 
-/*
- *** Main Get and Set functions
- */
+/*****************************
+ * Main Get and Set functions
+ *****************************/
 UAbilitySystemComponent* AProjectN_PlayerState::GetAbilitySystemComponent() const
 {
 	return ProjectN_AbilitySystemComponent;
 }
 
-FVector AProjectN_PlayerState::GetWeaponSocketLocation(const FGameplayTag& InputTag) const
+FVector AProjectN_PlayerState::GetWeaponSocketLocation_Implementation(const FGameplayTag& InputTag) const
 {
 	return ProjectN_InventoryComponent->FindSocketLocationByTag(InputTag);
 }
-
-/*
- *
- */
 
 void AProjectN_PlayerState::SetLevel(const int32 NewLevel)
 {
@@ -96,4 +93,25 @@ void AProjectN_PlayerState::OnRep_XP(const int32 OldXP) const
 void AProjectN_PlayerState::OnRep_AttributePoints(const int32 OldAttributePoints) const
 {
 	OnAttributePointsChanged.Broadcast(AttributePoints);
+}
+
+// Level up
+int32 AProjectN_PlayerState::GetLevelByXP(const int32 InXP) const
+{
+	return LevelUpInfo->GetLevelByXP(InXP);
+}
+
+int32 AProjectN_PlayerState::GetXPForNextLevelUpByLevel(const int32 InLevel) const
+{
+	return LevelUpInfo->GetXPForNextLevelUpByLevel(InLevel);
+}
+
+int32 AProjectN_PlayerState::GetAttributePointsRewardForLevel(const int32 InLevel) const
+{
+	return GetLevelUpInformationContainer()[InLevel].AttributePointsReward;
+}
+
+TArray<FLevelUpInfo>& AProjectN_PlayerState::GetLevelUpInformationContainer() const
+{
+	return LevelUpInfo->LevelUpInformationContainer;
 }

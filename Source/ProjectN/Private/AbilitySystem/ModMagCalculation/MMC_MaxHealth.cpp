@@ -4,7 +4,7 @@
 #include "AbilitySystem/ModMagCalculation/MMC_MaxHealth.h"
 
 #include "AbilitySystem/Attribute/ProjectN_AttributeSet.h"
-#include "Interfaces/CombatInterface.h"
+#include "Interfaces/AvatarInfoInterface.h"
 
 UMMC_MaxHealth::UMMC_MaxHealth()
 {
@@ -37,8 +37,11 @@ float UMMC_MaxHealth::CalculateBaseMagnitude_Implementation(const FGameplayEffec
 	
 	const float Magnitude = StrengthMagnitude +  VitalityMagnitude * 13 + 200.0f;
 
-	const ICombatInterface* CombatInterface = Cast<ICombatInterface>(Spec.GetContext().GetSourceObject());
-	int32 Level = CombatInterface->GetCharacterLevel();
+	int32 Level = 1;
+	if (Spec.GetContext().GetSourceObject()->Implements<UAvatarInfoInterface>())
+	{
+		Level = IAvatarInfoInterface::Execute_GetCharacterLevel(Spec.GetContext().GetSourceObject());
+	}
 	
 	return Magnitude;
 }

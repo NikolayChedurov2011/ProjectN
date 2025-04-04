@@ -4,7 +4,7 @@
 #include "AbilitySystem/ModMagCalculation/NPC/Slime/MMC_Slime_MaxMana.h"
 
 #include "AbilitySystem/Attribute/ProjectN_AttributeSet.h"
-#include "Interfaces/CombatInterface.h"
+#include "Interfaces/NPCInterface.h"
 
 UMMC_Slime_MaxMana::UMMC_Slime_MaxMana()
 {
@@ -27,8 +27,11 @@ float UMMC_Slime_MaxMana::CalculateBaseMagnitude_Implementation(const FGameplayE
 	float IntelligenceMagnitude = 0.0f;
 	GetCapturedAttributeMagnitude(IntelligenceCaptureDefinition, Spec, EvaluateParameters, IntelligenceMagnitude);
 	
-	const ICombatInterface* CombatInterface = Cast<ICombatInterface>(Spec.GetContext().GetSourceObject());
-	const int32 Level = CombatInterface->GetCharacterLevel();
+	int32 Level = 1;
+	if (Spec.GetContext().GetSourceObject()->Implements<UNPCInterface>())
+	{
+		Level = INPCInterface::Execute_GetNPCLevel(Spec.GetContext().GetSourceObject());
+	}
 
 	const float Magnitude = IntelligenceMagnitude * 1.2f + Level * 20.0f;
 	return Magnitude;

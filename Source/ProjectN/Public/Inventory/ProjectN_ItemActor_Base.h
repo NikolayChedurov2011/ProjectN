@@ -40,8 +40,10 @@ protected:
 	// Pointer to instance of this actor, provides access to static data class 
 	UPROPERTY(Replicated)
 	TObjectPtr<UProjectN_ItemInstance> ItemInstance = nullptr;
+	
 	UPROPERTY(ReplicatedUsing = OnRep_ItemState)
-	TEnumAsByte<EItemState> ItemState = EItemState::None;
+	EItemState ItemState = EItemState::None;
+	
 	UFUNCTION()
 	void OnRep_ItemState();
 	

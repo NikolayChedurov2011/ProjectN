@@ -32,5 +32,5 @@ public:
 	int32 GetLevelByXP(const int32 XP);
 
 	UFUNCTION(BlueprintCallable, BlueprintPure)
-	int32 GetXPForLevelUpByLevel(const int32 Level);
+	int32 GetXPForNextLevelUpByLevel(const int32 Level);
 };

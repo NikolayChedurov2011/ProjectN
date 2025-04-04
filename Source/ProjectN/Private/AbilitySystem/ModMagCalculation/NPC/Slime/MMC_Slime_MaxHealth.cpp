@@ -4,7 +4,7 @@
 #include "AbilitySystem/ModMagCalculation/NPC/Slime/MMC_Slime_MaxHealth.h"
 
 #include "AbilitySystem/Attribute/ProjectN_AttributeSet.h"
-#include "Interfaces/CombatInterface.h"
+#include "Interfaces/NPCInterface.h"
 
 UMMC_Slime_MaxHealth::UMMC_Slime_MaxHealth()
 {
@@ -26,9 +26,12 @@ float UMMC_Slime_MaxHealth::CalculateBaseMagnitude_Implementation(const FGamepla
 	
 	float VitalityMagnitude = 0.0f;
 	GetCapturedAttributeMagnitude(VitalityCaptureDefinition, Spec, EvaluateParameters, VitalityMagnitude);
-	
-	const ICombatInterface* CombatInterface = Cast<ICombatInterface>(Spec.GetContext().GetSourceObject());
-	const int32 Level = CombatInterface->GetCharacterLevel();
+
+	int32 Level = 1;
+	if (Spec.GetContext().GetSourceObject()->Implements<UNPCInterface>())
+	{
+		Level = INPCInterface::Execute_GetNPCLevel(Spec.GetContext().GetSourceObject());
+	}
 	
 	const float Magnitude = VitalityMagnitude * 1.4f + Level * 53.0f;
 	return Magnitude;

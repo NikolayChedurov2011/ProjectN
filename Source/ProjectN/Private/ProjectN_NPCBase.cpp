@@ -28,7 +28,11 @@ void AProjectN_NPCBase::GiveStartupAbilitiesAndEffects()
 {
 	if (HasAuthority() && GetAbilitySystemComponent())
 	{
-		CharacterDataAsset->GetNPCData(NPCRarity);
+		if (NPCDataAsset == nullptr)
+		{
+			return;
+		}
+		NPCDataAsset->GetNPCData(NPCRarity);
 
 		FGameplayEffectContextHandle EffectContext = GetAbilitySystemComponent()->MakeEffectContext();
 		EffectContext.AddSourceObject(this);
@@ -39,22 +43,32 @@ void AProjectN_NPCBase::GiveStartupAbilitiesAndEffects()
 		}*/
 
 		// Set primary attributes based on level and rarity
-		Cast<UProjectN_AbilitySystemComponent>(GetAbilitySystemComponent())->ApplyGamePlayEffectToSelf_Internal(CharacterDataAsset->GetNPCData(NPCRarity).PrimaryAttributes, EffectContext, GetNPCLevel());
+		Cast<UProjectN_AbilitySystemComponent>(GetAbilitySystemComponent())->ApplyGamePlayEffectToSelf_Internal(NPCDataAsset->GetNPCData(NPCRarity).PrimaryAttributes, EffectContext, NPCLevel);
 		
 		//  Effect for bind dependency of health or other main attribute with their primary attributes
-		Cast<UProjectN_AbilitySystemComponent>(GetAbilitySystemComponent())->ApplyGamePlayEffectToSelf_Internal(CharacterDataAsset->AttributesDependency, EffectContext, 1.f);
+		Cast<UProjectN_AbilitySystemComponent>(GetAbilitySystemComponent())->ApplyGamePlayEffectToSelf_Internal(NPCDataAsset->AttributesDependency, EffectContext, 1.f);
 
 		// Call to init health and other main attributes
-		Cast<UProjectN_AbilitySystemComponent>(GetAbilitySystemComponent())->ApplyGamePlayEffectToSelf_Internal(CharacterDataAsset->InitializeAttributes, EffectContext, 1.f);
+		Cast<UProjectN_AbilitySystemComponent>(GetAbilitySystemComponent())->ApplyGamePlayEffectToSelf_Internal(NPCDataAsset->InitializeAttributes, EffectContext, 1.f);
 
-		for (const TSubclassOf DefaultAbility : CharacterDataAsset->GetNPCData(NPCRarity).NPCAbilities)
+		for (const TSubclassOf DefaultAbility : NPCDataAsset->GetNPCData(NPCRarity).NPCAbilities)
 		{
 			Cast<UProjectN_AbilitySystemComponent>(GetAbilitySystemComponent())->AddAbility(DefaultAbility);
 		}
 	}
 }
 
-void AProjectN_NPCBase::SetNPCLevel(const int32 NewNPCLevel)
+float AProjectN_NPCBase::GetNPCRewardXP_Implementation() const
 {
-	NPCLevel = NewNPCLevel;
+	return NPCDataAsset->GetNPCData(NPCRarity).RewardXP.GetValueAtLevel(NPCLevel);
+}
+
+ENPCRarity AProjectN_NPCBase::GetNPCRarity_Implementation() const
+{
+	return NPCRarity;
+}
+
+int32 AProjectN_NPCBase::GetNPCLevel_Implementation() const
+{
+	return NPCLevel;
 }

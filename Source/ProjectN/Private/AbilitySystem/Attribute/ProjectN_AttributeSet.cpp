@@ -7,6 +7,9 @@
 #include "GameplayEffectExtension.h"
 #include "ProjectN_GameplayTags.h"
 #include "GameFramework/Character.h"
+#include "Interfaces/AvatarInfoInterface.h"
+#include "Interfaces/NPCInterface.h"
+#include "Interfaces/PlayerInterface.h"
 #include "Net/UnrealNetwork.h"
 
 UProjectN_AttributeSet::UProjectN_AttributeSet()
@@ -40,7 +43,7 @@ UProjectN_AttributeSet::UProjectN_AttributeSet()
 
 	
 	// Add primary attributes to map
-	TagsToAttributeFunction.Add(ProjectNGameplayTags::Attribute_Primary_Strength, GetStrengthAttribute);
+	/*TagsToAttributeFunction.Add(ProjectNGameplayTags::Attribute_Primary_Strength, GetStrengthAttribute);
 	TagsToAttributeFunction.Add(ProjectNGameplayTags::Attribute_Primary_Intelligence, GetIntelligenceAttribute);
 	TagsToAttributeFunction.Add(ProjectNGameplayTags::Attribute_Primary_Dexterity, GetDexterityAttribute);
 	TagsToAttributeFunction.Add(ProjectNGameplayTags::Attribute_Primary_Vitality, GetVitalityAttribute);
@@ -64,69 +67,7 @@ UProjectN_AttributeSet::UProjectN_AttributeSet()
 	TagsToAttributeFunction.Add(ProjectNGameplayTags::Attribute_Secondary_CriticalHitChance, GetCriticalHitChanceAttribute);
 	TagsToAttributeFunction.Add(ProjectNGameplayTags::Attribute_Secondary_CriticalHitDamage, GetCriticalHitDamageAttribute);
 	TagsToAttributeFunction.Add(ProjectNGameplayTags::Attribute_Secondary_HealRegeneration, GetHealRegenerationAttribute);
-	TagsToAttributeFunction.Add(ProjectNGameplayTags::Attribute_Secondary_ManaRegeneration, GetManaRegenerationAttribute);
-}
-
-void UProjectN_AttributeSet::PostGameplayEffectExecute(const struct FGameplayEffectModCallbackData& Data)
-{
-	Super::PostGameplayEffectExecute(Data);
-
-	FEffectProperties Props;
-	SetEffectProperties(Data, Props);
-
-	// Character's life attributes
-	if (Data.EvaluatedData.Attribute == GetHealthAttribute())
-	{
-		SetHealth(FMath::Clamp(GetHealth(), 0.f, GetMaxHealth()));
-	}
-	if (Data.EvaluatedData.Attribute == GetManaAttribute())
-	{
-		SetMana(FMath::Clamp(GetMana(), 0.f, GetMaxMana()));
-	}
-	if (Data.EvaluatedData.Attribute == GetStaminaAttribute())
-	{
-		SetStamina(FMath::Clamp(GetStamina(), 0.f, GetMaxStamina()));
-	}
-	if (Data.EvaluatedData.Attribute == GetPoiseAttribute())
-	{
-		SetPoise(FMath::Clamp(GetPoise(), 0.f, GetMaxPoise()));
-	}
-
-	
-	// Secondary attributes
-	if (Data.EvaluatedData.Attribute == GetMaxPoiseAttribute())
-	{
-		SetMaxPoise(FMath::Max(GetMaxPoise(), 0.f));
-		SetPoise(FMath::Clamp(GetPoise(), 0.f, GetMaxPoise()));
-	}
-	
-
-	// Primary attributes
-	if (Data.EvaluatedData.Attribute == GetStrengthAttribute())
-	{
-		SetStrength(FMath::Max(GetStrength(), 0.f));
-	}
-	if (Data.EvaluatedData.Attribute == GetIntelligenceAttribute())
-	{
-		SetIntelligence(FMath::Max(GetIntelligence(), 0.f));
-	}
-	if (Data.EvaluatedData.Attribute == GetDexterityAttribute())
-	{
-		SetDexterity(FMath::Max(GetDexterity(), 0.f));
-	}
-	if (Data.EvaluatedData.Attribute == GetVitalityAttribute())
-	{
-		SetVitality(FMath::Max(GetVitality(), 0.f));
-	}
-
-	SetHealth(FMath::Clamp(GetHealth(), 0.f, GetMaxHealth()));
-	SetMana(FMath::Clamp(GetMana(), 0.f, GetMaxMana()));
-	SetStamina(FMath::Clamp(GetStamina(), 0.f, GetMaxStamina()));
-}
-
-void UProjectN_AttributeSet::PreAttributeChange(const FGameplayAttribute& Attribute, float& NewValue)
-{
-	Super::PreAttributeChange(Attribute, NewValue);
+	TagsToAttributeFunction.Add(ProjectNGameplayTags::Attribute_Secondary_ManaRegeneration, GetManaRegenerationAttribute);*/
 }
 
 void UProjectN_AttributeSet::GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const
@@ -161,6 +102,107 @@ void UProjectN_AttributeSet::GetLifetimeReplicatedProps(TArray<class FLifetimePr
 	DOREPLIFETIME_CONDITION_NOTIFY(UProjectN_AttributeSet, ManaRegeneration, COND_None, REPNOTIFY_Always);
 }
 
+void UProjectN_AttributeSet::PostGameplayEffectExecute(const struct FGameplayEffectModCallbackData& Data)
+{
+	Super::PostGameplayEffectExecute(Data);
+
+	FEffectProperties Props;
+	SetEffectProperties(Data, Props);
+
+	// Character's life attributes
+	if (Data.EvaluatedData.Attribute == GetHealthAttribute())
+	{
+		SetHealth(FMath::Clamp(GetHealth(), 0.f, GetMaxHealth()));
+	}
+	if (Data.EvaluatedData.Attribute == GetManaAttribute())
+	{
+		SetMana(FMath::Clamp(GetMana(), 0.f, GetMaxMana()));
+	}
+	if (Data.EvaluatedData.Attribute == GetStaminaAttribute())
+	{
+		SetStamina(FMath::Clamp(GetStamina(), 0.f, GetMaxStamina()));
+	}
+	if (Data.EvaluatedData.Attribute == GetPoiseAttribute())
+	{
+		const float LocalXP = GetIncomingXP();
+		SetPoise(FMath::Clamp(GetPoise(), 0.f, GetMaxPoise()));
+	}
+
+	
+	// Secondary attributes
+	if (Data.EvaluatedData.Attribute == GetMaxPoiseAttribute())
+	{
+		SetMaxPoise(FMath::Max(GetMaxPoise(), 0.f));
+		SetPoise(FMath::Clamp(GetPoise(), 0.f, GetMaxPoise()));
+	}
+	
+
+	// Primary attributes
+	if (Data.EvaluatedData.Attribute == GetStrengthAttribute())
+	{
+		SetStrength(FMath::Max(GetStrength(), 0.f));
+	}
+	if (Data.EvaluatedData.Attribute == GetIntelligenceAttribute())
+	{
+		SetIntelligence(FMath::Max(GetIntelligence(), 0.f));
+	}
+	if (Data.EvaluatedData.Attribute == GetDexterityAttribute())
+	{
+		SetDexterity(FMath::Max(GetDexterity(), 0.f));
+	}
+	if (Data.EvaluatedData.Attribute == GetVitalityAttribute())
+	{
+		SetVitality(FMath::Max(GetVitality(), 0.f));
+	}
+
+	SetHealth(FMath::Clamp(GetHealth(), 0.f, GetMaxHealth()));
+	SetMana(FMath::Clamp(GetMana(), 0.f, GetMaxMana()));
+	SetStamina(FMath::Clamp(GetStamina(), 0.f, GetMaxStamina()));
+
+	if (Data.EvaluatedData.Attribute == GetIncomingXPAttribute())
+    {
+	    if (Props.SourceProperties.Character->Implements<UPlayerInterface>() && Props.SourceProperties.Character->Implements<UAvatarInfoInterface>())
+		{
+			const int32 CurrentLevel = IAvatarInfoInterface::Execute_GetCharacterLevel(Props.SourceProperties.Character);
+			const int32 CurrentXP = IPlayerInterface::Execute_GetXP(Props.SourceProperties.Character);
+
+	    	const int32 NewLevel = IPlayerInterface::Execute_GetLevelByXP(Props.SourceProperties.Character, CurrentXP + GetIncomingXP());
+	    	const int32 NumLevelUps = NewLevel - CurrentLevel;
+	    	if (NumLevelUps)
+	    	{
+	    		const int32 AttributePointsReward = IPlayerInterface::Execute_GetAttributePointsReward(Props.SourceProperties.Character, CurrentLevel);
+	    		IPlayerInterface::Execute_AddToLevel(Props.SourceProperties.Character, NumLevelUps);
+	    		IPlayerInterface::Execute_AddToAttributePoints(Props.SourceProperties.Character, AttributePointsReward);
+	    		
+	    		SetHealth(GetMaxHealth());
+	    		SetMana(GetMaxMana());
+	    		SetStamina(GetMaxStamina());
+
+	    		IPlayerInterface::Execute_LevelUP(Props.SourceProperties.Character);
+	    	}
+	    	
+			IPlayerInterface::Execute_AddXP(Props.SourceProperties.Character, GetIncomingXP());
+	    	SetIncomingXP(0.f);
+		}
+    }
+
+	// TODO: Track the damage to get reward xp for the enemies
+	// SendXPEvent(Props);
+}
+
+void UProjectN_AttributeSet::SendXPEvent(const FEffectProperties& Props) const
+{
+	if (Props.TargetProperties.Character->Implements<UNPCInterface>())
+	{
+		FGameplayEventData EventPayload;
+		EventPayload.EventMagnitude = INPCInterface::Execute_GetNPCRewardXP(Props.TargetProperties.Character);
+		EventPayload.EventTag = ProjectNGameplayTags::Attribute_XP;
+
+		UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(Props.SourceProperties.Character, ProjectNGameplayTags::Attribute_XP, EventPayload);
+	}
+}
+
+// Fill out Props for next using
 void UProjectN_AttributeSet::SetEffectProperties(const FGameplayEffectModCallbackData& Data, FEffectProperties& Props) const
 {
 	Props.EffectContextHandle = Data.EffectSpec.GetContext();

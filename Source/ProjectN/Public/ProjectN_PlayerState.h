@@ -5,11 +5,12 @@
 #include "CoreMinimal.h"
 #include "AbilitySystemInterface.h"
 #include "GameFramework/PlayerState.h"
-#include "Interfaces/CombatInterface.h"
+#include "Interfaces/AvatarInfoInterface.h"
 #include "ProjectN_PlayerState.generated.h"
 
-class ULevelUpDataInfo;
 struct FOnAttributeChangeData;
+struct FLevelUpInfo;
+class ULevelUpDataInfo;
 class UProjectN_AbilitySystemComponent;
 class UAttributeSet;
 class UProjectN_InventoryComponent;
@@ -17,7 +18,7 @@ class UProjectN_InventoryComponent;
 DECLARE_MULTICAST_DELEGATE_OneParam(FOnGameplayValueChangedSignature, int32 /*Value*/);
 
 UCLASS()
-class PROJECTN_API AProjectN_PlayerState : public APlayerState, public IAbilitySystemInterface, public ICombatInterface
+class PROJECTN_API AProjectN_PlayerState : public APlayerState, public IAbilitySystemInterface, public IAvatarInfoInterface
 {
 	GENERATED_BODY()
 
@@ -28,9 +29,11 @@ public:
 	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override;
 	UAttributeSet* GetAttributeSet() const { return ProjectN_AttributeSet; }
 
-	FORCEINLINE virtual int32 GetCharacterLevel() const override { return Level; }
-
-	virtual FVector GetWeaponSocketLocation(const FGameplayTag& InputTag) const override;
+	/*************************
+	*  Avatar Actor Interface
+	**************************/
+	virtual int32 GetCharacterLevel_Implementation() const override { return Level; }
+	virtual FVector GetWeaponSocketLocation_Implementation(const FGameplayTag& InputTag) const override;
 	
 	FOnGameplayValueChangedSignature OnLevelChanged;
 	FOnGameplayValueChangedSignature OnXPChanged;
@@ -43,13 +46,19 @@ public:
 	void SetXP(const int32 NewXP);
 	void AddToXP(const int32 NewXP);
 	FORCEINLINE int32 GetXP() const { return XP; }
-
+	
 	void SetAttributePoints(const int32 NewAttributePoints);
 	void AddToAttributePoints(const int32 NewAttributePoints);
 	FORCEINLINE int32 GetAttributePoints() const { return AttributePoints; }
 
+	// Level up
 	UPROPERTY(EditDefaultsOnly)
 	TObjectPtr<ULevelUpDataInfo> LevelUpInfo;
+
+	int32 GetLevelByXP(const int32 InXP) const;
+	int32 GetXPForNextLevelUpByLevel(const int32 InLevel) const;
+	int32 GetAttributePointsRewardForLevel(const int32 InLevel) const;
+	TArray<FLevelUpInfo>& GetLevelUpInformationContainer() const;
 
 protected:
 	
@@ -66,7 +75,7 @@ protected:
 	int32 Level = 1;
 
 	UPROPERTY(VisibleAnywhere, ReplicatedUsing=OnRep_XP)
-	int32 XP = 200;
+	int32 XP = 0;
 
 	UPROPERTY(VisibleAnywhere, ReplicatedUsing=OnRep_AttributePoints)
 	int32 AttributePoints = 1;
@@ -77,6 +86,4 @@ protected:
 	void OnRep_XP(const int32 OldXP) const;
 	UFUNCTION()
 	void OnRep_AttributePoints(const int32 OldAttributePoints) const;
-
-	void OnMaxMovementSpeedChanged(const FOnAttributeChangeData& Data) const;
 };

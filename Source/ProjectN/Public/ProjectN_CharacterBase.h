@@ -6,13 +6,13 @@
 #include "GameFramework/Character.h"
 #include "AbilitySystemInterface.h"
 #include "AbilitySystem/ProjectN_AbilitySystemComponent.h"
-#include "Interfaces/CombatInterface.h"
+#include "Interfaces/AvatarInfoInterface.h"
 #include "ProjectN_CharacterBase.generated.h"
 
 class UAttributeSet;
 
 UCLASS(Abstract)
-class PROJECTN_API AProjectN_CharacterBase : public ACharacter, public IAbilitySystemInterface, public ICombatInterface
+class PROJECTN_API AProjectN_CharacterBase : public ACharacter, public IAbilitySystemInterface, public IAvatarInfoInterface
 {
 	GENERATED_BODY()
 

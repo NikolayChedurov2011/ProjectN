@@ -2,13 +2,16 @@
 
 #include "ProjectN_PlayerCharacter.h"
 
+#include "AbilitySystemBlueprintLibrary.h"
 #include "ProjectN_GameInstance.h"
+#include "ProjectN_GameplayTags.h"
 #include "Camera/CameraComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Components/Input/ProjectN_InputComponent.h"
 #include "ProjectN_PlayerState.h"
 #include "AbilitySystem/ProjectN_AbilitySystemLibrary.h"
 #include "AbilitySystem/Attribute/ProjectN_AttributeSet.h"
+#include "AbilitySystem/Data/LevelUpDataInfo.h"
 #include "Controllers/ProjectN_PlayerController.h"
 #include "Kismet/GameplayStatics.h"
 #include "UI/HUD/ProjectN_HUD.h"
@@ -33,12 +36,12 @@ AProjectN_PlayerCharacter::AProjectN_PlayerCharacter(const FObjectInitializer& O
 /*********************************
  * Combat interface Get function
  ********************************/
-int32 AProjectN_PlayerCharacter::GetCharacterLevel() const
+int32 AProjectN_PlayerCharacter::GetCharacterLevel_Implementation() const
 {
 	const AProjectN_PlayerState* ProjectNPlayerState = Cast<AProjectN_PlayerState>(GetPlayerState());
 	if (ProjectNPlayerState)
 	{
-		return ProjectNPlayerState->GetCharacterLevel();
+		return ProjectNPlayerState->GetCharacterLevel_Internal();
 	}
 	return 0;
 }
@@ -77,16 +80,16 @@ void AProjectN_PlayerCharacter::InitAbilityActorInfo()
 		if (AProjectN_HUD* HUD = Cast<AProjectN_HUD>(ProjectN_PlayerController->GetHUD()))
 		{
 			HUD->InitOverlay(ProjectN_PlayerController, ProjectN_PlayerState, ProjectN_AbilitySystemComponent, ProjectN_AttributeSet);
-		}
-	}
-	
-	// At first apply saved attributes value
-	if (!Cast<UProjectN_GameInstance>(GetGameInstance())->CurrentSaveSlotName.IsEmpty())
-	{
-		const int32 Index = Cast<UProjectN_GameInstance>(GetGameInstance())->CurrentSaveSlotIndex;
-		const FString SlotName = Cast<UProjectN_GameInstance>(GetGameInstance())->CurrentSaveSlotName;
 
-		ApplyPrimaryAttributeFromSave(SlotName, Index);
+			// At first apply saved attributes value
+			if (!Cast<UProjectN_GameInstance>(GetGameInstance())->CurrentSaveSlotName.IsEmpty())
+			{
+				const int32 Index = Cast<UProjectN_GameInstance>(GetGameInstance())->CurrentSaveSlotIndex;
+				const FString SlotName = Cast<UProjectN_GameInstance>(GetGameInstance())->CurrentSaveSlotName;
+
+				ApplyPrimaryAttributeFromSave(SlotName, Index);
+			}
+		}
 	}
 	
 	Super::InitAbilityActorInfo();
@@ -236,4 +239,55 @@ void AProjectN_PlayerCharacter::ApplyPrimaryAttributeFromSave(const FString& Slo
 void AProjectN_PlayerCharacter::ServerTravelToMap_Implementation() const
 {
 	UGameplayStatics::OpenLevel(this, "NewMap");
+}
+
+void AProjectN_PlayerCharacter::AddXP_Implementation(const int32 XPToAdd)
+{
+	Cast<AProjectN_PlayerState>(GetPlayerState())->AddToXP(XPToAdd);
+}
+
+void AProjectN_PlayerCharacter::AddToLevel_Implementation(const int32 LevelsToAdd)
+{
+	Cast<AProjectN_PlayerState>(GetPlayerState())->AddToLevel(LevelsToAdd);
+}
+
+void AProjectN_PlayerCharacter::AddToAttributePoints_Implementation(const int32 AttributePointsToAdd)
+{
+	Cast<AProjectN_PlayerState>(GetPlayerState())->AddToAttributePoints(AttributePointsToAdd);
+}
+
+int32 AProjectN_PlayerCharacter::GetXP_Implementation() const
+{
+	return Cast<AProjectN_PlayerState>(GetPlayerState())->GetXP();
+}
+
+int32 AProjectN_PlayerCharacter::GetAttributePointsReward_Implementation(const int32 InLevel) const
+{
+	return Cast<AProjectN_PlayerState>(GetPlayerState())->GetAttributePointsRewardForLevel(InLevel);
+}
+
+int32 AProjectN_PlayerCharacter::GetLevelByXP_Implementation(const int32 InXP)
+{
+	return Cast<AProjectN_PlayerState>(GetPlayerState())->GetLevelByXP(InXP);
+}
+
+void AProjectN_PlayerCharacter::LevelUP_Implementation()
+{
+	
+}
+
+void AProjectN_PlayerCharacter::Console_AddXP(const float XPToAdd)
+{
+	ServerAddXP(XPToAdd);
+}
+
+void AProjectN_PlayerCharacter::ServerAddXP_Implementation(const float XPToAdd)
+{
+	/*FGameplayEventData EventPayload;
+	EventPayload.EventMagnitude = XPToAdd;
+	EventPayload.EventTag = ProjectNGameplayTags::Attribute_XP;
+
+	UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(this, ProjectNGameplayTags::Attribute_XP, EventPayload);*/
+	
+	ProjectN_AbilitySystemComponent->SendGameplayEventForAttributeWithTag(ProjectNGameplayTags::Attribute_XP, XPToAdd);
 }

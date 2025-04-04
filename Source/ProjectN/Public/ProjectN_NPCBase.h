@@ -5,24 +5,28 @@
 #include "CoreMinimal.h"
 #include "ProjectN_CharacterBase.h"
 #include "DataAssets/ProjectN_NPCDataAsset.h"
+#include "Interfaces/NPCInterface.h"
 #include "ProjectN_NPCBase.generated.h"
 
 UCLASS()
-class PROJECTN_API AProjectN_NPCBase : public AProjectN_CharacterBase
+class PROJECTN_API AProjectN_NPCBase : public AProjectN_CharacterBase, public INPCInterface
 {
 	GENERATED_BODY()
 
 public:
 	AProjectN_NPCBase(const FObjectInitializer& ObjectInitializer);
 	
-	UFUNCTION(BlueprintPure)
-	FORCEINLINE int32 GetNPCLevel() const { return NPCLevel; }
-	FORCEINLINE void SetNPCLevel(int32 NewNPCLevel);
-	
-	/*
+	/*************************
+	*  Avatar Actor Interface
+	**************************/
+	virtual int32 GetCharacterLevel_Implementation() const override { return NPCLevel; }
+
+	/********************
 	 *  Combat Interface
-	 */
-	virtual int32 GetCharacterLevel() const override { return NPCLevel; }
+	 ********************/
+	virtual float GetNPCRewardXP_Implementation() const override;
+	virtual ENPCRarity GetNPCRarity_Implementation() const override;
+	virtual int32 GetNPCLevel_Implementation() const override;
 	
 protected:
 	virtual void BeginPlay() override;
@@ -30,11 +34,11 @@ protected:
 
 	// Set default data from Default
 	UPROPERTY(EditDefaultsOnly)
-	TObjectPtr<UProjectN_NPCDataAsset> CharacterDataAsset = nullptr;
+	TObjectPtr<UProjectN_NPCDataAsset> NPCDataAsset = nullptr;
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta=(ExposeOnSpawn = true))
 	int32 NPCLevel = 1;
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta=(ExposeOnSpawn = true))
 	ENPCRarity NPCRarity = ENPCRarity::Common;
 };

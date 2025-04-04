@@ -64,7 +64,7 @@ public:
 
 	UProjectN_AttributeSet();
 
-	TMap<FGameplayTag, FGameplayAttribute(*)()> TagsToAttributeFunction;
+	//TMap<FGameplayTag, FGameplayAttribute(*)()> TagsToAttributeFunction;
 	TMap<FGameplayTag, FGameplayAttribute> TagsToAttribute;
 
 	/*
@@ -194,10 +194,17 @@ public:
 	FGameplayAttributeData ManaRegeneration;
 	ATTRIBUTE_ACCESSORS(UProjectN_AttributeSet, ManaRegeneration)
 
+	/*************************************
+	*  Meta attributes
+	*************************************/
+	UPROPERTY(BlueprintReadOnly, Category = "Meta Attributes")
+	FGameplayAttributeData IncomingXP;
+	ATTRIBUTE_ACCESSORS(UProjectN_AttributeSet, IncomingXP)
+
 protected:
 	virtual void PostGameplayEffectExecute(const struct FGameplayEffectModCallbackData& Data) override;
-	virtual void PreAttributeChange(const FGameplayAttribute& Attribute, float& NewValue) override;
 	virtual void GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const override;
+	void SendXPEvent(const FEffectProperties& Props) const;
 
 	// Primary Attributes
 	UFUNCTION()

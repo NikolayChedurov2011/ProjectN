@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "ScalableFloat.h"
 #include "Engine/DataAsset.h"
 #include "ProjectN_NPCDataAsset.generated.h"
 
@@ -29,6 +30,9 @@ struct FNPCDefaultData
 
 	UPROPERTY(EditDefaultsOnly, Category="Class Defaults")
 	TArray<TSubclassOf<UGameplayAbility>> NPCAbilities;
+	
+	UPROPERTY(EditDefaultsOnly)
+	FScalableFloat RewardXP = FScalableFloat();
 };
 
 UCLASS(BlueprintType, Blueprintable)
@@ -47,5 +51,5 @@ public:
 	UPROPERTY(EditDefaultsOnly)
 	TSubclassOf<UGameplayEffect> InitializeAttributes;
 
-	FNPCDefaultData& GetNPCData(ENPCRarity NPCRarity);
+	FNPCDefaultData GetNPCData(const ENPCRarity NPCRarity);
 };

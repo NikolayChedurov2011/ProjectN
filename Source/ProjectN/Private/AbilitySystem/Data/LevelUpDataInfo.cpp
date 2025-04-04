@@ -26,7 +26,7 @@ int32 ULevelUpDataInfo::GetLevelByXP(const int32 XP)
 	return Level;
 }
 
-int32 ULevelUpDataInfo::GetXPForLevelUpByLevel(const int32 Level)
+int32 ULevelUpDataInfo::GetXPForNextLevelUpByLevel(const int32 Level)
 {
 	if (Level - 1 == 0)
 	{

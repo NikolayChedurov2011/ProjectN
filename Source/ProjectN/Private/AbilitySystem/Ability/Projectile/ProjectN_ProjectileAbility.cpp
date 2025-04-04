@@ -4,7 +4,7 @@
 #include "AbilitySystem/Ability/Projectile/ProjectN_ProjectileAbility.h"
 
 #include "Actors/ProjectN_ProjectileBase.h"
-#include "Interfaces/CombatInterface.h"
+#include "Interfaces/AvatarInfoInterface.h"
 
 void UProjectN_ProjectileAbility::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData)
 {
@@ -22,19 +22,14 @@ void UProjectN_ProjectileAbility::SpawnProjectile()
 		return;
 	}
 	
-	//SpawnProjectile_Internal(TargetLocation);
-
-	ICombatInterface* CombatInterface = Cast<ICombatInterface>(GetOwningActorFromActorInfo());
-	if (CombatInterface)
+	if (GetOwningActorFromActorInfo()->Implements<UAvatarInfoInterface>())
 	{
-		FTransform SpawnTransform;
-		const FVector SocketLocation = CombatInterface->GetWeaponSocketLocation(GetCurrentAbilitySpec()->DynamicAbilityTags.First());
-		//const FRotator Rotation = (TargetLocation - SocketLocation).Rotation();
+		FTransform SpawnTransform;		
+		const FVector SocketLocation = IAvatarInfoInterface::Execute_GetWeaponSocketLocation(GetOwningActorFromActorInfo(), GetCurrentAbilitySpec()->DynamicAbilityTags.First());
 
 		SpawnTransform.SetLocation(SocketLocation);
-		//SpawnTransform.SetRotation(Rotation.Quaternion());
 		SpawnTransform.SetRotation(GetAvatarActorFromActorInfo()->GetActorRotation().Quaternion());
-	
+
 		AProjectN_ProjectileBase* SpawnedProjectile = GetWorld()->SpawnActorDeferred<AProjectN_ProjectileBase>(ProjectileToSpawn, SpawnTransform, GetOwningActorFromActorInfo(), Cast<APawn>(GetAvatarActorFromActorInfo()),  ESpawnActorCollisionHandlingMethod::AlwaysSpawn);
 		SpawnedProjectile->FinishSpawning(SpawnTransform);
 	}
@@ -45,13 +40,12 @@ void UProjectN_ProjectileAbility::ServerSpawnProjectile_Implementation(const FVe
 	SpawnProjectile_Internal(TargetLocation);
 }
 
-void UProjectN_ProjectileAbility::SpawnProjectile_Internal(const FVector& TargetLocation)
+void UProjectN_ProjectileAbility::SpawnProjectile_Internal(const FVector& TargetLocation) const
 {
-	ICombatInterface* CombatInterface = Cast<ICombatInterface>(GetOwningActorFromActorInfo());
-	if (CombatInterface)
+	if (GetOwningActorFromActorInfo()->Implements<UAvatarInfoInterface>())
 	{
 		FTransform SpawnTransform;
-		const FVector SocketLocation = CombatInterface->GetWeaponSocketLocation(GetCurrentAbilitySpec()->DynamicAbilityTags.First());
+		const FVector SocketLocation = IAvatarInfoInterface::Execute_GetWeaponSocketLocation(GetOwningActorFromActorInfo(), GetCurrentAbilitySpec()->DynamicAbilityTags.First());
 		const FRotator Rotation = (TargetLocation - SocketLocation).Rotation();
 
 		SpawnTransform.SetLocation(SocketLocation);
