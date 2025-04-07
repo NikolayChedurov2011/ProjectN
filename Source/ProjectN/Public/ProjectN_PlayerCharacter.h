@@ -28,11 +28,13 @@ public:
 	virtual void PossessedBy(AController* NewController) override;
 	virtual void OnRep_PlayerState() override;
 
-	void Save(UMVVM_SaveSlot* ViewModel) const;
+	void SaveNewSlot(UMVVM_SaveSlot* ViewModel) const;
+	void LoadGameSlot(UMVVM_SaveSlot* ViewModel) const;
 
 	UFUNCTION(Server, Reliable)
-	void ServerApplyPrimaryAttributeFromSave(const float Strength, const float Intelligence, const float Dexterity, const float Vitality) const;
-	void ApplyPrimaryAttributeFromSave(const FString& SlotName, const int32 SlotIndex) const;
+	void ServerApplyAttributesFromSave(const float Strength, const float Intelligence, const float Dexterity, const float Vitality) const;
+	void ApplyAttributesFromSave(const FString& SlotName, const int32 SlotIndex) const;
+	void ApplyPlayerInfoFromSave(const FString& SlotName, const int32 SlotIndex) const;
 
 	UFUNCTION(Server, Reliable)
 	void ServerTravelToMap() const;
@@ -57,7 +59,7 @@ public:
 	virtual void LevelUP_Implementation() override;
 
 	UFUNCTION(Exec)
-	void Console_AddXP(const float XPToAdd);
+	void Console_AddXP(const float XPToAdd) const;
 	UFUNCTION(Server, Reliable)
 	void ServerAddXP(const float XPToAdd);
 

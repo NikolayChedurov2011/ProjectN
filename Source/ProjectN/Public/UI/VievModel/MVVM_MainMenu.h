@@ -32,6 +32,8 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	void NewSlotSaved(const int32 Index, const FString& CharacterName);
+	UFUNCTION(BlueprintCallable)
+	void LoadSlot(const int32 Index);
 
 	UFUNCTION(BlueprintCallable)
 	void DeleteSlot(const int32 Index);

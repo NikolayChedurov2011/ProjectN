@@ -29,6 +29,7 @@ void AProjectN_PlayerState::GetLifetimeReplicatedProps(TArray<class FLifetimePro
 	DOREPLIFETIME(AProjectN_PlayerState, Level);
 	DOREPLIFETIME(AProjectN_PlayerState, XP);
 	DOREPLIFETIME(AProjectN_PlayerState, AttributePoints);
+	DOREPLIFETIME(AProjectN_PlayerState, AttributePointsInUse);
 }
 
 /*****************************
@@ -74,10 +75,35 @@ void AProjectN_PlayerState::SetAttributePoints(const int32 NewAttributePoints)
 	OnAttributePointsChanged.Broadcast(AttributePoints);
 }
 
-void AProjectN_PlayerState::AddToAttributePoints(const int32 NewAttributePoints)
+void AProjectN_PlayerState::AddToAttributePoints(const int32 AttributePointsToAdd)
 {
-	AttributePoints += NewAttributePoints;
+	AttributePoints += AttributePointsToAdd;
 	OnAttributePointsChanged.Broadcast(AttributePoints);
+}
+
+int32 AProjectN_PlayerState::GetAttributePoints() const
+{
+	 return AttributePoints;
+}
+
+void AProjectN_PlayerState::ServerSetAttributePointsInUse_Implementation(const int32 NewAttributePointsInUse)
+{
+	SetAttributePointsInUse(NewAttributePointsInUse);
+}
+
+void AProjectN_PlayerState::SetAttributePointsInUse(const int32 NewAttributePointsInUse)
+{
+	AttributePointsInUse = NewAttributePointsInUse;
+}
+
+void AProjectN_PlayerState::AddToAttributePointsInUse(const int32 AttributePointsInUseToAdd)
+{
+	AttributePointsInUse += AttributePointsInUseToAdd;
+}
+
+int32 AProjectN_PlayerState::GetAttributePointsInUse() const
+{
+	return AttributePointsInUse;
 }
 
 void AProjectN_PlayerState::OnRep_Level(const int32 OldLevel) const

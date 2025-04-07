@@ -48,8 +48,14 @@ public:
 	FORCEINLINE int32 GetXP() const { return XP; }
 	
 	void SetAttributePoints(const int32 NewAttributePoints);
-	void AddToAttributePoints(const int32 NewAttributePoints);
-	FORCEINLINE int32 GetAttributePoints() const { return AttributePoints; }
+	void AddToAttributePoints(const int32 AttributePointsToAdd);
+	FORCEINLINE int32 GetAttributePoints() const;
+
+	UFUNCTION(Server, Reliable)
+	void ServerSetAttributePointsInUse(const int32 NewAttributePointsInUse);
+	void SetAttributePointsInUse(const int32 NewAttributePointsInUse);
+	void AddToAttributePointsInUse(const int32 AttributePointsInUseToAdd);
+	FORCEINLINE int32 GetAttributePointsInUse() const;
 
 	// Level up
 	UPROPERTY(EditDefaultsOnly)
@@ -78,7 +84,9 @@ protected:
 	int32 XP = 0;
 
 	UPROPERTY(VisibleAnywhere, ReplicatedUsing=OnRep_AttributePoints)
-	int32 AttributePoints = 1;
+	int32 AttributePoints = 0;
+	UPROPERTY(VisibleAnywhere, Replicated)
+	int32 AttributePointsInUse = 0;
 
 	UFUNCTION()
 	void OnRep_Level(const int32 OldLevel) const;

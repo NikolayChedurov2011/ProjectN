@@ -29,7 +29,7 @@ public:
 	void OnActionReleased(const FGameplayTag& InputTag);
 
 	UFUNCTION(Server, Reliable)
-	void ServerSendGameplayEventForAttributeWithTag(const FGameplayTag& AttributeTag, const float Value);
+	void ServerAddToAttributeByTag(const FGameplayTag& AttributeTag, const float Value);
 	void SendGameplayEventForAttributeWithTag(const FGameplayTag& AttributeTag, const float Value = 0.f) const;
 	
 protected:

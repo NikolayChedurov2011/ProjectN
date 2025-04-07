@@ -4,6 +4,7 @@
 #include "AbilitySystem/ProjectN_AbilitySystemComponent.h"
 
 #include "AbilitySystemBlueprintLibrary.h"
+#include "ProjectN_PlayerState.h"
 #include "AbilitySystem/Ability/ProjectN_GameplayAbilityBase.h"
 #include "AbilitySystem/Attribute/ProjectN_AttributeSet.h"
 
@@ -107,14 +108,20 @@ void UProjectN_AbilitySystemComponent::OnActionReleased(const FGameplayTag& Inpu
 // Use to ADD value to attribute
 void UProjectN_AbilitySystemComponent::SendGameplayEventForAttributeWithTag(const FGameplayTag& AttributeTag, const float Value) const
 {
-	FGameplayEventData Payload;
-	Payload.EventTag = AttributeTag;
-	Payload.EventMagnitude = Value;
-		
-	UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(GetAvatarActor(), AttributeTag,Payload);
+	
 }
 
-void UProjectN_AbilitySystemComponent::ServerSendGameplayEventForAttributeWithTag_Implementation(const FGameplayTag& AttributeTag, const float Value)
+void UProjectN_AbilitySystemComponent::ServerAddToAttributeByTag_Implementation(const FGameplayTag& AttributeTag, const float Value)
 {
-	SendGameplayEventForAttributeWithTag(AttributeTag, Value);
+	//SendGameplayEventForAttributeWithTag(AttributeTag, Value);
+	
+
+		FGameplayEventData Payload;
+		Payload.EventTag = AttributeTag;
+		Payload.EventMagnitude = Value;
+		
+		UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(GetAvatarActor(), AttributeTag,Payload);
+		//ProjectNPlayerState->AddToAttributePoints(-Value);
+
+	
 }

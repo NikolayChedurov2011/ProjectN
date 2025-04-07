@@ -87,7 +87,8 @@ void AProjectN_PlayerCharacter::InitAbilityActorInfo()
 				const int32 Index = Cast<UProjectN_GameInstance>(GetGameInstance())->CurrentSaveSlotIndex;
 				const FString SlotName = Cast<UProjectN_GameInstance>(GetGameInstance())->CurrentSaveSlotName;
 
-				ApplyPrimaryAttributeFromSave(SlotName, Index);
+				ApplyAttributesFromSave(SlotName, Index);
+				ApplyPlayerInfoFromSave(SlotName, Index);
 			}
 		}
 	}
@@ -180,7 +181,7 @@ void AProjectN_PlayerCharacter::Input_Look(const FInputActionValue& ActionValue)
 	}
 }
 
-void AProjectN_PlayerCharacter::Save(UMVVM_SaveSlot* ViewModel) const
+void AProjectN_PlayerCharacter::SaveNewSlot(UMVVM_SaveSlot* ViewModel) const
 {
 	ViewModel->Strength = Cast<UProjectN_AttributeSet>(GetAttributeSet())->GetStrength();
 	ViewModel->Intelligence = Cast<UProjectN_AttributeSet>(GetAttributeSet())->GetIntelligence();
@@ -203,37 +204,67 @@ void AProjectN_PlayerCharacter::Save(UMVVM_SaveSlot* ViewModel) const
 	
 	CharacterSave->Level = Cast<AProjectN_PlayerState>(GetPlayerState())->GetCharacterLevel_Internal();
 	CharacterSave->XP = Cast<AProjectN_PlayerState>(GetPlayerState())->GetXP();
+	CharacterSave->AttributePoints = Cast<AProjectN_PlayerState>(GetPlayerState())->GetAttributePoints();
 
 	UGameplayStatics::SaveGameToSlot(CharacterSave, ViewModel->SlotName, ViewModel->SlotIndex);
+}
 
+void AProjectN_PlayerCharacter::LoadGameSlot(UMVVM_SaveSlot* ViewModel) const
+{
 	Cast<UProjectN_GameInstance>(GetGameInstance())->CurrentSaveSlotIndex = ViewModel->SlotIndex;
 	Cast<UProjectN_GameInstance>(GetGameInstance())->CurrentSaveSlotName = ViewModel->SlotName;
-
+	
 	ServerTravelToMap();
 }
 
-void AProjectN_PlayerCharacter::ServerApplyPrimaryAttributeFromSave_Implementation(const float Strength, const float Intelligence, const float Dexterity, const float Vitality) const
+/*
+void AProjectN_PlayerCharacter::SaveAttributes() const
 {
-	UProjectN_AbilitySystemLibrary::OverridePrimaryAttributes(this, GetAbilitySystemComponent(), Strength, Intelligence, Dexterity, Vitality);
+	
 }
 
-void AProjectN_PlayerCharacter::ApplyPrimaryAttributeFromSave(const FString& SlotName, const int32 SlotIndex) const
+void AProjectN_PlayerCharacter::SavePlayerInfo() const
+{
+	
+}*/
+
+void AProjectN_PlayerCharacter::ServerApplyAttributesFromSave_Implementation(const float Strength, const float Intelligence, const float Dexterity, const float Vitality) const
+{
+	UProjectN_AbilitySystemLibrary::SetPrimaryAttributesByCaller(this, GetAbilitySystemComponent(), Strength, Intelligence, Dexterity, Vitality);
+}
+
+void AProjectN_PlayerCharacter::ApplyAttributesFromSave(const FString& SlotName, const int32 SlotIndex) const
 {
 	USaveGame* SaveGame = nullptr;
 	if (UGameplayStatics::DoesSaveGameExist(SlotName, SlotIndex))
 	{
 		SaveGame = UGameplayStatics::LoadGameFromSlot(SlotName, SlotIndex);
-		ServerApplyPrimaryAttributeFromSave(Cast<UCharacter_Save>(SaveGame)->Strength, Cast<UCharacter_Save>(SaveGame)->Intelligence, Cast<UCharacter_Save>(SaveGame)->Dexterity, Cast<UCharacter_Save>(SaveGame)->Vitality);
+		ServerApplyAttributesFromSave(Cast<UCharacter_Save>(SaveGame)->Strength, Cast<UCharacter_Save>(SaveGame)->Intelligence, Cast<UCharacter_Save>(SaveGame)->Dexterity, Cast<UCharacter_Save>(SaveGame)->Vitality);
 	}
 	else
 	{
 		SaveGame = UGameplayStatics::CreateSaveGameObject(CharacterSaveClass);
-		ServerApplyPrimaryAttributeFromSave(Cast<UCharacter_Save>(SaveGame)->Strength, Cast<UCharacter_Save>(SaveGame)->Intelligence, Cast<UCharacter_Save>(SaveGame)->Dexterity, Cast<UCharacter_Save>(SaveGame)->Vitality);
+		ServerApplyAttributesFromSave(Cast<UCharacter_Save>(SaveGame)->Strength, Cast<UCharacter_Save>(SaveGame)->Intelligence, Cast<UCharacter_Save>(SaveGame)->Dexterity, Cast<UCharacter_Save>(SaveGame)->Vitality);
+	}
+
+	Cast<AProjectN_PlayerState>(GetPlayerState())->SetAttributePoints(Cast<UCharacter_Save>(SaveGame)->AttributePoints);
+	Cast<AProjectN_PlayerState>(GetPlayerState())->SetAttributePointsInUse(Cast<UCharacter_Save>(SaveGame)->AttributePoints);
+}
+
+void AProjectN_PlayerCharacter::ApplyPlayerInfoFromSave(const FString& SlotName, const int32 SlotIndex) const
+{
+	USaveGame* SaveGame = nullptr;
+	if (UGameplayStatics::DoesSaveGameExist(SlotName, SlotIndex))
+	{
+		SaveGame = UGameplayStatics::LoadGameFromSlot(SlotName, SlotIndex);
+	}
+	else
+	{
+		SaveGame = UGameplayStatics::CreateSaveGameObject(CharacterSaveClass);
 	}
 
 	Cast<AProjectN_PlayerState>(GetPlayerState())->SetLevel(Cast<UCharacter_Save>(SaveGame)->Level);
 	Cast<AProjectN_PlayerState>(GetPlayerState())->SetXP(Cast<UCharacter_Save>(SaveGame)->XP);
-	Cast<AProjectN_PlayerState>(GetPlayerState())->SetAttributePoints(Cast<UCharacter_Save>(SaveGame)->AttributePoints);
 }
 
 void AProjectN_PlayerCharacter::ServerTravelToMap_Implementation() const
@@ -254,6 +285,7 @@ void AProjectN_PlayerCharacter::AddToLevel_Implementation(const int32 LevelsToAd
 void AProjectN_PlayerCharacter::AddToAttributePoints_Implementation(const int32 AttributePointsToAdd)
 {
 	Cast<AProjectN_PlayerState>(GetPlayerState())->AddToAttributePoints(AttributePointsToAdd);
+	Cast<AProjectN_PlayerState>(GetPlayerState())->AddToAttributePointsInUse(AttributePointsToAdd);
 }
 
 int32 AProjectN_PlayerCharacter::GetXP_Implementation() const
@@ -276,18 +308,16 @@ void AProjectN_PlayerCharacter::LevelUP_Implementation()
 	
 }
 
-void AProjectN_PlayerCharacter::Console_AddXP(const float XPToAdd)
+/******************
+* Console commands
+*******************/
+void AProjectN_PlayerCharacter::Console_AddXP(const float XPToAdd) const
 {
-	ServerAddXP(XPToAdd);
+	//ServerAddXP(XPToAdd);
+	ProjectN_AbilitySystemComponent->ServerAddToAttributeByTag(ProjectNGameplayTags::Attribute_XP, XPToAdd);
 }
 
 void AProjectN_PlayerCharacter::ServerAddXP_Implementation(const float XPToAdd)
-{
-	/*FGameplayEventData EventPayload;
-	EventPayload.EventMagnitude = XPToAdd;
-	EventPayload.EventTag = ProjectNGameplayTags::Attribute_XP;
-
-	UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(this, ProjectNGameplayTags::Attribute_XP, EventPayload);*/
+{	
 	
-	ProjectN_AbilitySystemComponent->SendGameplayEventForAttributeWithTag(ProjectNGameplayTags::Attribute_XP, XPToAdd);
 }

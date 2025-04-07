@@ -93,7 +93,7 @@ UProjectN_InventoryController* UProjectN_AbilitySystemLibrary::GetInventoryWidge
 	return nullptr;
 }
 
-void UProjectN_AbilitySystemLibrary::OverridePrimaryAttributes(const UObject* WorldContextObject, UAbilitySystemComponent* AbilitySystemComponent, const float Strength, const float Intelligence, const float Dexterity, const float Vitality)
+void UProjectN_AbilitySystemLibrary::SetPrimaryAttributesByCaller(const UObject* WorldContextObject, UAbilitySystemComponent* AbilitySystemComponent, const float Strength, const float Intelligence, const float Dexterity, const float Vitality)
 {
 	const AActor* AvatarActor = AbilitySystemComponent->GetAvatarActor();
 

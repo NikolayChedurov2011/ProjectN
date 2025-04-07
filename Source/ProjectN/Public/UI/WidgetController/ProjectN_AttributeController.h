@@ -3,12 +3,12 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "GameplayTagContainer.h"
 #include "UI/WidgetController/ProjectN_WidgetControllerBase.h"
 #include "ProjectN_AttributeController.generated.h"
 
 struct FProjectNAttributeSaveInfo;
 struct FProjectNAttributeInfo;
-struct FGameplayTag;
 struct FGameplayAttribute;
 class UAttributeInfo;
 class UGameplayEffect;
@@ -32,7 +32,13 @@ public:
 	virtual void BindCallbacksToResponce() override;
 	
 	UFUNCTION(BlueprintCallable)
-	void ChangeAttribute(const FGameplayTag& AttributeTag, const float Value);
+	void AddToAttributeByTag(const FGameplayTag& AttributeTag, const float Value);
+
+	UFUNCTION(BlueprintCallable)
+	void SaveAttributes();
+
+	UFUNCTION(BlueprintCallable)
+	void RestoreAttributes();
 
 protected:
 	
@@ -40,4 +46,6 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly)
 	TObjectPtr<UAttributeInfo> AttributeInfo;
+
+	TMap<FGameplayTag, float> PreSavedAttributes;
 };
