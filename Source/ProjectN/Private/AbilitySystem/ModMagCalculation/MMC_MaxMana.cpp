@@ -26,13 +26,14 @@ float UMMC_MaxMana::CalculateBaseMagnitude_Implementation(const FGameplayEffectS
 	
 	float IntelligenceMagnitude = 0.0f;
 	GetCapturedAttributeMagnitude(IntelligenceCaptureDefinition, Spec, EvaluateParameters, IntelligenceMagnitude);
-	const float Magnitude = IntelligenceMagnitude * 10 + 200.0f;
-
+	
 	int32 Level = 1;
 	if (Spec.GetContext().GetSourceObject()->Implements<UAvatarInfoInterface>())
 	{
 		Level = IAvatarInfoInterface::Execute_GetCharacterLevel(Spec.GetContext().GetSourceObject());
 	}
+
+	const float Magnitude = IntelligenceMagnitude * 2.f + Level * 20;
 	
 	return Magnitude;
 }

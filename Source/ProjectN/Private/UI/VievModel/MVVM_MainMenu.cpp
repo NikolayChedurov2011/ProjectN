@@ -3,6 +3,7 @@
 
 #include "UI/VievModel/MVVM_MainMenu.h"
 
+#include "ProjectN_GameInstance.h"
 #include "ProjectN_PlayerCharacter.h"
 #include "Kismet/GameplayStatics.h"
 #include "UI/VievModel/MVVM_SaveSlot.h"
@@ -51,12 +52,11 @@ void UMVVM_MainMenu::LoadData()
 		Slot.Value->SlotStatus = SaveObj->SlotStatus;
 		Slot.Value->SetPlayerName(SaveObj->PlayerName);
 		Slot.Value->SetLevel(SaveObj->Level);
-		Slot.Value->AttributePoints = SaveObj->AttributePoints;
+		/*Slot.Value->AttributePoints = SaveObj->AttributePoints;
 		Slot.Value->Strength = SaveObj->Strength;
 		Slot.Value->Intelligence = SaveObj->Intelligence;
 		Slot.Value->Dexterity = SaveObj->Dexterity;
-		Slot.Value->Vitality = SaveObj->Vitality;
-		Slot.Value->Vitality = SaveObj->Vitality;
+		Slot.Value->Vitality = SaveObj->Vitality;*/
 		Slot.Value->InitializeSlot();
 	}
 }
@@ -77,8 +77,8 @@ void UMVVM_MainMenu::NewGameSlotSelected(const int32 Index)
 {
 	CurrentSlotIndex = Index;
 	SlotSelected.Broadcast(Index);
-	Cast<AProjectN_PlayerCharacter>(UGameplayStatics::GetPlayerController(this, 0)->GetPawn())->ApplyAttributesFromSave(SaveSlotsMap[Index]->SlotName, Index);
-	Cast<AProjectN_PlayerCharacter>(UGameplayStatics::GetPlayerController(this, 0)->GetPawn())->ApplyPlayerInfoFromSave(SaveSlotsMap[Index]->SlotName, Index);
+//	Cast<AProjectN_PlayerCharacter>(UGameplayStatics::GetPlayerController(this, 0)->GetPawn())->ApplyAttributesFromSave(SaveSlotsMap[Index]->SlotName, Index);
+//	Cast<AProjectN_PlayerCharacter>(UGameplayStatics::GetPlayerController(this, 0)->GetPawn())->ApplyPlayerInfoFromSave(SaveSlotsMap[Index]->SlotName, Index);
 	//SaveSlotsMap[Index]->InitializeSlot();
 }
 
@@ -88,14 +88,34 @@ void UMVVM_MainMenu::NewSlotSaved(const int32 Index, const FString& CharacterNam
 	SaveSlotsMap[Index]->SlotStatus = ESaveSlotStatus::Taken;
 	SaveSlotsMap[Index]->SetPlayerName(CharacterName);
 	
-	Cast<AProjectN_PlayerCharacter>(UGameplayStatics::GetPlayerController(this, 0)->GetPawn())->SaveNewSlot(SaveSlotsMap[Index]);
+	//Cast<AProjectN_PlayerCharacter>(UGameplayStatics::GetPlayerController(this, 0)->GetPawn())->SaveNewSlot(SaveSlotsMap[Index]);
 
+	if (UGameplayStatics::DoesSaveGameExist(SaveSlotsMap[Index]->SlotName, SaveSlotsMap[Index]->SlotIndex))
+	{
+		UGameplayStatics::DeleteGameInSlot(SaveSlotsMap[Index]->SlotName, SaveSlotsMap[Index]->SlotIndex);
+	}
+	USaveGame* SaveGameObject = UGameplayStatics::CreateSaveGameObject(CharacterSaveClass);
+	UCharacter_Save* CharacterSave = Cast<UCharacter_Save>(SaveGameObject);
+	
+	CharacterSave->PlayerName = SaveSlotsMap[Index]->GetPlayerName();
+	CharacterSave->SlotStatus = ESaveSlotStatus::Taken;
+	
+	UGameplayStatics::SaveGameToSlot(CharacterSave, SaveSlotsMap[Index]->SlotName, SaveSlotsMap[Index]->SlotIndex);
+	
 	SaveSlotsMap[Index]->SetSaveSlotState.Broadcast(1);
+	SaveSlotsMap[Index]->SetSaveSlotState.Broadcast(1);
+	SlotSelected.Broadcast(Index);
 }
 
 void UMVVM_MainMenu::LoadSlot(const int32 Index)
 {
-	Cast<AProjectN_PlayerCharacter>(UGameplayStatics::GetPlayerController(this, 0)->GetPawn())->LoadGameSlot(SaveSlotsMap[Index]);
+	//Cast<AProjectN_PlayerCharacter>(UGameplayStatics::GetPlayerController(this, 0)->GetPawn())->LoadGameSlot(SaveSlotsMap[Index]);
+
+	Cast<UProjectN_GameInstance>(UGameplayStatics::GetGameInstance(this))->CurrentSaveSlotIndex = SaveSlotsMap[Index]->SlotIndex;
+	Cast<UProjectN_GameInstance>(UGameplayStatics::GetGameInstance(this))->CurrentSaveSlotName = SaveSlotsMap[Index]->SlotName;
+	//Cast<UProjectN_GameInstance>(GetGameInstance())->CurrentSaveSlotName = ViewModel->SlotName;
+	
+	UGameplayStatics::OpenLevel(this, "NewMap");
 }
 
 void UMVVM_MainMenu::DeleteSlot(const int32 Index)
@@ -106,4 +126,5 @@ void UMVVM_MainMenu::DeleteSlot(const int32 Index)
 	}
 	SaveSlotsMap[Index]->ClearModel();
 	SaveSlotsMap[Index]->InitializeSlot();
+	SlotSelected.Broadcast(Index);
 }

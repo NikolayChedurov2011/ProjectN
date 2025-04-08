@@ -41,8 +41,8 @@ void UProjectN_OverlayWidgetController::BindCallbacksToResponce()
 	BindGameplayAttributeValueChange(ProjectN_AttributeSet->GetMaxHealthAttribute(), OnMaxHealthChanged);
 	BindGameplayAttributeValueChange(ProjectN_AttributeSet->GetManaAttribute(), OnManaChanged);
 	BindGameplayAttributeValueChange(ProjectN_AttributeSet->GetMaxManaAttribute(), OnMaxManaChanged);
-	BindGameplayAttributeValueChange(ProjectN_AttributeSet->GetStaminaAttribute(), OnStaminaChanged);
-	BindGameplayAttributeValueChange(ProjectN_AttributeSet->GetMaxStaminaAttribute(), OnMaxStaminaChanged);
+	//BindGameplayAttributeValueChange(ProjectN_AttributeSet->GetStaminaAttribute(), OnStaminaChanged);
+	//BindGameplayAttributeValueChange(ProjectN_AttributeSet->GetMaxStaminaAttribute(), OnMaxStaminaChanged);
 	
 	Cast<UProjectN_AbilitySystemComponent>(AbilitySystemComponent)->EffectAssetTags.AddLambda([this] (const FGameplayTagContainer& EffectAssetTags)
 	{

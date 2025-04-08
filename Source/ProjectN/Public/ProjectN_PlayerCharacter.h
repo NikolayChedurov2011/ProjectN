@@ -28,7 +28,7 @@ public:
 	virtual void PossessedBy(AController* NewController) override;
 	virtual void OnRep_PlayerState() override;
 
-	void SaveNewSlot(UMVVM_SaveSlot* ViewModel) const;
+	//void SaveNewSlot(UMVVM_SaveSlot* ViewModel) const;
 	void LoadGameSlot(UMVVM_SaveSlot* ViewModel) const;
 
 	UFUNCTION(Server, Reliable)

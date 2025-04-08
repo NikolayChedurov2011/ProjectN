@@ -22,12 +22,12 @@ void UMVVM_SaveSlot::ClearModel()
 {
 	SlotStatus = ESaveSlotStatus::Vacant;
 
-	SetLevel(0);
+	SetLevel(1);
 	XP = 0;
 	AttributePoints = 0;
-	Strength = 0.f;
-	Intelligence = 0.f;
-	Dexterity = 0.f;
-	Vitality = 0.f;
+	Strength = 1.f;
+	Intelligence = 1.f;
+	Dexterity = 1.f;
+	Vitality = 1.f;
 	SetPlayerName("");
 }

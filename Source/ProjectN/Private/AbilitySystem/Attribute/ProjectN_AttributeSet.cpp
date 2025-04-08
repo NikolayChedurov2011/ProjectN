@@ -25,16 +25,20 @@ UProjectN_AttributeSet::UProjectN_AttributeSet()
 	TagsToAttribute.Add(ProjectNGameplayTags::Attribute_Main_MaxHealth, GetMaxHealthAttribute());
 	TagsToAttribute.Add(ProjectNGameplayTags::Attribute_Main_Mana, GetManaAttribute());
 	TagsToAttribute.Add(ProjectNGameplayTags::Attribute_Main_MaxMana, GetMaxManaAttribute());
-	TagsToAttribute.Add(ProjectNGameplayTags::Attribute_Main_Stamina, GetStaminaAttribute());
-	TagsToAttribute.Add(ProjectNGameplayTags::Attribute_Main_MaxStamina, GetMaxStaminaAttribute());
-	TagsToAttribute.Add(ProjectNGameplayTags::Attribute_Main_Poise, GetPoiseAttribute());
-	TagsToAttribute.Add(ProjectNGameplayTags::Attribute_Main_MaxPoise, GetMaxPoiseAttribute());
+	//TagsToAttribute.Add(ProjectNGameplayTags::Attribute_Main_Stamina, GetStaminaAttribute());
+	//TagsToAttribute.Add(ProjectNGameplayTags::Attribute_Main_MaxStamina, GetMaxStaminaAttribute());
+	//TagsToAttribute.Add(ProjectNGameplayTags::Attribute_Main_Poise, GetPoiseAttribute());
+	//TagsToAttribute.Add(ProjectNGameplayTags::Attribute_Main_MaxPoise, GetMaxPoiseAttribute());
 	
-	TagsToAttribute.Add(ProjectNGameplayTags::Attribute_Main_MovementSpeed, GetMaxMovementSpeedAttribute());
+	TagsToAttribute.Add(ProjectNGameplayTags::Attribute_Main_MovementSpeed, GetMovementSpeedAttribute());
+	//TagsToAttribute.Add(ProjectNGameplayTags::Attribute_Main_MaxMovementSpeed, GetMaxMovementSpeedAttribute());
+	TagsToAttribute.Add(ProjectNGameplayTags::Attribute_Main_EquipmentWeight, GetEquipmentWeightAttribute());
+	TagsToAttribute.Add(ProjectNGameplayTags::Attribute_Main_MaxCarryingCapacity, GetMaxCarryingCapacityAttribute());
 
 	// Add secondary attributes to map
 	TagsToAttribute.Add(ProjectNGameplayTags::Attribute_Secondary_Armor, GetArmorAttribute());
 	TagsToAttribute.Add(ProjectNGameplayTags::Attribute_Secondary_Evasion, GetEvasionAttribute());
+	TagsToAttribute.Add(ProjectNGameplayTags::Attribute_Secondary_BlockChance, GetBlockChanceAttribute());
 	TagsToAttribute.Add(ProjectNGameplayTags::Attribute_Secondary_ArmorPenetration, GetArmorPenetrationAttribute());
 	TagsToAttribute.Add(ProjectNGameplayTags::Attribute_Secondary_CriticalHitChance, GetCriticalHitChanceAttribute());
 	TagsToAttribute.Add(ProjectNGameplayTags::Attribute_Secondary_CriticalHitDamage, GetCriticalHitDamageAttribute());
@@ -86,15 +90,19 @@ void UProjectN_AttributeSet::GetLifetimeReplicatedProps(TArray<class FLifetimePr
 	DOREPLIFETIME_CONDITION_NOTIFY(UProjectN_AttributeSet, MaxHealth, COND_None, REPNOTIFY_Always);
 	DOREPLIFETIME_CONDITION_NOTIFY(UProjectN_AttributeSet, Mana, COND_None, REPNOTIFY_Always);
 	DOREPLIFETIME_CONDITION_NOTIFY(UProjectN_AttributeSet, MaxMana, COND_None, REPNOTIFY_Always);
-	DOREPLIFETIME_CONDITION_NOTIFY(UProjectN_AttributeSet, Stamina, COND_None, REPNOTIFY_Always);
-	DOREPLIFETIME_CONDITION_NOTIFY(UProjectN_AttributeSet, MaxStamina, COND_None, REPNOTIFY_Always);
-	DOREPLIFETIME_CONDITION_NOTIFY(UProjectN_AttributeSet, Poise, COND_None, REPNOTIFY_Always);
-	DOREPLIFETIME_CONDITION_NOTIFY(UProjectN_AttributeSet, MaxPoise, COND_None, REPNOTIFY_Always);
+	//DOREPLIFETIME_CONDITION_NOTIFY(UProjectN_AttributeSet, Stamina, COND_None, REPNOTIFY_Always);
+	//DOREPLIFETIME_CONDITION_NOTIFY(UProjectN_AttributeSet, MaxStamina, COND_None, REPNOTIFY_Always);
+	//DOREPLIFETIME_CONDITION_NOTIFY(UProjectN_AttributeSet, Poise, COND_None, REPNOTIFY_Always);
+	//DOREPLIFETIME_CONDITION_NOTIFY(UProjectN_AttributeSet, MaxPoise, COND_None, REPNOTIFY_Always);
+	DOREPLIFETIME_CONDITION_NOTIFY(UProjectN_AttributeSet, MovementSpeed, COND_None, REPNOTIFY_Always);
 	DOREPLIFETIME_CONDITION_NOTIFY(UProjectN_AttributeSet, MaxMovementSpeed, COND_None, REPNOTIFY_Always);
+	DOREPLIFETIME_CONDITION_NOTIFY(UProjectN_AttributeSet, EquipmentWeight, COND_None, REPNOTIFY_Always);
+	DOREPLIFETIME_CONDITION_NOTIFY(UProjectN_AttributeSet, MaxCarryingCapacity, COND_None, REPNOTIFY_Always);
 
 	// Secondary
 	DOREPLIFETIME_CONDITION_NOTIFY(UProjectN_AttributeSet, Armor, COND_None, REPNOTIFY_Always);
 	DOREPLIFETIME_CONDITION_NOTIFY(UProjectN_AttributeSet, Evasion, COND_None, REPNOTIFY_Always);
+	DOREPLIFETIME_CONDITION_NOTIFY(UProjectN_AttributeSet, BlockChance, COND_None, REPNOTIFY_Always);
 	DOREPLIFETIME_CONDITION_NOTIFY(UProjectN_AttributeSet, ArmorPenetration, COND_None, REPNOTIFY_Always);
 	DOREPLIFETIME_CONDITION_NOTIFY(UProjectN_AttributeSet, CriticalHitChance, COND_None, REPNOTIFY_Always);
 	DOREPLIFETIME_CONDITION_NOTIFY(UProjectN_AttributeSet, CriticalHitDamage, COND_None, REPNOTIFY_Always);
@@ -118,10 +126,20 @@ void UProjectN_AttributeSet::PostGameplayEffectExecute(const struct FGameplayEff
 	{
 		SetMana(FMath::Clamp(GetMana(), 0.f, GetMaxMana()));
 	}
-	if (Data.EvaluatedData.Attribute == GetStaminaAttribute())
+	if (Data.EvaluatedData.Attribute == GetMovementSpeedAttribute())
+	{
+		SetMovementSpeed(FMath::Clamp(GetMovementSpeed(), 0.f, GetMaxMovementSpeed()));
+	}
+	if (Data.EvaluatedData.Attribute == GetEquipmentWeightAttribute())
+	{
+		SetEquipmentWeight(FMath::Max(GetEquipmentWeight(), 0.f));
+	}
+	
+	/*if (Data.EvaluatedData.Attribute == GetStaminaAttribute())
 	{
 		SetStamina(FMath::Clamp(GetStamina(), 0.f, GetMaxStamina()));
-	}
+	}*/
+	/*
 	if (Data.EvaluatedData.Attribute == GetPoiseAttribute())
 	{
 		const float LocalXP = GetIncomingXP();
@@ -135,7 +153,7 @@ void UProjectN_AttributeSet::PostGameplayEffectExecute(const struct FGameplayEff
 		SetMaxPoise(FMath::Max(GetMaxPoise(), 0.f));
 		SetPoise(FMath::Clamp(GetPoise(), 0.f, GetMaxPoise()));
 	}
-	
+	*/
 
 	// Primary attributes
 	if (Data.EvaluatedData.Attribute == GetStrengthAttribute())
@@ -157,7 +175,7 @@ void UProjectN_AttributeSet::PostGameplayEffectExecute(const struct FGameplayEff
 
 	SetHealth(FMath::Clamp(GetHealth(), 0.f, GetMaxHealth()));
 	SetMana(FMath::Clamp(GetMana(), 0.f, GetMaxMana()));
-	SetStamina(FMath::Clamp(GetStamina(), 0.f, GetMaxStamina()));
+	//SetStamina(FMath::Clamp(GetStamina(), 0.f, GetMaxStamina()));
 
 	if (Data.EvaluatedData.Attribute == GetIncomingXPAttribute())
     {
@@ -176,7 +194,7 @@ void UProjectN_AttributeSet::PostGameplayEffectExecute(const struct FGameplayEff
 	    		
 	    		SetHealth(GetMaxHealth());
 	    		SetMana(GetMaxMana());
-	    		SetStamina(GetMaxStamina());
+	    		//SetStamina(GetMaxStamina());
 
 	    		IPlayerInterface::Execute_LevelUP(Props.SourceProperties.Character);
 	    	}
@@ -278,6 +296,7 @@ void UProjectN_AttributeSet::OnRep_MaxMana(const FGameplayAttributeData& OldMaxM
 	GAMEPLAYATTRIBUTE_REPNOTIFY(UProjectN_AttributeSet, MaxMana, OldMaxMana);
 }
 
+/*
 void UProjectN_AttributeSet::OnRep_Stamina(const FGameplayAttributeData& OldStamina)
 {
 	GAMEPLAYATTRIBUTE_REPNOTIFY(UProjectN_AttributeSet, Stamina, OldStamina);
@@ -286,9 +305,9 @@ void UProjectN_AttributeSet::OnRep_Stamina(const FGameplayAttributeData& OldStam
 void UProjectN_AttributeSet::OnRep_MaxStamina(const FGameplayAttributeData& OldMaxStamina)
 {
 	GAMEPLAYATTRIBUTE_REPNOTIFY(UProjectN_AttributeSet, MaxStamina, OldMaxStamina);
-}
+}*/
 
-void UProjectN_AttributeSet::OnRep_Poise(const FGameplayAttributeData& OldPoise)
+/*void UProjectN_AttributeSet::OnRep_Poise(const FGameplayAttributeData& OldPoise)
 {
 	GAMEPLAYATTRIBUTE_REPNOTIFY(UProjectN_AttributeSet, Poise, OldPoise);
 }
@@ -296,11 +315,25 @@ void UProjectN_AttributeSet::OnRep_Poise(const FGameplayAttributeData& OldPoise)
 void UProjectN_AttributeSet::OnRep_MaxPoise(const FGameplayAttributeData& OldMaxPoise)
 {
 	GAMEPLAYATTRIBUTE_REPNOTIFY(UProjectN_AttributeSet, MaxPoise, OldMaxPoise);
-}
+}*/
 
+void UProjectN_AttributeSet::OnRep_MovementSpeed(const FGameplayAttributeData& OldMovementSpeed)
+{
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UProjectN_AttributeSet, MovementSpeed, OldMovementSpeed);
+}
 void UProjectN_AttributeSet::OnRep_MaxMovementSpeed(const FGameplayAttributeData& OldMaxMovementSpeed)
 {
 	GAMEPLAYATTRIBUTE_REPNOTIFY(UProjectN_AttributeSet, MaxMovementSpeed, OldMaxMovementSpeed);
+}
+
+void UProjectN_AttributeSet::OnRep_EquipmentWeight(const FGameplayAttributeData& OldEquipmentWeight)
+{
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UProjectN_AttributeSet, EquipmentWeight, OldEquipmentWeight);
+}
+
+void UProjectN_AttributeSet::OnRep_MaxCarryingCapacity(const FGameplayAttributeData& OldMaxCarryingCapacity)
+{
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UProjectN_AttributeSet, MaxCarryingCapacity, OldMaxCarryingCapacity);
 }
 
 void UProjectN_AttributeSet::OnRep_Armor(const FGameplayAttributeData& OldArmor)
@@ -311,6 +344,11 @@ void UProjectN_AttributeSet::OnRep_Armor(const FGameplayAttributeData& OldArmor)
 void UProjectN_AttributeSet::OnRep_Evasion(const FGameplayAttributeData& OldEvasion)
 {
 	GAMEPLAYATTRIBUTE_REPNOTIFY(UProjectN_AttributeSet, Evasion, OldEvasion);
+}
+
+void UProjectN_AttributeSet::OnRep_BlockChance(const FGameplayAttributeData& OldBlockChance)
+{
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UProjectN_AttributeSet, BlockChance, OldBlockChance);
 }
 
 void UProjectN_AttributeSet::OnRep_ArmorPenetration(const FGameplayAttributeData& OldArmorPenetration)

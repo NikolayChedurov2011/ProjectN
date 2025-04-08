@@ -36,7 +36,7 @@ void AProjectN_CharacterBase::GiveStartupAbilitiesAndEffects()
 void AProjectN_CharacterBase::InitAbilityActorInfo()
 {
 	ProjectN_AbilitySystemComponent->AbilityActorInfoSet();
-	GetAbilitySystemComponent()->GetGameplayAttributeValueChangeDelegate(Cast<UProjectN_AttributeSet>(GetAttributeSet())->GetMaxMovementSpeedAttribute()).AddUObject(this, &AProjectN_CharacterBase::OnMaxMovementSpeedChanged);
+	GetAbilitySystemComponent()->GetGameplayAttributeValueChangeDelegate(Cast<UProjectN_AttributeSet>(GetAttributeSet())->GetMovementSpeedAttribute()).AddUObject(this, &AProjectN_CharacterBase::OnMaxMovementSpeedChanged);
 }
 
 void AProjectN_CharacterBase::OnMaxMovementSpeedChanged(const FOnAttributeChangeData& Data) const

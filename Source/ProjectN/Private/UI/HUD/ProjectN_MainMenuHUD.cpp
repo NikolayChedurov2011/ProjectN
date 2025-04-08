@@ -10,7 +10,10 @@ void AProjectN_MainMenuHUD::InitOverlay(APlayerController* PC, APlayerState* PS,
 	MainMenuViewModelPtr = NewObject<UMVVM_MainMenu>(this, MainMenuViewModelClass);
 	MainMenuViewModelPtr->InitializeSaveSlots();
 	
-	Super::InitOverlay(PC, PS, ASC, AS);
+	//Super::InitOverlay(PC, PS, ASC, AS);
+
+	OverlayWidget = CreateWidget<UProjectN_WidgetBase>(GetWorld(), OverlayWidgetClass);
+	OverlayWidget->AddToViewport();
 	
 	OverlayWidget->BlueprintInitializeWidget();
 	MainMenuViewModelPtr->LoadData();

@@ -63,9 +63,13 @@ namespace ProjectNGameplayTags
 	UE_DEFINE_GAMEPLAY_TAG(Attribute_Main_MaxPoise,							"Attribute.Main.MaxPoise")
 	
 	UE_DEFINE_GAMEPLAY_TAG(Attribute_Main_MovementSpeed,					"Attribute.Main.MovementSpeed")
+	UE_DEFINE_GAMEPLAY_TAG(Attribute_Main_MaxMovementSpeed,					"Attribute.Main.MaxMovementSpeed")
+	UE_DEFINE_GAMEPLAY_TAG(Attribute_Main_EquipmentWeight,					"Attribute.Main.EquipmentWeight")
+	UE_DEFINE_GAMEPLAY_TAG(Attribute_Main_MaxCarryingCapacity,				"Attribute.Main.MaxCarryingCapacity")
 	
 	UE_DEFINE_GAMEPLAY_TAG(Attribute_Secondary_Armor,						"Attribute.Secondary.Armor")
 	UE_DEFINE_GAMEPLAY_TAG(Attribute_Secondary_Evasion,						"Attribute.Secondary.Evasion")
+	UE_DEFINE_GAMEPLAY_TAG(Attribute_Secondary_BlockChance,					"Attribute.Secondary.BlockChance")
 	UE_DEFINE_GAMEPLAY_TAG(Attribute_Secondary_ArmorPenetration,			"Attribute.Secondary.ArmorPenetration")
 	UE_DEFINE_GAMEPLAY_TAG(Attribute_Secondary_CriticalHitChance,			"Attribute.Secondary.CriticalHitChance")
 	UE_DEFINE_GAMEPLAY_TAG(Attribute_Secondary_CriticalHitDamage,			"Attribute.Secondary.CriticalHitDamage")

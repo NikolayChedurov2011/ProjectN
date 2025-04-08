@@ -114,14 +114,11 @@ void UProjectN_AbilitySystemComponent::SendGameplayEventForAttributeWithTag(cons
 void UProjectN_AbilitySystemComponent::ServerAddToAttributeByTag_Implementation(const FGameplayTag& AttributeTag, const float Value)
 {
 	//SendGameplayEventForAttributeWithTag(AttributeTag, Value);
-	
 
-		FGameplayEventData Payload;
-		Payload.EventTag = AttributeTag;
-		Payload.EventMagnitude = Value;
-		
-		UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(GetAvatarActor(), AttributeTag,Payload);
-		//ProjectNPlayerState->AddToAttributePoints(-Value);
-
+	FGameplayEventData Payload;
+	Payload.EventTag = AttributeTag;
+	Payload.EventMagnitude = Value;
 	
+	UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(GetAvatarActor(), AttributeTag,Payload);
+	//ProjectNPlayerState->AddToAttributePoints(-Value);
 }

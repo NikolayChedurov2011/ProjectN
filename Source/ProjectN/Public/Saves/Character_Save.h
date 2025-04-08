@@ -42,19 +42,19 @@ public:
 	int32 XP = 0;
 	
 	UPROPERTY()
-	int32 AttributePoints = 10;
+	int32 AttributePoints = 0;
 	
 	UPROPERTY()
-	float Strength = 0.f;
+	float Strength = 1.f;
 
 	UPROPERTY()
-	float Intelligence = 0.f;
+	float Intelligence = 1.f;
 
 	UPROPERTY()
-	float Dexterity = 0.f;
+	float Dexterity = 1.f;
 
 	UPROPERTY()
-	float Vitality = 0.f;
+	float Vitality = 1.f;
 	
 protected:
 };

@@ -74,28 +74,28 @@ public:
 	 */
 
 	/*************************************
-	 *  The strength is influence on max health, damage, critical hit damage, armor penetration
+	 *  The strength is influence on, damage (*0,07), critical hit damage (*1,3), block chance (*0,0065), //poise (*0,15)
 	 *************************************/
 	UPROPERTY(BlueprintReadOnly, Category = "Strength", ReplicatedUsing = OnRep_Strength)
 	FGameplayAttributeData Strength;
 	ATTRIBUTE_ACCESSORS(UProjectN_AttributeSet, Strength)
 
 	/*************************************
-	*  The intelligence is influence on magical damage, max mana, mana regeneration
+	*  The intelligence is influence on magical damage (*1,2), max mana (*2), mana regeneration (*0,05)
 	*************************************/
 	UPROPERTY(BlueprintReadOnly, Category = "Intelligence", ReplicatedUsing = OnRep_Intelligence)
 	FGameplayAttributeData Intelligence;
 	ATTRIBUTE_ACCESSORS(UProjectN_AttributeSet, Intelligence)
 
 	/*************************************
-	*  The dexterity is influence on critical hit chance, critical hit damage, evasion, armor, armor penetration, max poise, max stamina
+	*  The dexterity is influence on critical hit chance (*0,03), critical hit damage (*0,9), evasion (*0,06), armor penetration (*0,4)
 	*************************************/
 	UPROPERTY(BlueprintReadOnly, Category = "Dexterity", ReplicatedUsing = OnRep_Dexterity)
 	FGameplayAttributeData Dexterity;
 	ATTRIBUTE_ACCESSORS(UProjectN_AttributeSet, Dexterity)
 
 	/*************************************
-	*  The vitality is influence on max health, max stamina, health regeneration, max poise
+	*  The vitality is influence on max health (*1,1), health regeneration (*0,05), carrying capacity (*0,7)
 	*************************************/
 	UPROPERTY(BlueprintReadOnly, Category = "Vitality", ReplicatedUsing = OnRep_Vitality)
 	FGameplayAttributeData Vitality;
@@ -124,72 +124,67 @@ public:
 	FGameplayAttributeData MaxMana;
 	ATTRIBUTE_ACCESSORS(UProjectN_AttributeSet, MaxMana)
 
-	UPROPERTY(BlueprintReadOnly, Category = "Stamina", ReplicatedUsing = OnRep_Stamina)
+	/*UPROPERTY(BlueprintReadOnly, Category = "Stamina", ReplicatedUsing = OnRep_Stamina)
 	FGameplayAttributeData Stamina;
 	ATTRIBUTE_ACCESSORS(UProjectN_AttributeSet, Stamina)
 	
 	UPROPERTY(BlueprintReadOnly, Category = "Stamina", ReplicatedUsing = OnRep_MaxStamina)
 	FGameplayAttributeData MaxStamina;
-	ATTRIBUTE_ACCESSORS(UProjectN_AttributeSet, MaxStamina)
+	ATTRIBUTE_ACCESSORS(UProjectN_AttributeSet, MaxStamina)*/
 
-	UPROPERTY(BlueprintReadOnly, Category = "Poise", ReplicatedUsing = OnRep_Poise)
+	/*UPROPERTY(BlueprintReadOnly, Category = "Poise", ReplicatedUsing = OnRep_Poise)
 	FGameplayAttributeData Poise;
 	ATTRIBUTE_ACCESSORS(UProjectN_AttributeSet, Poise)
 	
 	UPROPERTY(BlueprintReadOnly, Category = "Poise", ReplicatedUsing = OnRep_MaxPoise)
 	FGameplayAttributeData MaxPoise;
-	ATTRIBUTE_ACCESSORS(UProjectN_AttributeSet, MaxPoise)
+	ATTRIBUTE_ACCESSORS(UProjectN_AttributeSet, MaxPoise)*/
 	
+	UPROPERTY(BlueprintReadOnly, Category = "MovementSpeed", ReplicatedUsing = OnRep_MovementSpeed)
+	FGameplayAttributeData MovementSpeed;
+	ATTRIBUTE_ACCESSORS(UProjectN_AttributeSet, MovementSpeed)
+
 	UPROPERTY(BlueprintReadOnly, Category = "MovementSpeed", ReplicatedUsing = OnRep_MaxMovementSpeed)
 	FGameplayAttributeData MaxMovementSpeed;
 	ATTRIBUTE_ACCESSORS(UProjectN_AttributeSet, MaxMovementSpeed)
 
+	UPROPERTY(BlueprintReadOnly, Category = "EquipmentWeight", ReplicatedUsing = OnRep_EquipmentWeight)
+	FGameplayAttributeData EquipmentWeight;
+	ATTRIBUTE_ACCESSORS(UProjectN_AttributeSet, EquipmentWeight)
+	
+	UPROPERTY(BlueprintReadOnly, Category = "CarryingCapacity", ReplicatedUsing = OnRep_MaxCarryingCapacity)
+	FGameplayAttributeData MaxCarryingCapacity;
+	ATTRIBUTE_ACCESSORS(UProjectN_AttributeSet, MaxCarryingCapacity)
+
 	// Secondary
-	/*************************************
-	*  The armor is influence on defence and depends on dexterity
-	*************************************/
 	UPROPERTY(BlueprintReadOnly, Category = "Armor", ReplicatedUsing = OnRep_Armor)
 	FGameplayAttributeData Armor;
 	ATTRIBUTE_ACCESSORS(UProjectN_AttributeSet, Armor)
 	
-	/*************************************
-	*  The evasion is influence on evasion chance and depends on dexterity
-	*************************************/
 	UPROPERTY(BlueprintReadOnly, Category = "Evasion", ReplicatedUsing = OnRep_Evasion)
 	FGameplayAttributeData Evasion;
 	ATTRIBUTE_ACCESSORS(UProjectN_AttributeSet, Evasion)
-
-	/*************************************
-	*  The armor penetration is influence on armor penetration and depends on dexterity and strength
-	*************************************/
+	
+	UPROPERTY(BlueprintReadOnly, Category = "BlockChance", ReplicatedUsing = OnRep_BlockChance)
+	FGameplayAttributeData BlockChance;
+	ATTRIBUTE_ACCESSORS(UProjectN_AttributeSet, BlockChance)
+	
 	UPROPERTY(BlueprintReadOnly, Category = "ArmorPenetration", ReplicatedUsing = OnRep_ArmorPenetration)
 	FGameplayAttributeData ArmorPenetration;
 	ATTRIBUTE_ACCESSORS(UProjectN_AttributeSet, ArmorPenetration)
 	
-	/*************************************
-	*  The critical hit chance is influence on critical hit chance and depends on dexterity
-	*************************************/
 	UPROPERTY(BlueprintReadOnly, Category = "CriticalHitChance", ReplicatedUsing = OnRep_CriticalHitChance)
 	FGameplayAttributeData CriticalHitChance;
 	ATTRIBUTE_ACCESSORS(UProjectN_AttributeSet, CriticalHitChance)
 	
-	/*************************************
-	*  The critical hit damage is influence on critical hit damage and depends on strength + dexterity
-	*************************************/
 	UPROPERTY(BlueprintReadOnly, Category = "CriticalHitDamage", ReplicatedUsing = OnRep_CriticalHitDamage)
 	FGameplayAttributeData CriticalHitDamage;
 	ATTRIBUTE_ACCESSORS(UProjectN_AttributeSet, CriticalHitDamage)
 	
-	/*************************************
-	*  The health regeneration is influence on health regeneration and depends on vitality
-	*************************************/
 	UPROPERTY(BlueprintReadOnly, Category = "HealRegeneration", ReplicatedUsing = OnRep_HealRegeneration)
 	FGameplayAttributeData HealRegeneration;
 	ATTRIBUTE_ACCESSORS(UProjectN_AttributeSet, HealRegeneration)
-	
-	/*************************************
-	*  The mana regeneration is influence on mana regeneration and depends on intelligence
-	*************************************/
+
 	UPROPERTY(BlueprintReadOnly, Category = "ManaRegeneration", ReplicatedUsing = OnRep_ManaRegeneration)
 	FGameplayAttributeData ManaRegeneration;
 	ATTRIBUTE_ACCESSORS(UProjectN_AttributeSet, ManaRegeneration)
@@ -226,22 +221,31 @@ protected:
 	virtual void OnRep_Mana(const FGameplayAttributeData& OldMana);
 	UFUNCTION()
 	virtual void OnRep_MaxMana(const FGameplayAttributeData& OldMaxMana);
-	UFUNCTION()
+	/*UFUNCTION()
 	virtual void OnRep_Stamina(const FGameplayAttributeData& OldStamina);
 	UFUNCTION()
-	virtual void OnRep_MaxStamina(const FGameplayAttributeData& OldMaxStamina);
-	UFUNCTION()
+	virtual void OnRep_MaxStamina(const FGameplayAttributeData& OldMaxStamina);*/
+	/*UFUNCTION()
 	virtual void OnRep_Poise(const FGameplayAttributeData& OldPoise);
 	UFUNCTION()
-	virtual void OnRep_MaxPoise(const FGameplayAttributeData& OldMaxPoise);
+	virtual void OnRep_MaxPoise(const FGameplayAttributeData& OldMaxPoise);*/
 	UFUNCTION()
 	virtual void OnRep_MaxMovementSpeed(const FGameplayAttributeData& OldMaxMovementSpeed);
+	UFUNCTION()
+	virtual void OnRep_MovementSpeed(const FGameplayAttributeData& OldMovementSpeed);
+
+	UFUNCTION()
+	virtual void OnRep_EquipmentWeight(const FGameplayAttributeData& OldEquipmentWeight);
+	UFUNCTION()
+	virtual void OnRep_MaxCarryingCapacity(const FGameplayAttributeData& OldMaxCarryingCapacity);
 	
 	// Secondary
 	UFUNCTION()
     virtual void OnRep_Armor(const FGameplayAttributeData& OldArmor);
 	UFUNCTION()
 	virtual void OnRep_Evasion(const FGameplayAttributeData& OldEvasion);
+	UFUNCTION()
+	virtual void OnRep_BlockChance(const FGameplayAttributeData& OldBlockChance);
 	UFUNCTION()
 	virtual void OnRep_ArmorPenetration(const FGameplayAttributeData& OldArmorPenetration);
 	UFUNCTION()

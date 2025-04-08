@@ -130,7 +130,6 @@ void AProjectN_PlayerCharacter::GiveStartupAbilitiesAndEffects()
 /***************************
  * Move and look functions
  ***************************/
-
 void AProjectN_PlayerCharacter::Input_Move(const FInputActionValue& ActionValue)
 {
 	const FVector NoZVector(1.f, 1.f, 0.f);
@@ -181,12 +180,12 @@ void AProjectN_PlayerCharacter::Input_Look(const FInputActionValue& ActionValue)
 	}
 }
 
-void AProjectN_PlayerCharacter::SaveNewSlot(UMVVM_SaveSlot* ViewModel) const
+/*void AProjectN_PlayerCharacter::SaveNewSlot(UMVVM_SaveSlot* ViewModel) const
 {
-	ViewModel->Strength = Cast<UProjectN_AttributeSet>(GetAttributeSet())->GetStrength();
+	/*ViewModel->Strength = Cast<UProjectN_AttributeSet>(GetAttributeSet())->GetStrength();
 	ViewModel->Intelligence = Cast<UProjectN_AttributeSet>(GetAttributeSet())->GetIntelligence();
 	ViewModel->Dexterity = Cast<UProjectN_AttributeSet>(GetAttributeSet())->GetDexterity();
-	ViewModel->Vitality = Cast<UProjectN_AttributeSet>(GetAttributeSet())->GetVitality();
+	ViewModel->Vitality = Cast<UProjectN_AttributeSet>(GetAttributeSet())->GetVitality();#1#
 
 	if (UGameplayStatics::DoesSaveGameExist(ViewModel->SlotName, ViewModel->SlotIndex))
 	{
@@ -197,17 +196,18 @@ void AProjectN_PlayerCharacter::SaveNewSlot(UMVVM_SaveSlot* ViewModel) const
 	
 	CharacterSave->PlayerName = ViewModel->GetPlayerName();
 	CharacterSave->SlotStatus = ESaveSlotStatus::Taken;
-	CharacterSave->Strength = ViewModel->Strength;
+	
+	/*CharacterSave->Strength = ViewModel->Strength;
 	CharacterSave->Intelligence = ViewModel->Intelligence;
 	CharacterSave->Dexterity = ViewModel->Dexterity;
-	CharacterSave->Vitality = ViewModel->Vitality;
+	CharacterSave->Vitality = ViewModel->Vitality;#1#
 	
-	CharacterSave->Level = Cast<AProjectN_PlayerState>(GetPlayerState())->GetCharacterLevel_Internal();
-	CharacterSave->XP = Cast<AProjectN_PlayerState>(GetPlayerState())->GetXP();
-	CharacterSave->AttributePoints = Cast<AProjectN_PlayerState>(GetPlayerState())->GetAttributePoints();
+	//CharacterSave->Level = Cast<AProjectN_PlayerState>(GetPlayerState())->GetCharacterLevel_Internal();
+	//CharacterSave->XP = Cast<AProjectN_PlayerState>(GetPlayerState())->GetXP();
+	//CharacterSave->AttributePoints = Cast<AProjectN_PlayerState>(GetPlayerState())->GetAttributePoints();
 
 	UGameplayStatics::SaveGameToSlot(CharacterSave, ViewModel->SlotName, ViewModel->SlotIndex);
-}
+}*/
 
 void AProjectN_PlayerCharacter::LoadGameSlot(UMVVM_SaveSlot* ViewModel) const
 {
