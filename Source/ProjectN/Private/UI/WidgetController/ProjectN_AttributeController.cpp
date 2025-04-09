@@ -41,7 +41,7 @@ void UProjectN_AttributeController::BindCallbacksToResponce()
 	}
 
 	AProjectN_PlayerState* ProjectNPlayerState = CastChecked<AProjectN_PlayerState>(PlayerState);
-	ProjectNPlayerState->OnAttributePointsChanged.AddLambda([this] (const int32 Value)
+	ProjectNPlayerState->OnSkillTreePointsChanged.AddLambda([this] (const int32 Value)
 	{
 		OnAttributePointsChanged.Broadcast(static_cast<float>(Value));
 	});
@@ -59,7 +59,7 @@ void UProjectN_AttributeController::AddToAttributeByTag(const FGameplayTag& Attr
 {
 	AProjectN_PlayerState* ProjectNPlayerState = CastChecked<AProjectN_PlayerState>(PlayerState);
 	
-	if (ProjectNPlayerState->GetAttributePoints() - Value >= 0 && ProjectNPlayerState->GetAttributePoints() - Value <= ProjectNPlayerState->GetAttributePointsInUse())
+	if (ProjectNPlayerState->GetSkillTreePoints() - Value >= 0 && ProjectNPlayerState->GetSkillTreePoints() - Value <= ProjectNPlayerState->GetSkillTreePointsInUse())
 	{
 		if (PreSavedAttributes.Find(AttributeTag))
 		{
@@ -67,14 +67,14 @@ void UProjectN_AttributeController::AddToAttributeByTag(const FGameplayTag& Attr
 			{
 				*PreSavedAttributes.Find(AttributeTag) += Value;
 				Cast<UProjectN_AbilitySystemComponent>(AbilitySystemComponent.Get())->ServerAddToAttributeByTag(AttributeTag, Value);
-				ProjectNPlayerState->AddToAttributePoints(-Value);
+				ProjectNPlayerState->AddToSkillTreePoints(-Value);
 			}
 		}
 		else if (Value > 0)
 		{
 			PreSavedAttributes.Add(AttributeTag, Value);
 			Cast<UProjectN_AbilitySystemComponent>(AbilitySystemComponent.Get())->ServerAddToAttributeByTag(AttributeTag, Value);
-			ProjectNPlayerState->AddToAttributePoints(-Value);
+			ProjectNPlayerState->AddToSkillTreePoints(-Value);
 		}
 	}
 }

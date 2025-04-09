@@ -69,7 +69,7 @@ UProjectN_AttributeController* UProjectN_AbilitySystemLibrary::GetAttributeWidge
 
 UProjectN_InventoryController* UProjectN_AbilitySystemLibrary::GetInventoryWidgetController(const UObject* WorldContextObject)
 {
-	APlayerController* DefaultPlayerController = UGameplayStatics::GetPlayerController(WorldContextObject, 0);
+	/*APlayerController* DefaultPlayerController = UGameplayStatics::GetPlayerController(WorldContextObject, 0);
 	APlayerState* DefaultPlayerState = UGameplayStatics::GetPlayerState(WorldContextObject, 0);
 
 	if (IsValid(DefaultPlayerController) && IsValid(DefaultPlayerState))
@@ -88,14 +88,25 @@ UProjectN_InventoryController* UProjectN_AbilitySystemLibrary::GetInventoryWidge
 				return HUD->GetInventoryWidgetController(WidgetParams);
 			}
 		}
+	}*/
+
+	APlayerController* DefaultPlayerController = UGameplayStatics::GetPlayerController(WorldContextObject, 0);
+	const APlayerController* PlayerController = Cast<APlayerController>(DefaultPlayerController);
+	if (AProjectN_HUD* HUD = Cast<AProjectN_HUD>(PlayerController->GetHUD()))
+	{
+		const FWidgetControllerParams WidgetParams;
+
+		return HUD->GetInventoryWidgetController(WidgetParams);
 	}
+	
+	return nullptr;
 	
 	return nullptr;
 }
 
 void UProjectN_AbilitySystemLibrary::SetPrimaryAttributesByCaller(const UObject* WorldContextObject, UAbilitySystemComponent* AbilitySystemComponent, const float Strength, const float Intelligence, const float Dexterity, const float Vitality)
 {
-	const AActor* AvatarActor = AbilitySystemComponent->GetAvatarActor();
+	/*const AActor* AvatarActor = AbilitySystemComponent->GetAvatarActor();
 
 	FGameplayEffectContextHandle EffectContextHandle = AbilitySystemComponent->MakeEffectContext();
 	EffectContextHandle.AddSourceObject(AvatarActor);
@@ -107,5 +118,5 @@ void UProjectN_AbilitySystemLibrary::SetPrimaryAttributesByCaller(const UObject*
 	UAbilitySystemBlueprintLibrary::AssignTagSetByCallerMagnitude(SpecHandle, ProjectNGameplayTags::Attribute_Primary_Dexterity, Dexterity);
 	UAbilitySystemBlueprintLibrary::AssignTagSetByCallerMagnitude(SpecHandle, ProjectNGameplayTags::Attribute_Primary_Vitality, Vitality);
 
-	AbilitySystemComponent->ApplyGameplayEffectSpecToSelf(*SpecHandle.Data.Get());
+	AbilitySystemComponent->ApplyGameplayEffectSpecToSelf(*SpecHandle.Data.Get());*/
 }

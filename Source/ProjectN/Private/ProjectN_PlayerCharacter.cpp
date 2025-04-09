@@ -11,7 +11,6 @@
 #include "ProjectN_PlayerState.h"
 #include "AbilitySystem/ProjectN_AbilitySystemLibrary.h"
 #include "AbilitySystem/Attribute/ProjectN_AttributeSet.h"
-#include "AbilitySystem/Data/LevelUpDataInfo.h"
 #include "Controllers/ProjectN_PlayerController.h"
 #include "Kismet/GameplayStatics.h"
 #include "UI/HUD/ProjectN_HUD.h"
@@ -120,10 +119,13 @@ void AProjectN_PlayerCharacter::GiveStartupAbilitiesAndEffects()
 		}
 
 		//  Effect for bind dependency of health or other main attribute with their primary attributes
+		Cast<UProjectN_AbilitySystemComponent>(GetAbilitySystemComponent())->ApplyGamePlayEffectToSelf_Internal(GetCharacterData().SetPrimaryAttributeDefaultValues, EffectContext, 1.f);
+		
+		//  Effect for bind dependency of health or other main attribute with their primary attributes
 		Cast<UProjectN_AbilitySystemComponent>(GetAbilitySystemComponent())->ApplyGamePlayEffectToSelf_Internal(GetCharacterData().InitializeAttributeDependencies, EffectContext, 1.f);
 
 		// Call to init health and other main attributes
-		Cast<UProjectN_AbilitySystemComponent>(GetAbilitySystemComponent())->ApplyGamePlayEffectToSelf_Internal(GetCharacterData().SetAttributeValues, EffectContext, 1.f);
+		Cast<UProjectN_AbilitySystemComponent>(GetAbilitySystemComponent())->ApplyGamePlayEffectToSelf_Internal(GetCharacterData().InitHealthAndMana, EffectContext, 1.f);
 	}
 }
 
@@ -239,16 +241,16 @@ void AProjectN_PlayerCharacter::ApplyAttributesFromSave(const FString& SlotName,
 	if (UGameplayStatics::DoesSaveGameExist(SlotName, SlotIndex))
 	{
 		SaveGame = UGameplayStatics::LoadGameFromSlot(SlotName, SlotIndex);
-		ServerApplyAttributesFromSave(Cast<UCharacter_Save>(SaveGame)->Strength, Cast<UCharacter_Save>(SaveGame)->Intelligence, Cast<UCharacter_Save>(SaveGame)->Dexterity, Cast<UCharacter_Save>(SaveGame)->Vitality);
+	//	ServerApplyAttributesFromSave(Cast<UCharacter_Save>(SaveGame)->Strength, Cast<UCharacter_Save>(SaveGame)->Intelligence, Cast<UCharacter_Save>(SaveGame)->Dexterity, Cast<UCharacter_Save>(SaveGame)->Vitality);
 	}
 	else
 	{
 		SaveGame = UGameplayStatics::CreateSaveGameObject(CharacterSaveClass);
-		ServerApplyAttributesFromSave(Cast<UCharacter_Save>(SaveGame)->Strength, Cast<UCharacter_Save>(SaveGame)->Intelligence, Cast<UCharacter_Save>(SaveGame)->Dexterity, Cast<UCharacter_Save>(SaveGame)->Vitality);
+	//	ServerApplyAttributesFromSave(Cast<UCharacter_Save>(SaveGame)->Strength, Cast<UCharacter_Save>(SaveGame)->Intelligence, Cast<UCharacter_Save>(SaveGame)->Dexterity, Cast<UCharacter_Save>(SaveGame)->Vitality);
 	}
 
-	Cast<AProjectN_PlayerState>(GetPlayerState())->SetAttributePoints(Cast<UCharacter_Save>(SaveGame)->AttributePoints);
-	Cast<AProjectN_PlayerState>(GetPlayerState())->SetAttributePointsInUse(Cast<UCharacter_Save>(SaveGame)->AttributePoints);
+	Cast<AProjectN_PlayerState>(GetPlayerState())->SetSkillTreePoints(Cast<UCharacter_Save>(SaveGame)->SkillTreePoints);
+	Cast<AProjectN_PlayerState>(GetPlayerState())->SetSkillTreePointsInUse(Cast<UCharacter_Save>(SaveGame)->SkillTreePoints);
 }
 
 void AProjectN_PlayerCharacter::ApplyPlayerInfoFromSave(const FString& SlotName, const int32 SlotIndex) const
@@ -284,8 +286,8 @@ void AProjectN_PlayerCharacter::AddToLevel_Implementation(const int32 LevelsToAd
 
 void AProjectN_PlayerCharacter::AddToAttributePoints_Implementation(const int32 AttributePointsToAdd)
 {
-	Cast<AProjectN_PlayerState>(GetPlayerState())->AddToAttributePoints(AttributePointsToAdd);
-	Cast<AProjectN_PlayerState>(GetPlayerState())->AddToAttributePointsInUse(AttributePointsToAdd);
+	Cast<AProjectN_PlayerState>(GetPlayerState())->AddToSkillTreePoints(AttributePointsToAdd);
+	Cast<AProjectN_PlayerState>(GetPlayerState())->AddToSkillTreePointsInUse(AttributePointsToAdd);
 }
 
 int32 AProjectN_PlayerCharacter::GetXP_Implementation() const
@@ -295,7 +297,7 @@ int32 AProjectN_PlayerCharacter::GetXP_Implementation() const
 
 int32 AProjectN_PlayerCharacter::GetAttributePointsReward_Implementation(const int32 InLevel) const
 {
-	return Cast<AProjectN_PlayerState>(GetPlayerState())->GetAttributePointsRewardForLevel(InLevel);
+	return Cast<AProjectN_PlayerState>(GetPlayerState())->GetSkillTreePointsRewardForLevel(InLevel);
 }
 
 int32 AProjectN_PlayerCharacter::GetLevelByXP_Implementation(const int32 InXP)

@@ -28,8 +28,8 @@ void AProjectN_PlayerState::GetLifetimeReplicatedProps(TArray<class FLifetimePro
 	DOREPLIFETIME(AProjectN_PlayerState, ProjectN_InventoryComponent);
 	DOREPLIFETIME(AProjectN_PlayerState, Level);
 	DOREPLIFETIME(AProjectN_PlayerState, XP);
-	DOREPLIFETIME(AProjectN_PlayerState, AttributePoints);
-	DOREPLIFETIME(AProjectN_PlayerState, AttributePointsInUse);
+	DOREPLIFETIME(AProjectN_PlayerState, SkillTreePoints);
+	DOREPLIFETIME(AProjectN_PlayerState, SkillTreePointsInUse);
 }
 
 /*****************************
@@ -69,41 +69,41 @@ void AProjectN_PlayerState::AddToXP(const int32 NewXP)
 	OnXPChanged.Broadcast(XP);
 }
 
-void AProjectN_PlayerState::SetAttributePoints(const int32 NewAttributePoints)
+void AProjectN_PlayerState::SetSkillTreePoints(const int32 NewAttributePoints)
 {
-	AttributePoints = NewAttributePoints;
-	OnAttributePointsChanged.Broadcast(AttributePoints);
+	SkillTreePoints = NewAttributePoints;
+	OnSkillTreePointsChanged.Broadcast(SkillTreePoints);
 }
 
-void AProjectN_PlayerState::AddToAttributePoints(const int32 AttributePointsToAdd)
+void AProjectN_PlayerState::AddToSkillTreePoints(const int32 AttributePointsToAdd)
 {
-	AttributePoints += AttributePointsToAdd;
-	OnAttributePointsChanged.Broadcast(AttributePoints);
+	SkillTreePoints += AttributePointsToAdd;
+	OnSkillTreePointsChanged.Broadcast(SkillTreePoints);
 }
 
-int32 AProjectN_PlayerState::GetAttributePoints() const
+int32 AProjectN_PlayerState::GetSkillTreePoints() const
 {
-	 return AttributePoints;
+	 return SkillTreePoints;
 }
 
-void AProjectN_PlayerState::ServerSetAttributePointsInUse_Implementation(const int32 NewAttributePointsInUse)
+void AProjectN_PlayerState::ServerSetSkillTreePointsInUse_Implementation(const int32 NewAttributePointsInUse)
 {
-	SetAttributePointsInUse(NewAttributePointsInUse);
+	SetSkillTreePointsInUse(NewAttributePointsInUse);
 }
 
-void AProjectN_PlayerState::SetAttributePointsInUse(const int32 NewAttributePointsInUse)
+void AProjectN_PlayerState::SetSkillTreePointsInUse(const int32 NewAttributePointsInUse)
 {
-	AttributePointsInUse = NewAttributePointsInUse;
+	SkillTreePointsInUse = NewAttributePointsInUse;
 }
 
-void AProjectN_PlayerState::AddToAttributePointsInUse(const int32 AttributePointsInUseToAdd)
+void AProjectN_PlayerState::AddToSkillTreePointsInUse(const int32 AttributePointsInUseToAdd)
 {
-	AttributePointsInUse += AttributePointsInUseToAdd;
+	SkillTreePointsInUse += AttributePointsInUseToAdd;
 }
 
-int32 AProjectN_PlayerState::GetAttributePointsInUse() const
+int32 AProjectN_PlayerState::GetSkillTreePointsInUse() const
 {
-	return AttributePointsInUse;
+	return SkillTreePointsInUse;
 }
 
 void AProjectN_PlayerState::OnRep_Level(const int32 OldLevel) const
@@ -118,7 +118,7 @@ void AProjectN_PlayerState::OnRep_XP(const int32 OldXP) const
 
 void AProjectN_PlayerState::OnRep_AttributePoints(const int32 OldAttributePoints) const
 {
-	OnAttributePointsChanged.Broadcast(AttributePoints);
+	OnSkillTreePointsChanged.Broadcast(SkillTreePoints);
 }
 
 // Level up
@@ -132,9 +132,9 @@ int32 AProjectN_PlayerState::GetXPForNextLevelUpByLevel(const int32 InLevel) con
 	return LevelUpInfo->GetXPForNextLevelUpByLevel(InLevel);
 }
 
-int32 AProjectN_PlayerState::GetAttributePointsRewardForLevel(const int32 InLevel) const
+int32 AProjectN_PlayerState::GetSkillTreePointsRewardForLevel(const int32 InLevel) const
 {
-	return GetLevelUpInformationContainer()[InLevel].AttributePointsReward;
+	return GetLevelUpInformationContainer()[InLevel].SkillTreePointsReward;
 }
 
 TArray<FLevelUpInfo>& AProjectN_PlayerState::GetLevelUpInformationContainer() const

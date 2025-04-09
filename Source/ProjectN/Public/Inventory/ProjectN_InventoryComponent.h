@@ -27,6 +27,8 @@ public:
 	EItemSlot ItemSlot = EItemSlot::None;
 };
 
+DECLARE_DELEGATE_OneParam(FOnUpdateItemSignature, UProjectN_ItemInstance* /*NewItem*/);
+
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class PROJECTN_API UProjectN_InventoryComponent : public UActorComponent
 {
@@ -36,14 +38,17 @@ public:
 	//UFUNCTION(BlueprintCallable)
 	//void EquipTestItem();
 	
+	FOnUpdateItemSignature OnUpdateItem;
+	FOnUpdateItemSignature OnRemoveItem;
+	
 	UProjectN_InventoryComponent();
 	virtual bool ReplicateSubobjects(class UActorChannel* Channel, class FOutBunch* Bunch, FReplicationFlags* RepFlags) override;
 	virtual void GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const override;
 
 	UFUNCTION(BlueprintCallable)
 	void AddItemByStaticClass(const TSubclassOf<UItemStaticClass> ItemStaticDataClass, const int32 ItemStack);
-	UFUNCTION(BlueprintCallable)
-	void AddItemByInstance(UProjectN_ItemInstance* InItemInstance);
+	//UFUNCTION(BlueprintCallable)
+	//void AddItemByInstance(UProjectN_ItemInstance* InItemInstance);
 	//UFUNCTION(BlueprintCallable)
 	//void RemoveItemByStaticClass(const TSubclassOf<UItemStaticClass> ItemStaticDataClass);
 	UFUNCTION(BlueprintCallable)
@@ -74,6 +79,15 @@ public:
 	FORCEINLINE TArray<FInventoryItem>& GetItems() { return InventoryList.GetItemsRef(); }
 
 	FVector FindSocketLocationByTag(const FGameplayTag& InputTag);
+
+	/******************************
+	 *   For inventory component
+	 ******************************/
+	UFUNCTION(Client, Reliable)
+	void ClientUpdateItemInfo(UProjectN_ItemInstance* ItemInstance);
+	
+	UFUNCTION(Client, Reliable)
+	void ClientRemoveItem(UProjectN_ItemInstance* ItemInstance);
 	
 protected:
 	virtual void InitializeComponent() override;
@@ -81,10 +95,10 @@ protected:
 	UFUNCTION()
 	void AddInventoryTags();
 
-	void HandleGameplayEventInternal(const FGameplayEventData Payload);
+	//void HandleGameplayEventInternal(const FGameplayEventData Payload);
 
-	UFUNCTION(Server, Reliable)
-	void ServerHandleGameplayEvent(const FGameplayEventData Payload);
+	//UFUNCTION(Server, Reliable)
+	//void ServerHandleGameplayEvent(const FGameplayEventData Payload);
 	
 	/****
 	 *  Slots managing

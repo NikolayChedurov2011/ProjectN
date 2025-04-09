@@ -24,10 +24,10 @@ void UMVVM_SaveSlot::ClearModel()
 
 	SetLevel(1);
 	XP = 0;
-	AttributePoints = 0;
-	Strength = 1.f;
+	SkillTreePoints = 0;
+	/*Strength = 1.f;
 	Intelligence = 1.f;
 	Dexterity = 1.f;
-	Vitality = 1.f;
+	Vitality = 1.f;*/
 	SetPlayerName("");
 }

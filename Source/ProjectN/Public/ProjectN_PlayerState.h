@@ -37,7 +37,7 @@ public:
 	
 	FOnGameplayValueChangedSignature OnLevelChanged;
 	FOnGameplayValueChangedSignature OnXPChanged;
-	FOnGameplayValueChangedSignature OnAttributePointsChanged;
+	FOnGameplayValueChangedSignature OnSkillTreePointsChanged;
 
 	void SetLevel(const int32 NewLevel);
 	void AddToLevel(const int32 NewLevel);
@@ -47,15 +47,15 @@ public:
 	void AddToXP(const int32 NewXP);
 	FORCEINLINE int32 GetXP() const { return XP; }
 	
-	void SetAttributePoints(const int32 NewAttributePoints);
-	void AddToAttributePoints(const int32 AttributePointsToAdd);
-	FORCEINLINE int32 GetAttributePoints() const;
+	void SetSkillTreePoints(const int32 NewAttributePoints);
+	void AddToSkillTreePoints(const int32 AttributePointsToAdd);
+	FORCEINLINE int32 GetSkillTreePoints() const;
 
 	UFUNCTION(Server, Reliable)
-	void ServerSetAttributePointsInUse(const int32 NewAttributePointsInUse);
-	void SetAttributePointsInUse(const int32 NewAttributePointsInUse);
-	void AddToAttributePointsInUse(const int32 AttributePointsInUseToAdd);
-	FORCEINLINE int32 GetAttributePointsInUse() const;
+	void ServerSetSkillTreePointsInUse(const int32 NewAttributePointsInUse);
+	void SetSkillTreePointsInUse(const int32 NewAttributePointsInUse);
+	void AddToSkillTreePointsInUse(const int32 AttributePointsInUseToAdd);
+	FORCEINLINE int32 GetSkillTreePointsInUse() const;
 
 	// Level up
 	UPROPERTY(EditDefaultsOnly)
@@ -63,7 +63,7 @@ public:
 
 	int32 GetLevelByXP(const int32 InXP) const;
 	int32 GetXPForNextLevelUpByLevel(const int32 InLevel) const;
-	int32 GetAttributePointsRewardForLevel(const int32 InLevel) const;
+	int32 GetSkillTreePointsRewardForLevel(const int32 InLevel) const;
 	TArray<FLevelUpInfo>& GetLevelUpInformationContainer() const;
 
 protected:
@@ -84,9 +84,9 @@ protected:
 	int32 XP = 0;
 
 	UPROPERTY(VisibleAnywhere, ReplicatedUsing=OnRep_AttributePoints)
-	int32 AttributePoints = 0;
+	int32 SkillTreePoints = 0;
 	UPROPERTY(VisibleAnywhere, Replicated)
-	int32 AttributePointsInUse = 0;
+	int32 SkillTreePointsInUse = 0;
 
 	UFUNCTION()
 	void OnRep_Level(const int32 OldLevel) const;

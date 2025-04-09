@@ -1,6 +1,7 @@
 ﻿#pragma once
 
 #include "CoreMinimal.h"
+#include "GameplayTagContainer.h"
 #include "ProjectNTypes.generated.h"
 
 class UGameplayEffect;
@@ -48,7 +49,13 @@ class UItemStaticClass : public UObject
 
 public:
 	UFUNCTION(BlueprintCallable, BlueprintPure)
+	FORCEINLINE UTexture2D* GetItemIcon() const { return ItemIcon; }
+
+	UFUNCTION(BlueprintCallable, BlueprintPure)
 	FORCEINLINE FName GetItemName() const { return ItemName; }
+
+	UFUNCTION(BlueprintCallable, BlueprintPure)
+	FORCEINLINE FString GetItemDescription() const { return ItemDescription; }
 
 	UFUNCTION(BlueprintCallable, BlueprintPure)
 	FORCEINLINE bool CanBeEquipped() const { return bCanBeEquipped; }
@@ -71,7 +78,13 @@ public:
 protected:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	UTexture2D* ItemIcon = nullptr;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	FName ItemName = NAME_None;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	FString ItemDescription = FString();
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	bool bCanBeEquipped = false;
@@ -119,6 +132,9 @@ public:
 	UFUNCTION(BlueprintCallable, BlueprintPure)
 	FORCEINLINE TArray<TSubclassOf<UGameplayEffect>> GetItemEffects() const { return ItemEffects; }
 
+	UFUNCTION(BlueprintCallable, BlueprintPure)
+	FORCEINLINE TMap<FGameplayTag, float> GetItemBonusAttributes() const { return ItemBonusAttributes; }
+
 protected:
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
@@ -132,4 +148,10 @@ protected:
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	TArray<TSubclassOf<UGameplayEffect>> ItemEffects;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	float ItemWeight = .0f;
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	TMap<FGameplayTag, float> ItemBonusAttributes;
 };

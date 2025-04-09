@@ -36,9 +36,9 @@ public:
 	int32 XP = 0;
 	
 	UPROPERTY()
-	int32 AttributePoints = 0;
+	int32 SkillTreePoints = 0;
 	
-	UPROPERTY()
+	/*UPROPERTY()
 	float Strength = 0.f;
 
 	UPROPERTY()
@@ -48,7 +48,7 @@ public:
 	float Dexterity = 0.f;
 
 	UPROPERTY()
-	float Vitality = 0.f;
+	float Vitality = 0.f;*/
 
 	void SetPlayerName(const FString& InPlayerName);
 	FString GetPlayerName() const { return PlayerName; }

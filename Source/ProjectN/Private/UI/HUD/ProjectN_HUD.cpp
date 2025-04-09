@@ -55,6 +55,7 @@ void AProjectN_HUD::InitOverlay(APlayerController* PC, APlayerState* PS, UAbilit
 	const FWidgetControllerParams WidgetControllerParams(PC, PS, ASC, AS);
 	OverlayWidgetController = GetOverlayWidgetController(WidgetControllerParams);
 	AttributeWidgetController = GetAttributeWidgetController(WidgetControllerParams);
+	InventoryWidgetController = GetInventoryWidgetController(WidgetControllerParams);
 	
 	OverlayWidget->AddToViewport();
 }

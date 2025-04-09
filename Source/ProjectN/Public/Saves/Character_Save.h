@@ -42,8 +42,9 @@ public:
 	int32 XP = 0;
 	
 	UPROPERTY()
-	int32 AttributePoints = 0;
+	int32 SkillTreePoints = 0;
 	
+	/*
 	UPROPERTY()
 	float Strength = 1.f;
 
@@ -55,6 +56,7 @@ public:
 
 	UPROPERTY()
 	float Vitality = 1.f;
+	*/
 	
 protected:
 };

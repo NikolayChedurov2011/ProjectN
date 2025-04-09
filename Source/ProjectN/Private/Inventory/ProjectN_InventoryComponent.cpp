@@ -100,26 +100,24 @@ void UProjectN_InventoryComponent::TickComponent(float DeltaTime, ELevelTick Tic
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 }
 
-/*
- **************************************
+/***************************************
  * Main functions to handle inventory
- **************************************
- */
-
+ ***************************************/
 void UProjectN_InventoryComponent::GameplayEventCallback(const FGameplayEventData* Payload)
 {
 	ENetRole NetRole = GetOwnerRole();
 	
 	if (NetRole == ROLE_Authority)
 	{
-		HandleGameplayEventInternal(*Payload);
+	//	HandleGameplayEventInternal(*Payload);
 	}
 	else if (NetRole == ROLE_AutonomousProxy)
 	{
-		ServerHandleGameplayEvent(*Payload);
+	//	ServerHandleGameplayEvent(*Payload);
 	}
 }
 
+/*
 void UProjectN_InventoryComponent::HandleGameplayEventInternal(const FGameplayEventData Payload)
 {
 	if (GetOwner()->HasAuthority())
@@ -158,7 +156,7 @@ void UProjectN_InventoryComponent::HandleGameplayEventInternal(const FGameplayEv
 void UProjectN_InventoryComponent::ServerHandleGameplayEvent_Implementation(const FGameplayEventData Payload)
 {
 	HandleGameplayEventInternal(Payload);
-}
+}*/
 
 /*void UProjectN_InventoryComponent::EquipTestItem()
 {
@@ -177,14 +175,17 @@ void UProjectN_InventoryComponent::AddItemByStaticClass(const TSubclassOf<UItemS
 			if (const FInventoryItem* Item = InventoryList.FindItemByClass(ItemStaticDataClass.GetDefaultObject()))
 			{
 				Item->ItemInstance->AddItemStack(ItemStack);
+				ClientUpdateItemInfo(Item->ItemInstance);
 				return;
 			}
 		}
 		
 		InventoryList.AddItemByStaticClass(ItemStaticDataClass, ItemStack);
+		ClientUpdateItemInfo(InventoryList.FindItemByClass(ItemStaticDataClass.GetDefaultObject())->ItemInstance);
 	}
 }
 
+/*
 void UProjectN_InventoryComponent::AddItemByInstance(UProjectN_ItemInstance* InItemInstance)
 {
 	if (!GetOwner()->HasAuthority() && InItemInstance)
@@ -202,6 +203,16 @@ void UProjectN_InventoryComponent::AddItemByInstance(UProjectN_ItemInstance* InI
 	}
 	
 	InventoryList.AddItemByInstance(InItemInstance, InItemInstance->GetItemStack());
+}*/
+
+void UProjectN_InventoryComponent::ClientUpdateItemInfo_Implementation(UProjectN_ItemInstance* ItemInstance)
+{
+	OnUpdateItem.Execute(ItemInstance);
+}
+
+void UProjectN_InventoryComponent::ClientRemoveItem_Implementation(UProjectN_ItemInstance* ItemInstance)
+{
+	OnRemoveItem.Execute(ItemInstance);
 }
 
 /*void UProjectN_InventoryComponent::RemoveItemByStaticClass(const TSubclassOf<UItemStaticClass> ItemStaticDataClass)
@@ -360,6 +371,7 @@ void UProjectN_InventoryComponent::DropItem(UProjectN_ItemInstance* InItemInstan
 		if (IsValid(CurrentItemInstance) && Cast<UProjectN_EquippableItemInstance>(InItemInstance))
 		{
 			Cast<UProjectN_EquippableItemInstance>(InItemInstance)->OnDrop();
+			ClientRemoveItem(InItemInstance);
 			CurrentItemInstance = nullptr;
 		}
 	}
@@ -375,7 +387,6 @@ void UProjectN_InventoryComponent::PrintMessage(const FString& InText)
 /*********************************
  *  Slots managing
  *********************************/
-
 bool UProjectN_InventoryComponent::IsSlotEquipped(const EItemSlot InItemSlot)
 {
 	const FEquippedItemData* FindItem = FindItemDataBySlot(InItemSlot);

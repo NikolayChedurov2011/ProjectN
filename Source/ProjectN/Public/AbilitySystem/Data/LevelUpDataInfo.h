@@ -15,7 +15,7 @@ struct FLevelUpInfo
 	int32 XPForLevelUp = 0;
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	int32 AttributePointsReward = 0;
+	int32 SkillTreePointsReward = 0;
 };
 
 UCLASS()

@@ -4,7 +4,6 @@
 #include "AbilitySystem/ProjectN_AbilitySystemComponent.h"
 
 #include "AbilitySystemBlueprintLibrary.h"
-#include "ProjectN_PlayerState.h"
 #include "AbilitySystem/Ability/ProjectN_GameplayAbilityBase.h"
 #include "AbilitySystem/Attribute/ProjectN_AttributeSet.h"
 

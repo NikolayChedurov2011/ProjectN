@@ -132,13 +132,19 @@ void UProjectN_EquippableItemInstance::ApplyItemAbilityAndEffects(const AActor* 
 	{
 		GameplayAbilitySpecHandles.Add(ASC->AddAbility(Ability, InputTag));
 	}
-
+	
 	FGameplayEffectContextHandle EffectContext = ASCInterface->GetAbilitySystemComponent()->MakeEffectContext();
 	EffectContext.AddSourceObject(InActor);
 	
 	for (const TSubclassOf<UGameplayEffect> Effect : Cast<UEquippableItemStaticClass>(GetItemStaticClass())->GetItemEffects())
 	{
 		ActiveGameplayEffectHandles.Add(ASC->ApplyGamePlayEffectToSelf_Internal(Effect, EffectContext, 1.f));
+	}
+
+	// Apply item attributes
+	for (const TTuple<FGameplayTag, float> Attribute : Cast<UEquippableItemStaticClass>(GetItemStaticClass())->GetItemBonusAttributes())
+	{
+		ASC->ServerAddToAttributeByTag(Attribute.Key, Attribute.Value);
 	}
 }
 
@@ -162,6 +168,14 @@ void UProjectN_EquippableItemInstance::RemoveItemAbilityAndEffects(const ACharac
 	}
 	GameplayAbilitySpecHandles.Empty();
 	ActiveGameplayEffectHandles.Empty();
+
+	
+	UProjectN_AbilitySystemComponent* ASC = Cast<UProjectN_AbilitySystemComponent>(ASCInterface->GetAbilitySystemComponent());
+	// Discard item attributes
+	for (const TTuple<FGameplayTag, float> Attribute : Cast<UEquippableItemStaticClass>(GetItemStaticClass())->GetItemBonusAttributes())
+	{
+		ASC->ServerAddToAttributeByTag(Attribute.Key, -Attribute.Value);
+	}
 }
 
 FVector UProjectN_EquippableItemInstance::GetItemSocketLocationForProjectile() const

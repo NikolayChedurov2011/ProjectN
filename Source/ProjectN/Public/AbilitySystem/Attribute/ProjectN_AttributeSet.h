@@ -95,7 +95,7 @@ public:
 	ATTRIBUTE_ACCESSORS(UProjectN_AttributeSet, Dexterity)
 
 	/*************************************
-	*  The vitality is influence on max health (*1,1), health regeneration (*0,05), carrying capacity (*0,7)
+	*  The vitality is influence on max health (*0,7), health regeneration (*0,05), //carrying capacity (*0,7)
 	*************************************/
 	UPROPERTY(BlueprintReadOnly, Category = "Vitality", ReplicatedUsing = OnRep_Vitality)
 	FGameplayAttributeData Vitality;
