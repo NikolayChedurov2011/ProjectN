@@ -207,12 +207,12 @@ void UProjectN_InventoryComponent::AddItemByInstance(UProjectN_ItemInstance* InI
 
 void UProjectN_InventoryComponent::ClientUpdateItemInfo_Implementation(UProjectN_ItemInstance* ItemInstance)
 {
-	OnUpdateItem.Execute(ItemInstance);
+	OnUpdateItem.ExecuteIfBound(ItemInstance);
 }
 
 void UProjectN_InventoryComponent::ClientRemoveItem_Implementation(UProjectN_ItemInstance* ItemInstance)
 {
-	OnRemoveItem.Execute(ItemInstance);
+	OnRemoveItem.ExecuteIfBound(ItemInstance);
 }
 
 /*void UProjectN_InventoryComponent::RemoveItemByStaticClass(const TSubclassOf<UItemStaticClass> ItemStaticDataClass)
