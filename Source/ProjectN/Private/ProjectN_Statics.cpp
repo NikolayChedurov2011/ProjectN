@@ -3,7 +3,7 @@
 
 #include "ProjectN_Statics.h"
 
-const UItemStaticClass* UProjectN_Statics::GetItemStaticData(const TSubclassOf<UItemStaticClass> ItemDataClass)
+UItemStaticClass* UProjectN_Statics::GetItemStaticData(const TSubclassOf<UItemStaticClass> ItemDataClass)
 {
 	if (!IsValid(ItemDataClass))
 	{

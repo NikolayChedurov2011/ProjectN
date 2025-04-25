@@ -22,12 +22,12 @@ void UProjectN_ItemInstance::GetLifetimeReplicatedProps(TArray<class FLifetimePr
 	DOREPLIFETIME(UProjectN_ItemInstance, ItemStack);
 }
 
-void UProjectN_ItemInstance::Init(TSubclassOf<UItemStaticClass> InItemStaticDataClass)
+void UProjectN_ItemInstance::Init(const TSubclassOf<UItemStaticClass> InItemStaticDataClass)
 {
 	ItemStaticDataClass = InItemStaticDataClass;
 }
 
-const UItemStaticClass* UProjectN_ItemInstance::GetItemStaticClass() const
+UItemStaticClass* UProjectN_ItemInstance::GetItemStaticClass() const
 {
 	return UProjectN_Statics::GetItemStaticData(ItemStaticDataClass);
 }
@@ -60,7 +60,7 @@ void UProjectN_EquippableItemInstance::GetLifetimeReplicatedProps(TArray<class F
 	DOREPLIFETIME(UProjectN_EquippableItemInstance, OwnerCharacter);
 }
 
-void UProjectN_EquippableItemInstance::OnEquip(AActor* Owner, const FName InSocket, const FGameplayTag& InputTag)
+void UProjectN_EquippableItemInstance::OnEquip(AActor* Owner, const FName InSocket/*, const FGameplayTag& InputTag*/)
 {
 	OwnerCharacter = Cast<ACharacter>(Owner);
 	
@@ -72,15 +72,19 @@ void UProjectN_EquippableItemInstance::OnEquip(AActor* Owner, const FName InSock
 		ItemActor->Init(this);
 		ItemActor->OnEquipped();
 		ItemActor->FinishSpawning(Transform);
-
+		
 		if (USkeletalMeshComponent* SkeletalMeshComponent = OwnerCharacter ? OwnerCharacter->GetMesh() : nullptr)
 		{
+			if (InSocket.IsNone())
+			{
+				return;
+			}
 			ItemActor->AttachToComponent(SkeletalMeshComponent,  FAttachmentTransformRules::SnapToTargetNotIncludingScale, InSocket);
 		}
 	}
 	
 	bIsEquipped = true;
-	ApplyItemAbilityAndEffects(OwnerCharacter, InputTag);
+	//ApplyItemAbilityAndEffects(OwnerCharacter, InputTag);
 }
 
 void UProjectN_EquippableItemInstance::OnUnEquip()
@@ -112,7 +116,7 @@ void UProjectN_EquippableItemInstance::OnRep_IsEquipped()
 	
 }
 
-void UProjectN_EquippableItemInstance::ApplyItemAbilityAndEffects(const AActor* InActor, const FGameplayTag& InputTag)
+/*void UProjectN_EquippableItemInstance::ApplyItemAbilityAndEffects(const AActor* InActor, const FGameplayTag& InputTag)
 {
 	if (!IsValid(InActor))
 	{
@@ -127,16 +131,42 @@ void UProjectN_EquippableItemInstance::ApplyItemAbilityAndEffects(const AActor* 
 	}
 	
 	UProjectN_AbilitySystemComponent* ASC = Cast<UProjectN_AbilitySystemComponent>(ASCInterface->GetAbilitySystemComponent());
-		
-	for (const TSubclassOf<UGameplayAbility> Ability : Cast<UEquippableItemStaticClass>(GetItemStaticClass())->GetItemAbilitiesToAdd())
-	{
-		GameplayAbilitySpecHandles.Add(ASC->AddAbility(Ability, InputTag));
-	}
 	
 	FGameplayEffectContextHandle EffectContext = ASCInterface->GetAbilitySystemComponent()->MakeEffectContext();
 	EffectContext.AddSourceObject(InActor);
 	
-	for (const TSubclassOf<UGameplayEffect> Effect : Cast<UEquippableItemStaticClass>(GetItemStaticClass())->GetItemEffects())
+	for (const TSubclassOf<UGameplayEffect> Effect : Cast<UEquippableItemStaticClass>(GetItemStaticClass())->GetItemPassiveEffects())
+	{
+		ActiveGameplayEffectHandles.Add(ASC->ApplyGamePlayEffectToSelf_Internal(Effect, EffectContext, 1.f));
+	}
+
+	// Apply item attributes
+	for (const TTuple<FGameplayTag, float> Attribute : Cast<UEquippableItemStaticClass>(GetItemStaticClass())->GetItemBonusAttributes())
+	{
+		ASC->ServerAddToAttributeByTag(Attribute.Key, Attribute.Value);
+	}
+}*/
+
+void UProjectN_EquippableItemInstance::AddItemPassiveEffects(const AActor* InActor, const FGameplayTag& InputTag)
+{
+	if (!IsValid(InActor))
+	{
+		return;
+	}
+	
+	const IAbilitySystemInterface* ASCInterface = Cast<IAbilitySystemInterface>(InActor);
+
+	if (!ASCInterface)
+	{
+		return;
+	}
+	
+	UProjectN_AbilitySystemComponent* ASC = Cast<UProjectN_AbilitySystemComponent>(ASCInterface->GetAbilitySystemComponent());
+
+	FGameplayEffectContextHandle EffectContext = ASCInterface->GetAbilitySystemComponent()->MakeEffectContext();
+	EffectContext.AddSourceObject(InActor);
+	
+	for (const TSubclassOf<UGameplayEffect> Effect : Cast<UEquippableItemStaticClass>(GetItemStaticClass())->GetItemPassiveEffects())
 	{
 		ActiveGameplayEffectHandles.Add(ASC->ApplyGamePlayEffectToSelf_Internal(Effect, EffectContext, 1.f));
 	}
@@ -147,6 +177,112 @@ void UProjectN_EquippableItemInstance::ApplyItemAbilityAndEffects(const AActor* 
 		ASC->ServerAddToAttributeByTag(Attribute.Key, Attribute.Value);
 	}
 }
+
+/*void UProjectN_EquippableItemInstance::AddMainWeaponAbility(const AActor* InActor, const FGameplayTag& InputTag, const FGameplayTag& WeaponModeTag)
+{
+	if (!IsValid(InActor))
+	{
+		return;
+	}
+	
+	const IAbilitySystemInterface* ASCInterface = Cast<IAbilitySystemInterface>(InActor);
+
+	if (!ASCInterface)
+	{
+		return;
+	}
+	
+	UProjectN_AbilitySystemComponent* ASC = Cast<UProjectN_AbilitySystemComponent>(ASCInterface->GetAbilitySystemComponent());
+
+	if ( UWeaponItemStaticClass* WeaponItem = Cast<UWeaponItemStaticClass>(GetItemStaticClass()))
+	{
+		FWeaponAbilitiesInfo WeaponInfo;
+		if (WeaponItem->GetWeaponAbilitiesInfo(WeaponModeTag, WeaponInfo))
+		{
+			GameplayAbilitySpecHandles.Add(ASC->AddAbility(WeaponInfo.MainWeaponAbility, InputTag));
+		}
+	}
+}*/
+
+/*
+void UProjectN_EquippableItemInstance::AddAuxiliaryWeaponAbility(const AActor* InActor, const FGameplayTag& InputTag, const FGameplayTag& WeaponModeTag)
+{
+	if (!IsValid(InActor))
+	{
+		return;
+	}
+	
+	const IAbilitySystemInterface* ASCInterface = Cast<IAbilitySystemInterface>(InActor);
+
+	if (!ASCInterface)
+	{
+		return;
+	}
+	
+	UProjectN_AbilitySystemComponent* ASC = Cast<UProjectN_AbilitySystemComponent>(ASCInterface->GetAbilitySystemComponent());
+
+	if (UWeaponItemStaticClass* WeaponItem = Cast<UWeaponItemStaticClass>(GetItemStaticClass()))
+	{
+		FWeaponAbilitiesInfo WeaponInfo;
+		if (WeaponItem->GetWeaponAbilitiesInfoByTag(WeaponModeTag, WeaponInfo))
+		{
+			GameplayAbilitySpecHandles.Add(ASC->AddAbility(WeaponInfo.AuxiliaryWeaponAbility, InputTag));
+		}
+	}
+}
+*/
+
+/*void UProjectN_EquippableItemInstance::AddDualWeaponAbilities(const AActor* InActor, const FGameplayTag& MainInputTag, const FGameplayTag& AuxiliaryInputTag)
+{
+	if (!IsValid(InActor))
+	{
+		return;
+	}
+	
+	const IAbilitySystemInterface* ASCInterface = Cast<IAbilitySystemInterface>(InActor);
+
+	if (!ASCInterface)
+	{
+		return;
+	}
+	
+	UProjectN_AbilitySystemComponent* ASC = Cast<UProjectN_AbilitySystemComponent>(ASCInterface->GetAbilitySystemComponent());
+
+	if (const UWeaponItemStaticClass* WeaponItem = Cast<UWeaponItemStaticClass>(GetItemStaticClass()))
+	{
+		//GameplayAbilitySpecHandles.Add(ASC->AddAbility(WeaponItem->GetMainDualWeaponAbility(), MainInputTag));
+		//GameplayAbilitySpecHandles.Add(ASC->AddAbility(WeaponItem->GetAuxiliaryDualWeaponAbility(), AuxiliaryInputTag));
+	}
+}*/
+
+/*
+void UProjectN_EquippableItemInstance::AddWeaponAbilitiesByWeaponModeTag(const AActor* InActor, const FGameplayTag& MainInputTag, const FGameplayTag& AuxiliaryInputTag, const FGameplayTag& WeaponModeTag)
+{
+	if (!IsValid(InActor))
+	{
+		return;
+	}
+	
+	const IAbilitySystemInterface* ASCInterface = Cast<IAbilitySystemInterface>(InActor);
+
+	if (!ASCInterface)
+	{
+		return;
+	}
+	
+	UProjectN_AbilitySystemComponent* ASC = Cast<UProjectN_AbilitySystemComponent>(ASCInterface->GetAbilitySystemComponent());
+
+	if (UWeaponItemStaticClass* WeaponItem = Cast<UWeaponItemStaticClass>(GetItemStaticClass()))
+	{
+		FWeaponAbilitiesInfo WeaponInfo;
+		if (WeaponItem->GetWeaponAbilitiesInfoByTag(WeaponModeTag, WeaponInfo))
+		{
+			GameplayAbilitySpecHandles.Add(ASC->AddAbility(WeaponInfo.MainWeaponAbility, MainInputTag));
+			GameplayAbilitySpecHandles.Add(ASC->AddAbility(WeaponInfo.AuxiliaryWeaponAbility, AuxiliaryInputTag));
+		}
+	}
+}*/
+
 
 void UProjectN_EquippableItemInstance::RemoveItemAbilityAndEffects(const ACharacter* InCharacter)
 {

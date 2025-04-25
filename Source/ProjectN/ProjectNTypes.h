@@ -2,6 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "GameplayTagContainer.h"
+#include "Inventory/ProjectN_ItemInstance.h"
 #include "ProjectNTypes.generated.h"
 
 class UGameplayEffect;
@@ -33,13 +34,33 @@ enum class EItemState : uint8
 UENUM(BlueprintType, Blueprintable)
 enum class EItemSlot : uint8
 {
-	None		UMETA(DisplayName = "None"),
-	Head		UMETA(DisplayName = "Head"),
-	Body		UMETA(DisplayName = "Body"),
-	Legs		UMETA(DisplayName = "Legs"),
-	Feet		UMETA(DisplayName = "Feet"),
-	LeftArm		UMETA(DisplayName = "LeftArm"),
-	RightArm	UMETA(DisplayName = "RightArm"),
+	None			UMETA(DisplayName = "None"),
+	Head			UMETA(DisplayName = "Head"),
+	Body			UMETA(DisplayName = "Body"),
+	Legs			UMETA(DisplayName = "Legs"),
+	Feet			UMETA(DisplayName = "Feet"),
+	AuxiliaryArm	UMETA(DisplayName = "AuxiliaryArm"),
+	MainArm			UMETA(DisplayName = "MainArm"),
+	TwoHand			UMETA(DisplayName = "TwoHand"),
+};
+
+UENUM(BlueprintType, Blueprintable)
+enum class EWeaponMode : uint8
+{
+	None			UMETA(DisplayName = "None"),
+	Single			UMETA(DisplayName = "Single"),
+	TwoHand			UMETA(DisplayName = "TwoHand"),
+	Dual			UMETA(DisplayName = "Dual"),
+};
+
+UENUM(BlueprintType, Blueprintable)
+enum class EWeaponType : uint8
+{
+	None			UMETA(DisplayName = "None"),
+	Dagger			UMETA(DisplayName = "Dagger"),
+	ShortSword		UMETA(DisplayName = "ShortSword"),
+	Bow				UMETA(DisplayName = "Bow"),
+	MagicStaff		UMETA(DisplayName = "MagicStaff"),
 };
 
 UCLASS(BlueprintType, Blueprintable)
@@ -64,19 +85,27 @@ public:
 	FORCEINLINE bool CanStack() const { return bCanStack; }
 
 	UFUNCTION(BlueprintCallable, BlueprintPure)
-	FORCEINLINE bool CanBeConsumed() const { return bCanBeConsumed; }
+	FORCEINLINE bool CanBeUsed() const { return bCanBeUsed; }
 
 	UFUNCTION(BlueprintCallable, BlueprintPure)
-	FORCEINLINE bool ShouldDestroyAfterConsume() const { return bShouldDestroyAfterConsume; }
+	FORCEINLINE bool ShouldDestroyAfterUse() const { return bShouldDestroyAfterUse; }
 	
 	UFUNCTION(BlueprintCallable, BlueprintPure)
 	FORCEINLINE TSubclassOf<AProjectN_ItemActor_Base> GetItemActorClass() const { return ItemActorClass; }
 
 	UFUNCTION(BlueprintCallable, BlueprintPure)
-	FORCEINLINE TSubclassOf<UGameplayAbility> GetItemAbilityToUse() const { return ItemAbilityToUse; }
-
+	FORCEINLINE TSubclassOf<UGameplayAbility> GetUseItemAbility() const { return UseItemAbility; }
+	
+	virtual UProjectN_ItemInstance* CreateInstance(UObject* Outer) const
+	{
+		return NewObject<UProjectN_ItemInstance>(Outer, ItemInstanceClass);
+	}
+	
 protected:
 
+	UPROPERTY(EditDefaultsOnly, Category="Instance")
+	TSubclassOf<UProjectN_ItemInstance> ItemInstanceClass = UProjectN_ItemInstance::StaticClass();
+	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	UTexture2D* ItemIcon = nullptr;
 
@@ -90,10 +119,10 @@ protected:
 	bool bCanBeEquipped = false;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	bool bCanBeConsumed = false;
+	bool bCanBeUsed = false;
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	bool bShouldDestroyAfterConsume = false;
+	bool bShouldDestroyAfterUse = false;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	bool bCanStack = false;
@@ -102,10 +131,7 @@ protected:
 	TSubclassOf<AProjectN_ItemActor_Base> ItemActorClass;
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	TSubclassOf<UGameplayAbility> ItemAbilityToUse;
-	
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	FAnimationData AnimationData;
+	TSubclassOf<UGameplayAbility> UseItemAbility;
 };
 
 UCLASS(BlueprintType, Blueprintable)
@@ -118,19 +144,39 @@ public:
 	UEquippableItemStaticClass()
 	{
 		bCanBeEquipped = true;
+		ItemInstanceClass = UProjectN_EquippableItemInstance::StaticClass();
 	}
 	
 	UFUNCTION(BlueprintCallable, BlueprintPure)
-	FORCEINLINE TMap<EItemSlot, FName> GetSocketsToAttach() const { return SocketToAttach; }
+	FORCEINLINE FName GetSocketsToAttach(const EItemSlot InSlot) const
+	{
+		for (const TTuple<EItemSlot, FName>& SocketMap : SocketToAttach)
+		{
+			if (SocketMap.Key == InSlot)
+			{
+				return SocketMap.Value;
+			}
+		}
+
+		return NAME_None;
+	}
 
 	UFUNCTION(BlueprintCallable, BlueprintPure)
-	FORCEINLINE TArray<EItemSlot> GetItemAllowedSlot() const { return AllowedSlots; }
+	FORCEINLINE bool IsAllowedSlot(const EItemSlot InSlot) const
+	{
+		for (const EItemSlot& Slot : AllowedSlots)
+		{
+			if (Slot == InSlot)
+			{
+				return true;
+			}
+		}
+
+		return false;
+	}
 	
 	UFUNCTION(BlueprintCallable, BlueprintPure)
-	FORCEINLINE TArray<TSubclassOf<UGameplayAbility>> GetItemAbilitiesToAdd() const { return ItemAbilitiesToAdd; }
-	
-	UFUNCTION(BlueprintCallable, BlueprintPure)
-	FORCEINLINE TArray<TSubclassOf<UGameplayEffect>> GetItemEffects() const { return ItemEffects; }
+	FORCEINLINE TArray<TSubclassOf<UGameplayEffect>> GetItemPassiveEffects() const { return ItemPassiveEffects; }
 
 	UFUNCTION(BlueprintCallable, BlueprintPure)
 	FORCEINLINE TMap<FGameplayTag, float> GetItemBonusAttributes() const { return ItemBonusAttributes; }
@@ -142,16 +188,105 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	TArray<EItemSlot> AllowedSlots;
-		
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	TArray<TSubclassOf<UGameplayAbility>> ItemAbilitiesToAdd;
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	TArray<TSubclassOf<UGameplayEffect>> ItemEffects;
+	TArray<TSubclassOf<UGameplayEffect>> ItemPassiveEffects;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	float ItemWeight = .0f;
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	TMap<FGameplayTag, float> ItemBonusAttributes;
+};
+
+USTRUCT(BlueprintType, Blueprintable)
+struct FWeaponAbilitiesInfo
+{
+	GENERATED_BODY()
+
+	/*UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	FGameplayTag WeaponModeTag = FGameplayTag();*/
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	TSubclassOf<UGameplayAbility> MainWeaponAbility = nullptr;
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	TSubclassOf<UGameplayAbility> AuxiliaryWeaponAbility = nullptr;
+};
+
+UCLASS(BlueprintType, Blueprintable)
+class UWeaponItemStaticClass : public UEquippableItemStaticClass
+{
+	GENERATED_BODY()
+
+public:
+
+	UFUNCTION(BlueprintCallable, BlueprintPure)
+	FORCEINLINE EWeaponType GetWeaponType() const { return WeaponType; }
+	
+	/*
+	UFUNCTION(BlueprintCallable, BlueprintPure)
+	FORCEINLINE TSubclassOf<UGameplayAbility> GetMainWeaponAbility() const { return MainWeaponAbility; }
+
+	UFUNCTION(BlueprintCallable, BlueprintPure)
+	FORCEINLINE TSubclassOf<UGameplayAbility> GetAuxiliaryWeaponAbility() const { return AuxiliaryWeaponAbility; }
+
+	UFUNCTION(BlueprintCallable, BlueprintPure)
+	FORCEINLINE TSubclassOf<UGameplayAbility> GetMainDualWeaponAbility() const { return MainDualWeaponAbility; }
+
+	UFUNCTION(BlueprintCallable, BlueprintPure)
+	FORCEINLINE TSubclassOf<UGameplayAbility> GetAuxiliaryDualWeaponAbility() const { return AuxiliaryDualWeaponAbility; }
+
+	UFUNCTION(BlueprintCallable, BlueprintPure)
+	FORCEINLINE TSubclassOf<UGameplayAbility> GetMainTwoHandWeaponAbility() const { return MainTwoHandWeaponAbility; }
+
+	UFUNCTION(BlueprintCallable, BlueprintPure)
+	FORCEINLINE TSubclassOf<UGameplayAbility> GetAuxiliaryTwoHandWeaponAbility() const { return AuxiliaryTwoHandWeaponAbility; }
+	*/
+
+	UFUNCTION(BlueprintCallable, BlueprintPure)
+	FORCEINLINE FName GetTwoHandOffHandSocketName() const { return TwoHandOffHandSocketName; }
+	
+	UFUNCTION(BlueprintCallable)
+	FORCEINLINE bool GetWeaponAbilitiesInfo(const EWeaponMode& WeaponMode, FWeaponAbilitiesInfo& WeaponAbilitiesInfoOut)
+	{
+		const FWeaponAbilitiesInfo* Found = WeaponAbilitiesInfo.Find(WeaponMode);
+
+		if (Found)
+		{
+			WeaponAbilitiesInfoOut = *Found;
+			return true;
+		}
+
+		return false;
+	}
+	
+protected:
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	EWeaponType WeaponType = EWeaponType::None;
+
+	UPROPERTY(EditDefaultsOnly, Category="Sockets")
+	FName TwoHandOffHandSocketName = TEXT("hand_ik_target");
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	TMap<EWeaponMode, FWeaponAbilitiesInfo> WeaponAbilitiesInfo;
+
+	/*UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	TSubclassOf<UGameplayAbility> MainWeaponAbility;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	TSubclassOf<UGameplayAbility> AuxiliaryWeaponAbility;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	TSubclassOf<UGameplayAbility> MainDualWeaponAbility;
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	TSubclassOf<UGameplayAbility> AuxiliaryDualWeaponAbility;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	TSubclassOf<UGameplayAbility> MainTwoHandWeaponAbility;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	TSubclassOf<UGameplayAbility> AuxiliaryTwoHandWeaponAbility;*/
 };

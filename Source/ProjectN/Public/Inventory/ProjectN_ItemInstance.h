@@ -4,11 +4,13 @@
 
 #include "CoreMinimal.h"
 #include "GameplayTagContainer.h"
-#include "ProjectN/ProjectNTypes.h"
+//#include "ProjectN/ProjectNTypes.h"
 #include "ProjectN_ItemInstance.generated.h"
 
 struct FGameplayAbilitySpecHandle;
 struct FActiveGameplayEffectHandle;
+class UItemStaticClass;
+class AProjectN_ItemActor_Base;
 
 //Runtime item data. Item parameters can be change while equipped, and we want to save it
 UCLASS(Blueprintable, BlueprintType)
@@ -24,10 +26,10 @@ public:
 	virtual bool IsSupportedForNetworking() const override { return true; }
 	virtual void GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const override;
 
-	virtual void Init(TSubclassOf<UItemStaticClass> InItemStaticDataClass);
+	virtual void Init(const TSubclassOf<UItemStaticClass> InItemStaticDataClass);
 
 	UFUNCTION(BlueprintCallable, BlueprintPure)
-	const UItemStaticClass* GetItemStaticClass() const;
+	UItemStaticClass* GetItemStaticClass() const;
 	
 	UFUNCTION(BlueprintCallable, BlueprintPure)
 	TSubclassOf<UItemStaticClass> GetItemStaticSubClass() const { return ItemStaticDataClass; }
@@ -58,7 +60,7 @@ class PROJECTN_API UProjectN_EquippableItemInstance : public UProjectN_ItemInsta
 public:
 	virtual void GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const override;
 	
-	virtual void  OnEquip(AActor* Owner = nullptr, const FName InSocket = FName("hand_r"), const FGameplayTag& InputTag = FGameplayTag());
+	virtual void  OnEquip(AActor* Owner = nullptr, const FName InSocket = FName("hand_r")/*, const FGameplayTag& InputTag = FGameplayTag()*/);
 	virtual void  OnUnEquip();
 	virtual void  OnDrop();
 
@@ -78,7 +80,12 @@ protected:
 	UFUNCTION()
 	void OnRep_IsEquipped();
 
-	void ApplyItemAbilityAndEffects(const AActor* InActor, const FGameplayTag& InputTag = FGameplayTag());
+	//void ApplyItemAbilityAndEffects(const AActor* InActor, const FGameplayTag& InputTag = FGameplayTag());
+	void AddItemPassiveEffects(const AActor* InActor, const FGameplayTag& InputTag = FGameplayTag());
+	//void AddMainWeaponAbility(const AActor* InActor, const FGameplayTag& InputTag = FGameplayTag(), const FGameplayTag& WeaponModeTag = FGameplayTag());
+	//void AddAuxiliaryWeaponAbility(const AActor* InActor, const FGameplayTag& InputTag = FGameplayTag(), const FGameplayTag& WeaponModeTag = FGameplayTag());
+	//void AddDualWeaponAbilities(const AActor* InActor, const FGameplayTag& MainInputTag = FGameplayTag(), const FGameplayTag& AuxiliaryInputTag = FGameplayTag());
+	//void AddWeaponAbilitiesByWeaponModeTag(const AActor* InActor, const FGameplayTag& MainInputTag = FGameplayTag(), const FGameplayTag& AuxiliaryInputTag = FGameplayTag(), const FGameplayTag& WeaponModeTag = FGameplayTag());
 	void RemoveItemAbilityAndEffects(const ACharacter* InCharacter);
 	
 private:

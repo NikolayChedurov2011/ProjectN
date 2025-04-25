@@ -5,25 +5,27 @@
 
 #include "ProjectN/ProjectNTypes.h"
 
-void FInventoryList::AddItemByStaticClass(const TSubclassOf<UItemStaticClass>& ItemStaticDataClass, const int32 ItemStack)
+void FInventoryList::AddItemByStaticClass(UObject* Outer, const TSubclassOf<UItemStaticClass>& ItemStaticDataClass, const int32 ItemStack)
 {
 	FInventoryItem& Item = Items.AddDefaulted_GetRef();
-
-	Item.ItemInstance = NewObject<UProjectN_EquippableItemInstance>();
+	
+	const UItemStaticClass* StaticData = ItemStaticDataClass.GetDefaultObject();
+	
+	Item.ItemInstance = StaticData->CreateInstance(Outer);
 	Item.ItemInstance->Init(ItemStaticDataClass);
 	Item.ItemInstance->InitItemStack(ItemStack);
 
 	MarkItemDirty(Item);
 }
 
-void FInventoryList::AddItemByInstance(UProjectN_ItemInstance* InItemInstance, const int32 ItemStack)
+/*void FInventoryList::AddItemByInstance(UProjectN_ItemInstance* InItemInstance, const int32 ItemStack)
 {
 	FInventoryItem& Item = Items.AddDefaulted_GetRef();
 	Item.ItemInstance = InItemInstance;
 	Item.ItemInstance->InitItemStack(ItemStack);
 
 	MarkItemDirty(Item);
-}
+}*/
 
 void FInventoryList::RemoveItemByStaticClass(const TSubclassOf<UItemStaticClass>& ItemStaticDataClass)
 {

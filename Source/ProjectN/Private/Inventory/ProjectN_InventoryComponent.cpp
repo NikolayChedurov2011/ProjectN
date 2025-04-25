@@ -166,21 +166,31 @@ void UProjectN_InventoryComponent::ServerHandleGameplayEvent_Implementation(cons
 	}
 }*/
 
-void UProjectN_InventoryComponent::AddItemByStaticClass(const TSubclassOf<UItemStaticClass> ItemStaticDataClass, const int32 ItemStack)
+void UProjectN_InventoryComponent::AddItemByStaticClass(const TSubclassOf<UItemStaticClass>& ItemStaticDataClass, const int32 ItemStack)
 {
 	if (GetOwner()->HasAuthority() && ItemStaticDataClass)
 	{
 		if (ItemStaticDataClass.GetDefaultObject()->CanStack())
 		{
+			// If item exists and can stack
 			if (const FInventoryItem* Item = InventoryList.FindItemByClass(ItemStaticDataClass.GetDefaultObject()))
 			{
 				Item->ItemInstance->AddItemStack(ItemStack);
 				ClientUpdateItemInfo(Item->ItemInstance);
 				return;
 			}
+			
+			// If item not exists and can stack
+			InventoryList.AddItemByStaticClass(GetOwner(), ItemStaticDataClass, ItemStack);
+			return;
+		}
+
+		// Else just create item
+		for (int32 i = 0; i < ItemStack; i++)
+		{
+			InventoryList.AddItemByStaticClass(GetOwner(), ItemStaticDataClass, 1);
 		}
 		
-		InventoryList.AddItemByStaticClass(ItemStaticDataClass, ItemStack);
 		ClientUpdateItemInfo(InventoryList.FindItemByClass(ItemStaticDataClass.GetDefaultObject())->ItemInstance);
 	}
 }
@@ -262,7 +272,7 @@ void UProjectN_InventoryComponent::EquipItemByInstance(UProjectN_ItemInstance* I
 		}
 		
 		// Or if item has allowed slot for equip
-		if (!Cast<UEquippableItemStaticClass>(InItemInstance->GetItemStaticClass())->GetItemAllowedSlot().Contains(InSlot))
+		if (!Cast<UEquippableItemStaticClass>(InItemInstance->GetItemStaticClass())->IsAllowedSlot(InSlot))
 		{
 			PrintMessage(TEXT("Not allowed slot for equip"));
 			return;
@@ -286,6 +296,7 @@ void UProjectN_InventoryComponent::EquipItemByInstance(UProjectN_ItemInstance* I
 			// Else need un equip old item
 			UnEquipItemByInstance(FindItemData->ItemInstance);
 		}
+		
 		if (IsSlotEquipped(InSlot))
 		{
 			// Check if slot already equipped
@@ -295,25 +306,51 @@ void UProjectN_InventoryComponent::EquipItemByInstance(UProjectN_ItemInstance* I
 			// Un equip old item
 			UnEquipItemByInstance(FindItemData->ItemInstance);
 		}
+
+		// Special check for two-handed mode
+		if (InSlot == EItemSlot::TwoHand)
+		{
+			PrintMessage(TEXT("Un equip slot for two-handed mode"));
+
+			const FEquippedItemData* FindMainItemData = FindItemDataBySlot(EItemSlot::MainArm);
+			if (FindMainItemData)
+			{
+				UnEquipItemByInstance(FindMainItemData->ItemInstance);
+			}
+
+			const FEquippedItemData* FindAuxiliaryItemData = FindItemDataBySlot(EItemSlot::AuxiliaryArm);
+			if (FindAuxiliaryItemData)
+			{
+				UnEquipItemByInstance(FindAuxiliaryItemData->ItemInstance);
+			}
+		}
+
+		// Special check if now two-handed mode
+		if (InSlot == EItemSlot::MainArm || InSlot == EItemSlot::AuxiliaryArm)
+		{
+			PrintMessage(TEXT("Un equip slot with two-handed mode"));
+
+			const FEquippedItemData* FindTwoHandItemData = FindItemDataBySlot(EItemSlot::TwoHand);
+			if (FindTwoHandItemData)
+			{
+				UnEquipItemByInstance(FindTwoHandItemData->ItemInstance);
+			}
+		}
 		
 		// Just check if item has in our inventory
 		const FInventoryItem* Item = InventoryList.FindItemByInstance(InItemInstance);
 		if (Item)
 		{
-			// Find associated tag for slot
-			FGameplayTag Tag = FGameplayTag();
-			for (const auto& Pair : AssociatedTagWithSlot)
-			{
-				if (Pair.Value == InSlot)
-				{
-					Tag = Pair.Key;
-					break;
-				}
-			}
-			Cast<UProjectN_EquippableItemInstance>(Item->ItemInstance)->OnEquip(BaseCharacter, *Cast<UEquippableItemStaticClass>(Item->ItemInstance->GetItemStaticClass())->GetSocketsToAttach().Find(InSlot), Tag);
+			Cast<UProjectN_EquippableItemInstance>(Item->ItemInstance)->OnEquip(BaseCharacter, Cast<UEquippableItemStaticClass>(Item->ItemInstance->GetItemStaticClass())->GetSocketsToAttach(InSlot)/*, Tag*/);
 
 			// Add item data to list of equipped items
 			AddItemToSlot(InSlot, Item->ItemInstance);
+			
+			if (Cast<UWeaponItemStaticClass>(InItemInstance->GetItemStaticClass()))
+			{
+				// Update weapon abilities in accordance with equip mode
+				UpdateWeaponMode();
+			}
 
 			PrintMessage(TEXT("Slot is equipped and added"));
 		}
@@ -359,6 +396,8 @@ void UProjectN_InventoryComponent::UnEquipItemByInstance(UProjectN_ItemInstance*
 		// Remove item data from list of equipped items
 		FEquippedItemData* FindItemData = FindItemDataByInstance(InItemInstance);
 		RemoveSlot(FindItemData->ItemSlot);
+
+		UpdateWeaponMode();
 		
 		PrintMessage(TEXT("Slot is un equipped and removed"));
 	}
@@ -401,18 +440,36 @@ bool UProjectN_InventoryComponent::IsSlotEquipped(const UProjectN_ItemInstance* 
 
 FEquippedItemData* UProjectN_InventoryComponent::FindItemDataBySlot(const EItemSlot InItemSlot)
 {
-	return EquippedItemSlots.FindByPredicate([InItemSlot](const FEquippedItemData& EquippedItemData)
+	/*return EquippedItemSlots.EquippedItems.FindByPredicate([InItemSlot](const FEquippedItemData& EquippedItemData)
 	{
 		return EquippedItemData.ItemSlot == InItemSlot;
-	});
+	});*/
+
+	for (FEquippedItemData& Item : EquippedItemSlots.EquippedItems)
+	{
+		if (Item.ItemSlot == InItemSlot)
+		{
+			return &Item;
+		}
+	}
+	return nullptr;
 }
 
 FEquippedItemData* UProjectN_InventoryComponent::FindItemDataByInstance(const UProjectN_ItemInstance* InItemInstance)
 {
-	return EquippedItemSlots.FindByPredicate([InItemInstance](const FEquippedItemData& EquippedItemData)
+	/*return EquippedItemSlots.EquippedItems.FindByPredicate([InItemInstance](const FEquippedItemData& EquippedItemData)
 	{
 		return EquippedItemData.ItemInstance == InItemInstance;
-	});
+	});*/
+
+	for (FEquippedItemData& Item : EquippedItemSlots.EquippedItems)
+	{
+		if (Item.ItemInstance == InItemInstance)
+		{
+			return &Item;
+		}
+	}
+	return nullptr;
 }
 
 FVector UProjectN_InventoryComponent::FindSocketLocationByTag(const FGameplayTag& InputTag)
@@ -432,13 +489,13 @@ FVector UProjectN_InventoryComponent::FindSocketLocationByTag(const FGameplayTag
 
 void UProjectN_InventoryComponent::RemoveSlot(const EItemSlot InItemSlot)
 {
-	for (auto ItemIter = EquippedItemSlots.CreateIterator(); ItemIter; ++ItemIter)
+	for (auto ItemIter = EquippedItemSlots.EquippedItems.CreateIterator(); ItemIter; ++ItemIter)
 	{
 		FEquippedItemData& Item = *ItemIter;
 		if (Item.ItemSlot == InItemSlot)
 		{
 			ItemIter.RemoveCurrent();
-			//MarkArrayDirty();
+			EquippedItemSlots.MarkArrayDirty();
 			break;
 		}
 	}
@@ -446,9 +503,11 @@ void UProjectN_InventoryComponent::RemoveSlot(const EItemSlot InItemSlot)
 
 void UProjectN_InventoryComponent::AddItemToSlot(const EItemSlot InItemSlot, UProjectN_ItemInstance* InItemInstance)
 {
-	FEquippedItemData& NewItem = EquippedItemSlots.AddDefaulted_GetRef();
+	FEquippedItemData& NewItem = EquippedItemSlots.EquippedItems.AddDefaulted_GetRef();
 	NewItem.ItemInstance = InItemInstance;
 	NewItem.ItemSlot = InItemSlot;
+
+	EquippedItemSlots.MarkItemDirty(NewItem);
 }
 /****************************
  ****************************/
@@ -473,4 +532,100 @@ bool UProjectN_InventoryComponent::IsEquippableItem(UProjectN_ItemInstance* InIt
 		return InItemInstance->GetItemStaticClass()->CanBeEquipped();
 	}
 	return false;
+}
+
+/*********************************
+ *  Weapon abilities managing
+ *********************************/
+void UProjectN_InventoryComponent::UpdateWeaponMode()
+{
+	const FEquippedItemData* MainArmItemData = FindItemDataBySlot(EItemSlot::MainArm);
+	const FEquippedItemData* AuxiliaryArmItemData = FindItemDataBySlot(EItemSlot::AuxiliaryArm);
+	const FEquippedItemData* TwoHandItemData = FindItemDataBySlot(EItemSlot::TwoHand);
+
+	UItemStaticClass* MainArmItemStaticClass = MainArmItemData? MainArmItemData->ItemInstance->GetItemStaticClass() : nullptr;
+	UItemStaticClass* AuxiliaryArmItemStaticClass = AuxiliaryArmItemData? AuxiliaryArmItemData->ItemInstance->GetItemStaticClass() : nullptr;
+	UItemStaticClass* TwoHandItemStaticClass = TwoHandItemData? TwoHandItemData->ItemInstance->GetItemStaticClass() : nullptr;
+
+	RemoveWeaponAbilities(EWeaponMode::Single);
+	RemoveWeaponAbilities(EWeaponMode::Dual);
+	RemoveWeaponAbilities(EWeaponMode::TwoHand);
+	
+	if (TwoHandItemStaticClass)
+	{
+		GiveWeaponAbilities(TwoHandItemStaticClass, EWeaponMode::TwoHand, true, true);
+
+		return;
+	}
+
+	if (MainArmItemStaticClass && AuxiliaryArmItemStaticClass && Cast<UWeaponItemStaticClass>(MainArmItemStaticClass)->GetWeaponType() == Cast<UWeaponItemStaticClass>(AuxiliaryArmItemStaticClass)->GetWeaponType())
+	{
+		GiveWeaponAbilities(MainArmItemStaticClass, EWeaponMode::Dual, true, true);
+
+		return;
+	}
+
+	if (MainArmItemStaticClass)
+	{
+		GiveWeaponAbilities(MainArmItemStaticClass, EWeaponMode::Single, true, false);
+	}
+	
+	if (AuxiliaryArmItemStaticClass)
+	{
+		GiveWeaponAbilities(AuxiliaryArmItemStaticClass, EWeaponMode::Single, false, true);
+	}
+}
+
+void UProjectN_InventoryComponent::RemoveWeaponAbilities(const EWeaponMode WeaponMode)
+{
+	const IAbilitySystemInterface* ASCInterface = Cast<IAbilitySystemInterface>(GetOwner());
+
+	if (GrantedHandlesByMode.Find(WeaponMode))
+	{
+		for (const FGameplayAbilitySpecHandle& AbilitySpecHandle : GrantedHandlesByMode.Find(WeaponMode)->AbilitySpecs)
+		{
+			ASCInterface->GetAbilitySystemComponent()->ClearAbility(AbilitySpecHandle);
+		}
+	}
+	GrantedHandlesByMode.Remove(WeaponMode);
+}
+
+void UProjectN_InventoryComponent::GiveWeaponAbilities(UItemStaticClass* WeaponItemStaticClass, const EWeaponMode WeaponMode, const bool bAddForMainHand, const bool bAddForAuxiliaryHand)
+{
+	const IAbilitySystemInterface* ASCInterface = Cast<IAbilitySystemInterface>(GetOwner());
+
+	if (!ASCInterface)
+	{
+		return;
+	}
+	
+	UProjectN_AbilitySystemComponent* ASC = Cast<UProjectN_AbilitySystemComponent>(ASCInterface->GetAbilitySystemComponent());
+	
+	FWeaponAbilitiesInfo WeaponAbilitiesInfoOut;
+	if (Cast<UWeaponItemStaticClass>(WeaponItemStaticClass)->GetWeaponAbilitiesInfo(WeaponMode, WeaponAbilitiesInfoOut))
+	{
+		FGrantedAbilityHandles AbilityHandles;
+
+		if (bAddForMainHand)
+		{
+			AbilityHandles.AbilitySpecs.Add(ASC->AddAbility(WeaponAbilitiesInfoOut.MainWeaponAbility, ProjectNGameplayTags::Input_LMB));
+		}
+		if (bAddForAuxiliaryHand)
+		{
+			AbilityHandles.AbilitySpecs.Add(ASC->AddAbility(WeaponAbilitiesInfoOut.AuxiliaryWeaponAbility, ProjectNGameplayTags::Input_RMB));
+		}
+		
+		// Save added ability specs to map
+		if (GrantedHandlesByMode.Find(WeaponMode))
+		{
+			for (const FGameplayAbilitySpecHandle& AbilitySpec : AbilityHandles.AbilitySpecs)
+			{
+				GrantedHandlesByMode.Find(WeaponMode)->AbilitySpecs.Add(AbilitySpec);
+			}
+
+			return;
+		}
+
+		GrantedHandlesByMode.Add(WeaponMode, AbilityHandles);
+	}
 }
