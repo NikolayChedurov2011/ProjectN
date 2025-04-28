@@ -94,7 +94,11 @@ public:
 	bool IsEquippableItem(UProjectN_ItemInstance* InItemInstance) const;
 	
 	UFUNCTION(BlueprintCallable, BlueprintPure)
-	FORCEINLINE UProjectN_ItemInstance* GetEquippedItem()const { return CurrentItemInstance; }
+	FORCEINLINE UProjectN_ItemInstance* GetEquippedItemInstance()const { return CurrentItemInstance; }
+	
+	UFUNCTION(BlueprintCallable, BlueprintPure)
+	AProjectN_ItemActor_Base* GetEquippedWeaponBySlot(const EItemSlot InItemSlot);
+	
 	UFUNCTION(BlueprintCallable, BlueprintPure)
 	FORCEINLINE  TArray<FInventoryItem>& GetItemsList() { return InventoryList.GetItemsRef(); }
 
@@ -141,6 +145,8 @@ protected:
 	void UpdateWeaponMode();
 	void RemoveWeaponAbilities(const EWeaponMode WeaponMode);
 	void GiveWeaponAbilities(UItemStaticClass* WeaponItemStaticClass, const EWeaponMode WeaponMode, const bool bAddForMainHand, const bool bAddForAuxiliaryHand);
+	void ApplyItemStats(const UProjectN_ItemInstance* InItem) const;
+	void RemoveItemStats(const UProjectN_ItemInstance* InItem) const;
 	
 	/******************
 	 *  Debug functions
@@ -165,7 +171,8 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	TMap<FGameplayTag, EItemSlot> AssociatedTagWithSlot;
-
+	
+	//TMap<UProjectN_ItemInstance, EItemSlot> AssociatedTagWithSlot;
 	TMap<EWeaponMode, FGrantedAbilityHandles> GrantedHandlesByMode;
 
 public:	

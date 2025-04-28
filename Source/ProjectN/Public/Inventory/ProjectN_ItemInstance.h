@@ -66,6 +66,7 @@ public:
 
 	FORCEINLINE AProjectN_ItemActor_Base* GetSpawnedItemActor() const { return ItemActor; }
 	FORCEINLINE FVector GetItemSocketLocationForProjectile() const;
+	FORCEINLINE AProjectN_ItemActor_Base* GetItemActor() const { return ItemActor; }
 	
 protected:
 

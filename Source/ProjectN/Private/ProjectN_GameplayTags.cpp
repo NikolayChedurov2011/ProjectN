@@ -41,6 +41,10 @@ namespace ProjectNGameplayTags
 	UE_DEFINE_GAMEPLAY_TAG(Item_Weapon_GreatSword,			"Item.Weapon.GreatSword")
 	UE_DEFINE_GAMEPLAY_TAG(Item_Weapon_Bow,					"Item.Weapon.Bow")
 	
+	UE_DEFINE_GAMEPLAY_TAG(Weapon_Damage,					"Weapon.Damage")
+	UE_DEFINE_GAMEPLAY_TAG(Weapon_Damage_Min,				"Weapon.Damage.Min")
+	UE_DEFINE_GAMEPLAY_TAG(Weapon_Damage_Max,				"Weapon.Damage.Max")
+	
 	/*UE_DEFINE_GAMEPLAY_TAG(Item_Weapon_Mode,					"Item.Weapon.Mode")
 	UE_DEFINE_GAMEPLAY_TAG(Item_Weapon_Mode_Single,				"Item.Weapon.Mode.Single")
 	UE_DEFINE_GAMEPLAY_TAG(Item_Weapon_Mode_Single_Main,		"Item.Weapon.Mode.Single.Main")

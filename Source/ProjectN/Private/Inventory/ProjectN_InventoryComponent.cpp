@@ -341,16 +341,18 @@ void UProjectN_InventoryComponent::EquipItemByInstance(UProjectN_ItemInstance* I
 		const FInventoryItem* Item = InventoryList.FindItemByInstance(InItemInstance);
 		if (Item)
 		{
-			Cast<UProjectN_EquippableItemInstance>(Item->ItemInstance)->OnEquip(BaseCharacter, Cast<UEquippableItemStaticClass>(Item->ItemInstance->GetItemStaticClass())->GetSocketsToAttach(InSlot)/*, Tag*/);
+			Cast<UProjectN_EquippableItemInstance>(InItemInstance)->OnEquip(BaseCharacter, Cast<UEquippableItemStaticClass>(InItemInstance->GetItemStaticClass())->GetSocketsToAttach(InSlot)/*, Tag*/);
 
 			// Add item data to list of equipped items
-			AddItemToSlot(InSlot, Item->ItemInstance);
+			AddItemToSlot(InSlot, InItemInstance);
 			
 			if (Cast<UWeaponItemStaticClass>(InItemInstance->GetItemStaticClass()))
 			{
 				// Update weapon abilities in accordance with equip mode
 				UpdateWeaponMode();
 			}
+
+			ApplyItemStats(InItemInstance);
 
 			PrintMessage(TEXT("Slot is equipped and added"));
 		}
@@ -392,6 +394,7 @@ void UProjectN_InventoryComponent::UnEquipItemByInstance(UProjectN_ItemInstance*
 		}
 		
 		Cast<UProjectN_EquippableItemInstance>(InItemInstance)->OnUnEquip();
+		RemoveItemStats(InItemInstance);
 		
 		// Remove item data from list of equipped items
 		FEquippedItemData* FindItemData = FindItemDataByInstance(InItemInstance);
@@ -485,6 +488,15 @@ FVector UProjectN_InventoryComponent::FindSocketLocationByTag(const FGameplayTag
 	}
 	
 	return FVector::ZeroVector;
+}
+
+AProjectN_ItemActor_Base* UProjectN_InventoryComponent::GetEquippedWeaponBySlot(const EItemSlot InItemSlot)
+{
+	if (const FEquippedItemData* ItemData = FindItemDataBySlot(InItemSlot))
+	{
+		return Cast<UProjectN_EquippableItemInstance>(ItemData->ItemInstance)->GetItemActor();
+	}
+	return nullptr;
 }
 
 void UProjectN_InventoryComponent::RemoveSlot(const EItemSlot InItemSlot)
@@ -627,5 +639,41 @@ void UProjectN_InventoryComponent::GiveWeaponAbilities(UItemStaticClass* WeaponI
 		}
 
 		GrantedHandlesByMode.Add(WeaponMode, AbilityHandles);
+	}
+}
+
+void UProjectN_InventoryComponent::ApplyItemStats(const UProjectN_ItemInstance* InItem) const
+{	
+	const IAbilitySystemInterface* ASCInterface = Cast<IAbilitySystemInterface>(GetOwner());
+
+	if (!ASCInterface)
+	{
+		return;
+	}
+	
+	UProjectN_AbilitySystemComponent* ASC = Cast<UProjectN_AbilitySystemComponent>(ASCInterface->GetAbilitySystemComponent());
+	
+	// Apply item attributes
+	for (const TTuple<FGameplayTag, float> Attribute : Cast<UEquippableItemStaticClass>(InItem->GetItemStaticClass())->GetItemBonusAttributes())
+	{
+		ASC->ServerAddToAttributeByTag(Attribute.Key, Attribute.Value);
+	}
+}
+
+void UProjectN_InventoryComponent::RemoveItemStats(const UProjectN_ItemInstance* InItem) const
+{	
+	const IAbilitySystemInterface* ASCInterface = Cast<IAbilitySystemInterface>(GetOwner());
+
+	if (!ASCInterface)
+	{
+		return;
+	}
+	
+	UProjectN_AbilitySystemComponent* ASC = Cast<UProjectN_AbilitySystemComponent>(ASCInterface->GetAbilitySystemComponent());
+	
+	// Apply item attributes
+	for (const TTuple<FGameplayTag, float> Attribute : Cast<UEquippableItemStaticClass>(InItem->GetItemStaticClass())->GetItemBonusAttributes())
+	{
+		ASC->ServerAddToAttributeByTag(Attribute.Key, -Attribute.Value);
 	}
 }

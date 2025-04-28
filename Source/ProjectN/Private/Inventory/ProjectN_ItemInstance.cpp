@@ -97,7 +97,7 @@ void UProjectN_EquippableItemInstance::OnUnEquip()
 	
 	bIsEquipped = false;
 	
-	RemoveItemAbilityAndEffects(OwnerCharacter);
+	//RemoveItemAbilityAndEffects(OwnerCharacter);
 	OwnerCharacter = nullptr;
 }
 
