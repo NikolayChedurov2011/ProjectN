@@ -36,21 +36,21 @@ namespace ProjectNGameplayTags
 	UE_DEFINE_GAMEPLAY_TAG(InventoryTag_Drop,				"InventoryTag.Drop")
 
 	/**** Inventory Tags ****/
-	UE_DEFINE_GAMEPLAY_TAG(Item_Weapon_Dagger,				"Item.Weapon.Dagger")
-	UE_DEFINE_GAMEPLAY_TAG(Item_Weapon_Sword,				"Item.Weapon.Sword")
-	UE_DEFINE_GAMEPLAY_TAG(Item_Weapon_GreatSword,			"Item.Weapon.GreatSword")
-	UE_DEFINE_GAMEPLAY_TAG(Item_Weapon_Bow,					"Item.Weapon.Bow")
+	UE_DEFINE_GAMEPLAY_TAG(Item_Weapon,							"Item.Weapon")
+	UE_DEFINE_GAMEPLAY_TAG(Item_Weapon_Type,					"Item.Weapon.Type")
+	UE_DEFINE_GAMEPLAY_TAG(Item_Weapon_Type_Dagger,				"Item.Weapon.Type.Dagger")
+	UE_DEFINE_GAMEPLAY_TAG(Item_Weapon_Type_Sword,				"Item.Weapon.Type.Sword")
+	UE_DEFINE_GAMEPLAY_TAG(Item_Weapon_Type_GreatSword,			"Item.Weapon.Type.GreatSword")
+	UE_DEFINE_GAMEPLAY_TAG(Item_Weapon_Type_Bow,				"Item.Weapon.Type.Bow")
 	
-	UE_DEFINE_GAMEPLAY_TAG(Weapon_Damage,					"Weapon.Damage")
-	UE_DEFINE_GAMEPLAY_TAG(Weapon_Damage_Min,				"Weapon.Damage.Min")
-	UE_DEFINE_GAMEPLAY_TAG(Weapon_Damage_Max,				"Weapon.Damage.Max")
+	UE_DEFINE_GAMEPLAY_TAG(Item_Weapon_Damage,					"Item.Weapon.Damage")
+	UE_DEFINE_GAMEPLAY_TAG(Item_Weapon_Damage_Min,				"Item.Weapon.Damage.Min")
+	UE_DEFINE_GAMEPLAY_TAG(Item_Weapon_Damage_Max,				"Item.Weapon.Damage.Max")
 	
-	/*UE_DEFINE_GAMEPLAY_TAG(Item_Weapon_Mode,					"Item.Weapon.Mode")
-	UE_DEFINE_GAMEPLAY_TAG(Item_Weapon_Mode_Single,				"Item.Weapon.Mode.Single")
-	UE_DEFINE_GAMEPLAY_TAG(Item_Weapon_Mode_Single_Main,		"Item.Weapon.Mode.Single.Main")
-	UE_DEFINE_GAMEPLAY_TAG(Item_Weapon_Mode_Single_Auxiliary,	"Item.Weapon.Mode.Single.Auxiliary")
-	UE_DEFINE_GAMEPLAY_TAG(Item_Weapon_Mode_Dual,				"Item.Weapon.Mode.Dual")
-	UE_DEFINE_GAMEPLAY_TAG(Item_Weapon_Mode_TwoHanded,			"Item.Weapon.Mode.TwoHanded")*/
+	UE_DEFINE_GAMEPLAY_TAG(Item_Weapon_Slot,					"Item.Weapon.Slot")
+	UE_DEFINE_GAMEPLAY_TAG(Item_Weapon_Slot_Main,				"Item.Weapon.Slot.Main")
+	UE_DEFINE_GAMEPLAY_TAG(Item_Weapon_Slot_Auxiliary,			"Item.Weapon.Slot.Auxiliary")
+	UE_DEFINE_GAMEPLAY_TAG(Item_Weapon_Slot_TwoHanded,			"Item.Weapon.Slot.TwoHanded")
 
 	/**** Message Tags ****/
 	UE_DEFINE_GAMEPLAY_TAG(Message,					"Message")

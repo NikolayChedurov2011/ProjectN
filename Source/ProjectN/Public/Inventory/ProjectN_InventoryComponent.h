@@ -60,8 +60,6 @@ class PROJECTN_API UProjectN_InventoryComponent : public UActorComponent
 	GENERATED_BODY()
 
 public:
-	//UFUNCTION(BlueprintCallable)
-	//void EquipTestItem();
 	
 	FOnUpdateItemSignature OnUpdateItem;
 	FOnUpdateItemSignature OnRemoveItem;
@@ -72,29 +70,21 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	void AddItemByStaticClass(const TSubclassOf<UItemStaticClass>& ItemStaticDataClass, const int32 ItemStack);
-	//UFUNCTION(BlueprintCallable)
-	//void AddItemByInstance(UProjectN_ItemInstance* InItemInstance);
-	//UFUNCTION(BlueprintCallable)
-	//void RemoveItemByStaticClass(const TSubclassOf<UItemStaticClass> ItemStaticDataClass);
+	
 	UFUNCTION(BlueprintCallable)
 	void RemoveItemByInstance(UProjectN_ItemInstance* InItemInstance);
 
-	//UFUNCTION(BlueprintCallable)
-	//void EquipItemByStaticClass(const TSubclassOf<UItemStaticClass> ItemStaticDataClass);
 	UFUNCTION(BlueprintCallable)
 	void EquipItemByInstance(UProjectN_ItemInstance* InItemInstance, const EItemSlot InSlot);
-	//UFUNCTION(BlueprintCallable)
-	//void UnEquipItemByStaticClass(const TSubclassOf<UItemStaticClass> ItemStaticDataClass);
+	
 	UFUNCTION(BlueprintCallable)
 	void UnEquipItemByInstance(UProjectN_ItemInstance* InItemInstance);
+	
 	UFUNCTION(BlueprintCallable)
 	void DropItem(UProjectN_ItemInstance* InItemInstance);
 
 	UFUNCTION(BlueprintCallable)
 	bool IsEquippableItem(UProjectN_ItemInstance* InItemInstance) const;
-	
-	UFUNCTION(BlueprintCallable, BlueprintPure)
-	FORCEINLINE UProjectN_ItemInstance* GetEquippedItemInstance()const { return CurrentItemInstance; }
 	
 	UFUNCTION(BlueprintCallable, BlueprintPure)
 	AProjectN_ItemActor_Base* GetEquippedWeaponBySlot(const EItemSlot InItemSlot);
@@ -157,24 +147,19 @@ protected:
 	FInventoryList InventoryList;
 
 	UPROPERTY(EditDefaultsOnly)
-	TArray<TSubclassOf<UItemStaticClass>> DefaultItems;
-	UPROPERTY(EditDefaultsOnly)
-	TArray<TObjectPtr<UProjectN_ItemInstance>> DefaultItemInstance;
-	UPROPERTY(EditDefaultsOnly)
 	TObjectPtr<UProjectN_LootDataAsset> DefaultLootData;
-
-	UPROPERTY(Replicated)
-	TObjectPtr<UProjectN_ItemInstance> CurrentItemInstance = nullptr;
 
 	UPROPERTY(Replicated)
 	FEquippedItemsList EquippedItemSlots;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-	TMap<FGameplayTag, EItemSlot> AssociatedTagWithSlot;
-	
-	//TMap<UProjectN_ItemInstance, EItemSlot> AssociatedTagWithSlot;
-	TMap<EWeaponMode, FGrantedAbilityHandles> GrantedHandlesByMode;
+	TMap<FGameplayTag, EItemSlot> AssociatedInputTagWithSlot;
 
-public:	
-	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	TMap<EItemSlot, FGameplayTag> AssociatedSlotWithWeaponSlotTag;
+
+private:
+	
+	TMap<EWeaponMode, FGrantedAbilityHandles> GrantedAbilityHandlesByMode;
+	TMap<EItemSlot, FGrantedAbilityHandles> GrantedEffectHandlesByInstance;
 };

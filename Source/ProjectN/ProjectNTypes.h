@@ -248,7 +248,7 @@ public:
 	FORCEINLINE FName GetTwoHandOffHandSocketName() const { return TwoHandOffHandSocketName; }
 	
 	UFUNCTION(BlueprintCallable)
-	FORCEINLINE bool GetWeaponAbilitiesInfo(const EWeaponMode& WeaponMode, FWeaponAbilitiesInfo& WeaponAbilitiesInfoOut)
+	FORCEINLINE bool GetWeaponAbilitiesInfo(const EWeaponMode WeaponMode, FWeaponAbilitiesInfo& WeaponAbilitiesInfoOut)
 	{
 		const FWeaponAbilitiesInfo* Found = WeaponAbilitiesInfo.Find(WeaponMode);
 
@@ -260,6 +260,9 @@ public:
 
 		return false;
 	}
+
+	UFUNCTION(BlueprintCallable, BlueprintPure)
+	FORCEINLINE FGameplayTag GetWeaponTypeTag() const { return WeaponTypeTag; }
 	
 protected:
 
@@ -271,6 +274,9 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	TMap<EWeaponMode, FWeaponAbilitiesInfo> WeaponAbilitiesInfo;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	FGameplayTag WeaponTypeTag;
 
 	/*UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	TSubclassOf<UGameplayAbility> MainWeaponAbility;
