@@ -6,6 +6,7 @@
 
 #include "ProjectN_ProjectileBase.generated.h"
 
+class UNiagaraSystem;
 class UProjectileMovementComponent;
 class USphereComponent;
 
@@ -22,15 +23,33 @@ public:
 
 protected:
 	virtual void BeginPlay() override;
+	virtual void Destroyed() override;
 
 	UFUNCTION()
 	void OnSphereComponentOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 
 private:
 
+	void SpawnImpactSoundAndEffect() const;
+	
 	UPROPERTY(VisibleAnywhere)
 	TObjectPtr<USphereComponent> SphereComponent;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = true))
-	TObjectPtr<UProjectileMovementComponent> ProjectileMovementComponent; 
+	TObjectPtr<UProjectileMovementComponent> ProjectileMovementComponent;
+
+	UPROPERTY()
+	TObjectPtr<UAudioComponent> ProjectileSoundComponent;
+	
+	UPROPERTY(EditAnywhere)
+	TObjectPtr<USoundBase> ProjectileSound;
+	
+	UPROPERTY(EditAnywhere)
+	TObjectPtr<USoundBase> ImpactSound;
+
+	UPROPERTY(EditAnywhere)
+	TObjectPtr<UNiagaraSystem> ImpactEffect;
+
+	bool bHit = false;
+	float LifeSpan = 5.f;
 };

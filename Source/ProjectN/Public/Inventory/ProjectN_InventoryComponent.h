@@ -88,6 +88,9 @@ public:
 	
 	UFUNCTION(BlueprintCallable, BlueprintPure)
 	AProjectN_ItemActor_Base* GetEquippedWeaponBySlot(const EItemSlot InItemSlot);
+
+	UFUNCTION(BlueprintCallable, BlueprintPure)
+	FGameplayTag GetWeaponTypeBySlot(const EItemSlot InItemSlot);
 	
 	UFUNCTION(BlueprintCallable, BlueprintPure)
 	FORCEINLINE  TArray<FInventoryItem>& GetItemsList() { return InventoryList.GetItemsRef(); }
@@ -97,7 +100,7 @@ public:
 	UFUNCTION(BlueprintCallable)
 	FORCEINLINE TArray<FInventoryItem>& GetItems() { return InventoryList.GetItemsRef(); }
 
-	FVector FindSocketLocationByTag(const FGameplayTag& InputTag);
+	FVector FindSocketLocationBySlot(const EItemSlot ItemSlot);
 
 	/******************************
 	 *   For inventory component
@@ -154,9 +157,6 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	TMap<FGameplayTag, EItemSlot> AssociatedInputTagWithSlot;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-	TMap<EItemSlot, FGameplayTag> AssociatedSlotWithWeaponSlotTag;
 
 private:
 	

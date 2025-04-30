@@ -8,6 +8,7 @@
 #include "Interfaces/AvatarInfoInterface.h"
 #include "ProjectN_PlayerState.generated.h"
 
+enum class EItemSlot : uint8;
 struct FOnAttributeChangeData;
 struct FLevelUpInfo;
 class ULevelUpDataInfo;
@@ -33,7 +34,7 @@ public:
 	*  Avatar Actor Interface
 	**************************/
 	virtual int32 GetCharacterLevel_Implementation() const override { return Level; }
-	virtual FVector GetWeaponSocketLocation_Implementation(const FGameplayTag& InputTag) const override;
+	virtual FVector GetWeaponSocketLocation_Implementation(const EItemSlot ItemSlot) const override;
 	
 	FOnGameplayValueChangedSignature OnLevelChanged;
 	FOnGameplayValueChangedSignature OnXPChanged;

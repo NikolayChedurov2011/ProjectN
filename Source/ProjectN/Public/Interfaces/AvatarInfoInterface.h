@@ -24,5 +24,5 @@ public:
 	int32 GetCharacterLevel() const;
 	
 	UFUNCTION(BlueprintNativeEvent)
-	FVector GetWeaponSocketLocation(const FGameplayTag& InputTag) const;
+	FVector GetWeaponSocketLocation(const EItemSlot ItemSlot) const;
 };

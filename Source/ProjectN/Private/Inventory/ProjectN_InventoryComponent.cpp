@@ -89,9 +89,9 @@ void UProjectN_InventoryComponent::InitializeComponent()
 
 	if (UAbilitySystemComponent* ASC = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(GetOwner()))
 	{
-		ASC->GenericGameplayEventCallbacks.FindOrAdd(ProjectNGameplayTags::InventoryTag_Equip).AddUObject(this, &UProjectN_InventoryComponent::GameplayEventCallback);
-		ASC->GenericGameplayEventCallbacks.FindOrAdd(ProjectNGameplayTags::InventoryTag_UnEquip).AddUObject(this, &UProjectN_InventoryComponent::GameplayEventCallback);
-		ASC->GenericGameplayEventCallbacks.FindOrAdd(ProjectNGameplayTags::InventoryTag_Drop).AddUObject(this, &UProjectN_InventoryComponent::GameplayEventCallback);
+		//ASC->GenericGameplayEventCallbacks.FindOrAdd(ProjectNGameplayTags::InventoryTag_Equip).AddUObject(this, &UProjectN_InventoryComponent::GameplayEventCallback);
+		//ASC->GenericGameplayEventCallbacks.FindOrAdd(ProjectNGameplayTags::InventoryTag_UnEquip).AddUObject(this, &UProjectN_InventoryComponent::GameplayEventCallback);
+		//ASC->GenericGameplayEventCallbacks.FindOrAdd(ProjectNGameplayTags::InventoryTag_Drop).AddUObject(this, &UProjectN_InventoryComponent::GameplayEventCallback);
 	}
 }
 
@@ -348,11 +348,15 @@ void UProjectN_InventoryComponent::EquipItemByInstance(UProjectN_ItemInstance* I
 				UpdateWeaponMode();
 				
 				const IAbilitySystemInterface* ASCInterface = Cast<IAbilitySystemInterface>(GetOwner());
+				
+				//const FGameplayTag GeneratedTag = FGameplayTag::RequestGameplayTag(FName(*AssociatedSlotWithWeaponSlotTag.Find(FindItemDataByInstance(InItemInstance)->ItemSlot)->ToString() + WeaponItemStaticClass->GetWeaponTypeTag().ToString()));
+				//ASCInterface->GetAbilitySystemComponent()->AddLooseGameplayTag(GeneratedTag);
+				
 				// Add weapon tag
-				ASCInterface->GetAbilitySystemComponent()->AddLooseGameplayTag(WeaponItemStaticClass->GetWeaponTypeTag());
+				//ASCInterface->GetAbilitySystemComponent()->AddLooseGameplayTag(WeaponItemStaticClass->GetWeaponTypeTag());
 				
 				// Add weapon slot tag
-				ASCInterface->GetAbilitySystemComponent()->AddLooseGameplayTag(*AssociatedSlotWithWeaponSlotTag.Find(FindItemDataByInstance(InItemInstance)->ItemSlot));
+				//ASCInterface->GetAbilitySystemComponent()->AddLooseGameplayTag(*AssociatedSlotWithWeaponSlotTag.Find(FindItemDataByInstance(InItemInstance)->ItemSlot));
 			}
 			
 			PrintMessage(TEXT("Slot is equipped and added"));
@@ -404,11 +408,12 @@ void UProjectN_InventoryComponent::UnEquipItemByInstance(UProjectN_ItemInstance*
 			UpdateWeaponMode();
 				
 			const IAbilitySystemInterface* ASCInterface = Cast<IAbilitySystemInterface>(GetOwner());
+			
 			// Remove weapon tag
-			ASCInterface->GetAbilitySystemComponent()->RemoveLooseGameplayTag(WeaponItemStaticClass->GetWeaponTypeTag());
+			//ASCInterface->GetAbilitySystemComponent()->RemoveLooseGameplayTag(WeaponItemStaticClass->GetWeaponTypeTag());
 
 			// Remove weapon slot tag
-			ASCInterface->GetAbilitySystemComponent()->RemoveLooseGameplayTag(*AssociatedSlotWithWeaponSlotTag.Find(FindItemDataByInstance(InItemInstance)->ItemSlot));
+			//ASCInterface->GetAbilitySystemComponent()->RemoveLooseGameplayTag(*AssociatedSlotWithWeaponSlotTag.Find(FindItemDataByInstance(InItemInstance)->ItemSlot));
 		}
 
 		// Remove item data from list of equipped items
@@ -487,15 +492,17 @@ FEquippedItemData* UProjectN_InventoryComponent::FindItemDataByInstance(const UP
 	return nullptr;
 }
 
-FVector UProjectN_InventoryComponent::FindSocketLocationByTag(const FGameplayTag& InputTag)
+FVector UProjectN_InventoryComponent::FindSocketLocationBySlot(const EItemSlot ItemSlot)
 {
-	if (!InputTag.IsValid())
+	if (ItemSlot == EItemSlot::None)
 	{
 		return FVector::ZeroVector;
 	}
-	FEquippedItemData* FindItem = FindItemDataBySlot(*AssociatedInputTagWithSlot.Find(InputTag));
+	
+	FEquippedItemData* FindItem = FindItemDataBySlot(ItemSlot);
 	if (FindItem != nullptr)
 	{
+		// Get the item actor and find the sockets
 		return Cast<UProjectN_EquippableItemInstance>(FindItem->ItemInstance)->GetItemSocketLocationForProjectile();
 	}
 	
@@ -509,6 +516,15 @@ AProjectN_ItemActor_Base* UProjectN_InventoryComponent::GetEquippedWeaponBySlot(
 		return Cast<UProjectN_EquippableItemInstance>(ItemData->ItemInstance)->GetItemActor();
 	}
 	return nullptr;
+}
+
+FGameplayTag UProjectN_InventoryComponent::GetWeaponTypeBySlot(const EItemSlot InItemSlot)
+{
+	if (const FEquippedItemData* ItemData = FindItemDataBySlot(InItemSlot))
+	{
+		return Cast<UWeaponItemStaticClass>(ItemData->ItemInstance->GetItemStaticClass())->GetWeaponTypeTag();
+	}
+	return FGameplayTag();
 }
 
 void UProjectN_InventoryComponent::RemoveSlot(const EItemSlot InItemSlot)
@@ -582,7 +598,7 @@ void UProjectN_InventoryComponent::UpdateWeaponMode()
 		return;
 	}
 
-	if (MainArmItemStaticClass && AuxiliaryArmItemStaticClass && Cast<UWeaponItemStaticClass>(MainArmItemStaticClass)->GetWeaponType() == Cast<UWeaponItemStaticClass>(AuxiliaryArmItemStaticClass)->GetWeaponType())
+	if (MainArmItemStaticClass && AuxiliaryArmItemStaticClass && Cast<UWeaponItemStaticClass>(MainArmItemStaticClass)->GetWeaponTypeTag() == Cast<UWeaponItemStaticClass>(AuxiliaryArmItemStaticClass)->GetWeaponTypeTag())
 	{
 		GiveWeaponAbilities(MainArmItemStaticClass, EWeaponMode::Dual, true, true);
 

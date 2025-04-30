@@ -47,10 +47,10 @@ namespace ProjectNGameplayTags
 	UE_DEFINE_GAMEPLAY_TAG(Item_Weapon_Damage_Min,				"Item.Weapon.Damage.Min")
 	UE_DEFINE_GAMEPLAY_TAG(Item_Weapon_Damage_Max,				"Item.Weapon.Damage.Max")
 	
-	UE_DEFINE_GAMEPLAY_TAG(Item_Weapon_Slot,					"Item.Weapon.Slot")
-	UE_DEFINE_GAMEPLAY_TAG(Item_Weapon_Slot_Main,				"Item.Weapon.Slot.Main")
-	UE_DEFINE_GAMEPLAY_TAG(Item_Weapon_Slot_Auxiliary,			"Item.Weapon.Slot.Auxiliary")
-	UE_DEFINE_GAMEPLAY_TAG(Item_Weapon_Slot_TwoHanded,			"Item.Weapon.Slot.TwoHanded")
+	UE_DEFINE_GAMEPLAY_TAG(Equipment_Slot,						"Equipment.Slot")
+	UE_DEFINE_GAMEPLAY_TAG(Equipment_Slot_Main,					"Equipment.Slot.Main")
+	UE_DEFINE_GAMEPLAY_TAG(Equipment_Slot_Auxiliary,			"Equipment.Slot.Auxiliary")
+	UE_DEFINE_GAMEPLAY_TAG(Equipment_Slot_TwoHanded,			"Equipment.Slot.TwoHanded")
 
 	/**** Message Tags ****/
 	UE_DEFINE_GAMEPLAY_TAG(Message,					"Message")

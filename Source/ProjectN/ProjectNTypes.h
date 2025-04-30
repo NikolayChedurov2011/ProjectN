@@ -191,9 +191,6 @@ protected:
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	TArray<TSubclassOf<UGameplayEffect>> ItemPassiveEffects;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	float ItemWeight = .0f;
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	TMap<FGameplayTag, float> ItemBonusAttributes;
@@ -221,9 +218,6 @@ class UWeaponItemStaticClass : public UEquippableItemStaticClass
 
 public:
 
-	UFUNCTION(BlueprintCallable, BlueprintPure)
-	FORCEINLINE EWeaponType GetWeaponType() const { return WeaponType; }
-	
 	/*
 	UFUNCTION(BlueprintCallable, BlueprintPure)
 	FORCEINLINE TSubclassOf<UGameplayAbility> GetMainWeaponAbility() const { return MainWeaponAbility; }
@@ -265,9 +259,6 @@ public:
 	FORCEINLINE FGameplayTag GetWeaponTypeTag() const { return WeaponTypeTag; }
 	
 protected:
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	EWeaponType WeaponType = EWeaponType::None;
 
 	UPROPERTY(EditDefaultsOnly, Category="Sockets")
 	FName TwoHandOffHandSocketName = TEXT("hand_ik_target");

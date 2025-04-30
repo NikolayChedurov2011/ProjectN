@@ -12,7 +12,7 @@ void UProjectN_ProjectileAbility::ActivateAbility(const FGameplayAbilitySpecHand
 	
 }
 
-void UProjectN_ProjectileAbility::SpawnProjectile()
+void UProjectN_ProjectileAbility::SpawnProjectile() const
 {
 	const bool bIsServer = GetOwningActorFromActorInfo()->HasAuthority();
 
@@ -25,7 +25,7 @@ void UProjectN_ProjectileAbility::SpawnProjectile()
 	if (GetOwningActorFromActorInfo()->Implements<UAvatarInfoInterface>())
 	{
 		FTransform SpawnTransform;		
-		const FVector SocketLocation = IAvatarInfoInterface::Execute_GetWeaponSocketLocation(GetOwningActorFromActorInfo(), GetCurrentAbilitySpec()->DynamicAbilityTags.First());
+		const FVector SocketLocation = IAvatarInfoInterface::Execute_GetWeaponSocketLocation(GetOwningActorFromActorInfo(), RequiredSlot);
 
 		SpawnTransform.SetLocation(SocketLocation);
 		SpawnTransform.SetRotation(GetAvatarActorFromActorInfo()->GetActorRotation().Quaternion());
@@ -45,7 +45,7 @@ void UProjectN_ProjectileAbility::SpawnProjectile_Internal(const FVector& Target
 	if (GetOwningActorFromActorInfo()->Implements<UAvatarInfoInterface>())
 	{
 		FTransform SpawnTransform;
-		const FVector SocketLocation = IAvatarInfoInterface::Execute_GetWeaponSocketLocation(GetOwningActorFromActorInfo(), GetCurrentAbilitySpec()->DynamicAbilityTags.First());
+		const FVector SocketLocation = IAvatarInfoInterface::Execute_GetWeaponSocketLocation(GetOwningActorFromActorInfo(), RequiredSlot);
 		const FRotator Rotation = (TargetLocation - SocketLocation).Rotation();
 
 		SpawnTransform.SetLocation(SocketLocation);
