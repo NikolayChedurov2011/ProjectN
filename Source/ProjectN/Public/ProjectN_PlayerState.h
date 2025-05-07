@@ -6,6 +6,7 @@
 #include "AbilitySystemInterface.h"
 #include "GameFramework/PlayerState.h"
 #include "Interfaces/AvatarInfoInterface.h"
+#include "Interfaces/InventoryInterface.h"
 #include "ProjectN_PlayerState.generated.h"
 
 enum class EItemSlot : uint8;
@@ -19,7 +20,7 @@ class UProjectN_InventoryComponent;
 DECLARE_MULTICAST_DELEGATE_OneParam(FOnGameplayValueChangedSignature, int32 /*Value*/);
 
 UCLASS()
-class PROJECTN_API AProjectN_PlayerState : public APlayerState, public IAbilitySystemInterface, public IAvatarInfoInterface
+class PROJECTN_API AProjectN_PlayerState : public APlayerState, public IAbilitySystemInterface, public IAvatarInfoInterface, public IInventoryInterface
 {
 	GENERATED_BODY()
 
@@ -66,6 +67,13 @@ public:
 	int32 GetXPForNextLevelUpByLevel(const int32 InLevel) const;
 	int32 GetSkillTreePointsRewardForLevel(const int32 InLevel) const;
 	TArray<FLevelUpInfo>& GetLevelUpInformationContainer() const;
+
+	/*************************
+	*  Inventory Interface
+	**************************/
+	float GetWeaponMinDamageForSlot_Implementation(const EItemSlot ItemSlot) const override;
+	float GetWeaponMaxDamageForSlot_Implementation(const EItemSlot ItemSlot) const override;
+	AProjectN_ItemActor_Base* GetEquippedWeaponForSlot_Implementation(const EItemSlot ItemSlot) const override;
 
 protected:
 	

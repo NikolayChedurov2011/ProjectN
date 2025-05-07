@@ -87,23 +87,32 @@ public:
 	bool IsEquippableItem(UProjectN_ItemInstance* InItemInstance) const;
 	
 	UFUNCTION(BlueprintCallable, BlueprintPure)
-	AProjectN_ItemActor_Base* GetEquippedWeaponBySlot(const EItemSlot InItemSlot);
+	FORCEINLINE  TArray<FInventoryItem>& GetItemsList() { return InventoryList.GetItemsRef(); }
+
+	/*********************
+	 *   Equippable items
+	 *********************/
+	FVector FindSocketLocationBySlot(const EItemSlot ItemSlot);
+
+	/*********************
+	 *   Weapon items
+	 *********************/
+	UFUNCTION(BlueprintCallable, BlueprintPure)
+	AProjectN_ItemActor_Base* GetEquippedWeaponActorBySlot(const EItemSlot InItemSlot);
+
+	UFUNCTION(BlueprintCallable, BlueprintPure)
+	float GetWeaponMinDamageForSlot(const EItemSlot InItemSlot);
+
+	UFUNCTION(BlueprintCallable, BlueprintPure)
+	float GetWeaponMaxDamageForSlot(const EItemSlot InItemSlot);
 
 	UFUNCTION(BlueprintCallable, BlueprintPure)
 	FGameplayTag GetWeaponTypeBySlot(const EItemSlot InItemSlot);
 	
-	UFUNCTION(BlueprintCallable, BlueprintPure)
-	FORCEINLINE  TArray<FInventoryItem>& GetItemsList() { return InventoryList.GetItemsRef(); }
-
-	virtual void GameplayEventCallback(const FGameplayEventData* Payload);
-	
-	UFUNCTION(BlueprintCallable)
-	FORCEINLINE TArray<FInventoryItem>& GetItems() { return InventoryList.GetItemsRef(); }
-
-	FVector FindSocketLocationBySlot(const EItemSlot ItemSlot);
+	//virtual void GameplayEventCallback(const FGameplayEventData* Payload);
 
 	/******************************
-	 *   For inventory component
+	 *   For inventory controller
 	 ******************************/
 	UFUNCTION(Client, Reliable)
 	void ClientUpdateItemInfo(UProjectN_ItemInstance* ItemInstance);
@@ -114,8 +123,8 @@ public:
 protected:
 	virtual void InitializeComponent() override;
 
-	UFUNCTION()
-	void AddInventoryTags();
+	//UFUNCTION()
+	//void AddInventoryTags();
 
 	//void HandleGameplayEventInternal(const FGameplayEventData Payload);
 

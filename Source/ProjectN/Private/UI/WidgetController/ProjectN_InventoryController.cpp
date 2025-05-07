@@ -39,7 +39,7 @@ void UProjectN_InventoryController::BroadcastInitialValues()
 	if (InventoryComponent)
 	{
 		TArray<FInventoryItemInfo> ItemsInfo;
-		for (const FInventoryItem ItemInfo : InventoryComponent->GetItems())
+		for (const FInventoryItem ItemInfo : InventoryComponent->GetItemsList())
 		{
 			FInventoryItemInfo Item;
 			Item.ItemIcon = ItemInfo.ItemInstance->GetItemStaticClass()->GetItemIcon();

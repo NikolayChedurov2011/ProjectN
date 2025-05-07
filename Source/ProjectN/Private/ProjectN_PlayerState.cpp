@@ -141,3 +141,36 @@ TArray<FLevelUpInfo>& AProjectN_PlayerState::GetLevelUpInformationContainer() co
 {
 	return LevelUpInfo->LevelUpInformationContainer;
 }
+
+/*************************
+*  Inventory Interface
+**************************/
+float AProjectN_PlayerState::GetWeaponMinDamageForSlot_Implementation(const EItemSlot ItemSlot) const
+{
+	if (ItemSlot == EItemSlot::None)
+	{
+		return 0.0f;
+	}
+	
+	return ProjectN_InventoryComponent->GetWeaponMinDamageForSlot(ItemSlot);
+}
+
+float AProjectN_PlayerState::GetWeaponMaxDamageForSlot_Implementation(const EItemSlot ItemSlot) const
+{
+	if (ItemSlot == EItemSlot::None)
+	{
+		return 0.0f;
+	}
+	
+	return ProjectN_InventoryComponent->GetWeaponMaxDamageForSlot(ItemSlot);
+}
+
+AProjectN_ItemActor_Base* AProjectN_PlayerState::GetEquippedWeaponForSlot_Implementation(const EItemSlot ItemSlot) const
+{
+	if (ItemSlot == EItemSlot::None)
+	{
+		return nullptr;
+	}
+	
+	return ProjectN_InventoryComponent->GetEquippedWeaponActorBySlot(ItemSlot);
+}

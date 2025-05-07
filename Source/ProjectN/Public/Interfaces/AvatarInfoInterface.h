@@ -6,6 +6,7 @@
 #include "UObject/Interface.h"
 #include "AvatarInfoInterface.generated.h"
 
+enum class EItemSlot : uint8;
 struct FGameplayTag;
 
 UINTERFACE(MinimalAPI)

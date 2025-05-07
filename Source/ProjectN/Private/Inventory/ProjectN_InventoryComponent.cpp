@@ -28,7 +28,7 @@ UProjectN_InventoryComponent::UProjectN_InventoryComponent()
 	//UGameplayTagsManager().Get().OnLastChanceToAddNativeTags().AddUObject(this, &UProjectN_InventoryComponent::AddInventoryTags);
 }
 
-void UProjectN_InventoryComponent::AddInventoryTags()
+/*void UProjectN_InventoryComponent::AddInventoryTags()
 {
 	UGameplayTagsManager& TagsManager = UGameplayTagsManager::Get();
 
@@ -37,7 +37,7 @@ void UProjectN_InventoryComponent::AddInventoryTags()
 	//UProjectN_InventoryComponent::DropItemTag = TagsManager.AddNativeGameplayTag(TEXT("Inventory.DropItem"), TEXT("Drop item"));
 	
 	TagsManager.OnLastChanceToAddNativeTags().RemoveAll(this);
-}
+}*/
 
 void UProjectN_InventoryComponent::GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const
 {
@@ -98,7 +98,7 @@ void UProjectN_InventoryComponent::InitializeComponent()
 /***************************************
  * Main functions to handle inventory
  ***************************************/
-void UProjectN_InventoryComponent::GameplayEventCallback(const FGameplayEventData* Payload)
+/*void UProjectN_InventoryComponent::GameplayEventCallback(const FGameplayEventData* Payload)
 {
 	ENetRole NetRole = GetOwnerRole();
 	
@@ -110,7 +110,7 @@ void UProjectN_InventoryComponent::GameplayEventCallback(const FGameplayEventDat
 	{
 	//	ServerHandleGameplayEvent(*Payload);
 	}
-}
+}*/
 
 /*
 void UProjectN_InventoryComponent::HandleGameplayEventInternal(const FGameplayEventData Payload)
@@ -509,7 +509,7 @@ FVector UProjectN_InventoryComponent::FindSocketLocationBySlot(const EItemSlot I
 	return FVector::ZeroVector;
 }
 
-AProjectN_ItemActor_Base* UProjectN_InventoryComponent::GetEquippedWeaponBySlot(const EItemSlot InItemSlot)
+AProjectN_ItemActor_Base* UProjectN_InventoryComponent::GetEquippedWeaponActorBySlot(const EItemSlot InItemSlot)
 {
 	if (const FEquippedItemData* ItemData = FindItemDataBySlot(InItemSlot))
 	{
@@ -723,3 +723,20 @@ AProjectN_ItemActor_Base* UProjectN_InventoryComponent::GetWeaponActorByType(con
 	return nullptr;
 }
 */
+float UProjectN_InventoryComponent::GetWeaponMinDamageForSlot(const EItemSlot InItemSlot)
+{
+	if (const FEquippedItemData* ItemData = FindItemDataBySlot(InItemSlot))
+	{
+		return *Cast<UWeaponItemStaticClass>(ItemData->ItemInstance->GetItemStaticClass())->GetItemBonusAttributes().Find(ProjectNGameplayTags::Item_Weapon_Damage_Min);
+	}
+	return 0.f;
+}
+
+float UProjectN_InventoryComponent::GetWeaponMaxDamageForSlot(const EItemSlot InItemSlot)
+{
+	if (const FEquippedItemData* ItemData = FindItemDataBySlot(InItemSlot))
+	{
+		return *Cast<UWeaponItemStaticClass>(ItemData->ItemInstance->GetItemStaticClass())->GetItemBonusAttributes().Find(ProjectNGameplayTags::Item_Weapon_Damage_Max);
+	}
+	return 0.f;
+}

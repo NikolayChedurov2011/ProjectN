@@ -20,10 +20,12 @@ protected:
 	UFUNCTION(BlueprintCallable)
 	void SpawnProjectile() const;
 
+	/*
 	UFUNCTION(Server, Reliable)
 	void ServerSpawnProjectile(const FVector& TargetLocation);
 
 	void SpawnProjectile_Internal(const FVector& TargetLocation) const;
+	*/
 	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Ability Defaults")
 	TSubclassOf<AProjectN_ProjectileBase> ProjectileToSpawn = nullptr;

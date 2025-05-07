@@ -5,6 +5,7 @@
 
 #include "Actors/ProjectN_ProjectileBase.h"
 #include "Interfaces/AvatarInfoInterface.h"
+#include "Interfaces/InventoryInterface.h"
 
 void UProjectN_ProjectileAbility::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData)
 {
@@ -32,9 +33,17 @@ void UProjectN_ProjectileAbility::SpawnProjectile() const
 
 		AProjectN_ProjectileBase* SpawnedProjectile = GetWorld()->SpawnActorDeferred<AProjectN_ProjectileBase>(ProjectileToSpawn, SpawnTransform, GetOwningActorFromActorInfo(), Cast<APawn>(GetAvatarActorFromActorInfo()),  ESpawnActorCollisionHandlingMethod::AlwaysSpawn);
 		SpawnedProjectile->FinishSpawning(SpawnTransform);
+
+		// TODO: Use these values to set weapon abilities damage
+		if (GetOwningActorFromActorInfo()->Implements<UInventoryInterface>())
+		{
+			IInventoryInterface::Execute_GetWeaponMinDamageForSlot(GetOwningActorFromActorInfo(), RequiredSlot);
+			IInventoryInterface::Execute_GetWeaponMaxDamageForSlot(GetOwningActorFromActorInfo(), RequiredSlot);
+		}
 	}
 }
 
+/*
 void UProjectN_ProjectileAbility::ServerSpawnProjectile_Implementation(const FVector& TargetLocation)
 {
 	SpawnProjectile_Internal(TargetLocation);
@@ -55,3 +64,4 @@ void UProjectN_ProjectileAbility::SpawnProjectile_Internal(const FVector& Target
 		SpawnedProjectile->FinishSpawning(SpawnTransform);
 	}
 }
+*/
