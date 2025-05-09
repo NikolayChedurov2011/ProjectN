@@ -315,11 +315,10 @@ void AProjectN_PlayerCharacter::LevelUP_Implementation()
 *******************/
 void AProjectN_PlayerCharacter::Console_AddXP(const float XPToAdd) const
 {
-	//ServerAddXP(XPToAdd);
-	ProjectN_AbilitySystemComponent->ServerAddToAttributeByTag(ProjectNGameplayTags::Attribute_XP, XPToAdd);
+	ProjectN_AbilitySystemComponent->ServerAddToAttributeByTag(ProjectNGameplayTags::Attribute_Meta_XP, XPToAdd);
 }
 
-void AProjectN_PlayerCharacter::ServerAddXP_Implementation(const float XPToAdd)
-{	
-	
+void AProjectN_PlayerCharacter::Console_AddDamage(const float DamageToAdd) const
+{
+	ProjectN_AbilitySystemComponent->ServerAddToAttributeByTag(ProjectNGameplayTags::Attribute_Meta_Damage, DamageToAdd);
 }

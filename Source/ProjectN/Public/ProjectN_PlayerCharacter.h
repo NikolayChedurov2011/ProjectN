@@ -60,8 +60,8 @@ public:
 
 	UFUNCTION(Exec)
 	void Console_AddXP(const float XPToAdd) const;
-	UFUNCTION(Server, Reliable)
-	void ServerAddXP(const float XPToAdd);
+	UFUNCTION(Exec)
+	void Console_AddDamage(const float DamageToAdd) const;
 
 protected:
 	virtual void InitAbilityActorInfo() override;

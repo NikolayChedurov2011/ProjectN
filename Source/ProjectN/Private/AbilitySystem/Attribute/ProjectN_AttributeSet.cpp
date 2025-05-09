@@ -177,6 +177,20 @@ void UProjectN_AttributeSet::PostGameplayEffectExecute(const struct FGameplayEff
 	SetMana(FMath::Clamp(GetMana(), 0.f, GetMaxMana()));
 	//SetStamina(FMath::Clamp(GetStamina(), 0.f, GetMaxStamina()));
 
+	if (Data.EvaluatedData.Attribute == GetIncomingDamageAttribute())
+	{
+		const float LocalIncomingDamage = GetIncomingDamage();
+		SetIncomingDamage(0.f);
+
+		if (LocalIncomingDamage > 0.f)
+		{
+			const float NewHealth = GetHealth() - LocalIncomingDamage;
+			SetHealth(FMath::Clamp(NewHealth, 0.f, GetMaxHealth()));
+
+			const bool bIsFatal = NewHealth <= 0.f;
+		}
+	}
+	
 	if (Data.EvaluatedData.Attribute == GetIncomingXPAttribute())
     {
 	    if (Props.SourceProperties.Character->Implements<UPlayerInterface>() && Props.SourceProperties.Character->Implements<UAvatarInfoInterface>())
@@ -214,9 +228,9 @@ void UProjectN_AttributeSet::SendXPEvent(const FEffectProperties& Props) const
 	{
 		FGameplayEventData EventPayload;
 		EventPayload.EventMagnitude = INPCInterface::Execute_GetNPCRewardXP(Props.TargetProperties.Character);
-		EventPayload.EventTag = ProjectNGameplayTags::Attribute_XP;
+		EventPayload.EventTag = ProjectNGameplayTags::Attribute_Meta_XP;
 
-		UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(Props.SourceProperties.Character, ProjectNGameplayTags::Attribute_XP, EventPayload);
+		UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(Props.SourceProperties.Character, ProjectNGameplayTags::Attribute_Meta_XP, EventPayload);
 	}
 }
 

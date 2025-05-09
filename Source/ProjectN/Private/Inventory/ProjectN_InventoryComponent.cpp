@@ -98,7 +98,8 @@ void UProjectN_InventoryComponent::InitializeComponent()
 /***************************************
  * Main functions to handle inventory
  ***************************************/
-/*void UProjectN_InventoryComponent::GameplayEventCallback(const FGameplayEventData* Payload)
+/*
+void UProjectN_InventoryComponent::GameplayEventCallback(const FGameplayEventData* Payload)
 {
 	ENetRole NetRole = GetOwnerRole();
 	
@@ -110,7 +111,8 @@ void UProjectN_InventoryComponent::InitializeComponent()
 	{
 	//	ServerHandleGameplayEvent(*Payload);
 	}
-}*/
+}
+*/
 
 /*
 void UProjectN_InventoryComponent::HandleGameplayEventInternal(const FGameplayEventData Payload)
