@@ -88,11 +88,15 @@ namespace ProjectNGameplayTags
 	UE_DEFINE_GAMEPLAY_TAG(Attribute_Secondary_ManaRegeneration,			"Attribute.Secondary.ManaRegeneration")
 
 	/**** Meta Attributes Tags ****/
-	UE_DEFINE_GAMEPLAY_TAG(Attribute_Meta_XP,									"Attribute.Meta.XP")
-	UE_DEFINE_GAMEPLAY_TAG(Attribute_Meta_Damage,								"Attribute.Meta.Damage")
+	UE_DEFINE_GAMEPLAY_TAG(Attribute_Meta_XP,								"Attribute.Meta.XP")
+	UE_DEFINE_GAMEPLAY_TAG(Attribute_Meta_Damage,							"Attribute.Meta.Damage")
 
 	/**** Event Tags ****/
 	UE_DEFINE_GAMEPLAY_TAG(Event_Montage_SpawnEffect,			"Event.Montage.SpawnEffect")
+
+	/**** Effect Tags ****/
+	UE_DEFINE_GAMEPLAY_TAG(Effect,								"Effect")
+	UE_DEFINE_GAMEPLAY_TAG(Effect_HitReact,						"Effect.HitReact")
 
 	/**** Menu Tags ****/
 	UE_DEFINE_GAMEPLAY_TAG(Menu_SaveSlot,						"Menu.SaveSlot")

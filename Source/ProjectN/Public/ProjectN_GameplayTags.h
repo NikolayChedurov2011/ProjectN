@@ -93,6 +93,10 @@ namespace ProjectNGameplayTags
 	/**** Event Tags ****/
 	PROJECTN_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Event_Montage_SpawnEffect)
 
+	/**** Effect Tags ****/
+	PROJECTN_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Effect)
+	PROJECTN_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Effect_HitReact)
+
 	/**** Menu Tags ****/
 	PROJECTN_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Menu_SaveSlot)
 

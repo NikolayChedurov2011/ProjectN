@@ -1,2 +1,2 @@
-Update meta attribute tag names.
-Implement meta attributes.
+Implement GE_Damage with caller by magnitude.
+Now UProjectN_ProjectileAbility implements UInventoryInterface, get Min and Max weapon damage values, get random value in this range and AssignTagSetByCallerMagnitude.

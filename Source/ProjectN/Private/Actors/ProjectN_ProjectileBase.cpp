@@ -3,6 +3,8 @@
 
 #include "Actors/ProjectN_ProjectileBase.h"
 
+#include "AbilitySystemBlueprintLibrary.h"
+#include "AbilitySystemComponent.h"
 #include "NiagaraFunctionLibrary.h"
 #include "Components/AudioComponent.h"
 #include "Components/SphereComponent.h"
@@ -59,6 +61,10 @@ void AProjectN_ProjectileBase::OnSphereComponentOverlap(UPrimitiveComponent* Ove
 	
 	if(HasAuthority())
 	{
+		if (UAbilitySystemComponent* TargetASC = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(OtherActor))
+		{
+			TargetASC->ApplyGameplayEffectSpecToSelf(*DamageEffectHandle.Data.Get());
+		}
 		Destroy();
 	}
 	else

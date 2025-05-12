@@ -3,13 +3,14 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "AbilitySystem/Ability/ProjectN_GameplayAbilityBase.h"
+#include "AbilitySystem/Ability/ProjectN_DamageAbilityBase.h"
 #include "ProjectN_ProjectileAbility.generated.h"
 
 class AProjectN_ProjectileBase;
+class UGameplayEffect;
 
 UCLASS()
-class PROJECTN_API UProjectN_ProjectileAbility : public UProjectN_GameplayAbilityBase
+class PROJECTN_API UProjectN_ProjectileAbility : public UProjectN_DamageAbilityBase
 {
 	GENERATED_BODY()
 

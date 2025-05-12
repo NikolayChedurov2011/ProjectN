@@ -3,9 +3,13 @@
 
 #include "AbilitySystem/Ability/Projectile/ProjectN_ProjectileAbility.h"
 
+#include "AbilitySystemBlueprintLibrary.h"
+#include "AbilitySystemComponent.h"
+#include "ProjectN_GameplayTags.h"
 #include "Actors/ProjectN_ProjectileBase.h"
 #include "Interfaces/AvatarInfoInterface.h"
 #include "Interfaces/InventoryInterface.h"
+#include "Kismet/KismetMathLibrary.h"
 
 void UProjectN_ProjectileAbility::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData)
 {
@@ -25,21 +29,28 @@ void UProjectN_ProjectileAbility::SpawnProjectile() const
 	
 	if (GetOwningActorFromActorInfo()->Implements<UAvatarInfoInterface>())
 	{
-		FTransform SpawnTransform;		
+		FTransform SpawnTransform;
 		const FVector SocketLocation = IAvatarInfoInterface::Execute_GetWeaponSocketLocation(GetOwningActorFromActorInfo(), RequiredSlot);
 
 		SpawnTransform.SetLocation(SocketLocation);
 		SpawnTransform.SetRotation(GetAvatarActorFromActorInfo()->GetActorRotation().Quaternion());
 
 		AProjectN_ProjectileBase* SpawnedProjectile = GetWorld()->SpawnActorDeferred<AProjectN_ProjectileBase>(ProjectileToSpawn, SpawnTransform, GetOwningActorFromActorInfo(), Cast<APawn>(GetAvatarActorFromActorInfo()),  ESpawnActorCollisionHandlingMethod::AlwaysSpawn);
-		SpawnedProjectile->FinishSpawning(SpawnTransform);
-
-		// TODO: Use these values to set weapon abilities damage
-		if (GetOwningActorFromActorInfo()->Implements<UInventoryInterface>())
+		
+		if (GetOwningActorFromActorInfo()->Implements<UInventoryInterface>() && IsValid(DamageEffect))
 		{
-			IInventoryInterface::Execute_GetWeaponMinDamageForSlot(GetOwningActorFromActorInfo(), RequiredSlot);
-			IInventoryInterface::Execute_GetWeaponMaxDamageForSlot(GetOwningActorFromActorInfo(), RequiredSlot);
+			const float MinDamage = IInventoryInterface::Execute_GetWeaponMinDamageForSlot(GetOwningActorFromActorInfo(), RequiredSlot);
+			const float MaxDamage = IInventoryInterface::Execute_GetWeaponMaxDamageForSlot(GetOwningActorFromActorInfo(), RequiredSlot);
+			const float FinalDamage = UKismetMathLibrary::RandomFloatInRange(MinDamage, MaxDamage);
+			
+			const UAbilitySystemComponent* SourceASC = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(GetOwningActorFromActorInfo());
+			const FGameplayEffectSpecHandle SpecHandle = SourceASC->MakeOutgoingSpec(DamageEffect, GetAbilityLevel(), SourceASC->MakeEffectContext());
+			
+			UAbilitySystemBlueprintLibrary::AssignTagSetByCallerMagnitude(SpecHandle, ProjectNGameplayTags::Attribute_Meta_Damage, FinalDamage);
+			SpawnedProjectile->SetDamageEffectHandle(SpecHandle);
 		}
+		
+		SpawnedProjectile->FinishSpawning(SpawnTransform);
 	}
 }
 
