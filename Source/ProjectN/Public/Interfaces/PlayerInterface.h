@@ -38,6 +38,4 @@ public:
 	
 	UFUNCTION(BlueprintNativeEvent)
 	void LevelUP();
-
-
 };

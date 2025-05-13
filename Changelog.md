@@ -1,2 +1,2 @@
-Implement GE_Damage with caller by magnitude.
-Now UProjectN_ProjectileAbility implements UInventoryInterface, get Min and Max weapon damage values, get random value in this range and AssignTagSetByCallerMagnitude.
+Implement death event, hit reaction, new tags for immunity, data asset for mannequin and update this data asset with passive effect and abilities.
+TODO: Error  LogAbilitySystem FGameplayEffectSpec::GetMagnitude called for Data Damage.Physical on Def Default__GE_Damage_C when magnitude had not yet been set by caller.

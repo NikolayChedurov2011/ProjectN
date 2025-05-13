@@ -103,19 +103,19 @@ void AProjectN_PlayerCharacter::GiveStartupAbilitiesAndEffects()
 		EffectContext.AddSourceObject(this);
 
 		// Activate base passive effects
-		for (const TSubclassOf DefaultEffect : GetCharacterData().PassiveEffects)
+		for (const TSubclassOf<UGameplayEffect> PassiveEffect : GetCharacterData().PassiveEffects)
 		{
-			Cast<UProjectN_AbilitySystemComponent>(GetAbilitySystemComponent())->ApplyGamePlayEffectToSelf_Internal(DefaultEffect, EffectContext, 1.f);
+			Cast<UProjectN_AbilitySystemComponent>(GetAbilitySystemComponent())->ApplyGamePlayEffectToSelf_Internal(PassiveEffect, EffectContext, 1.f);
 		}
 
-		for (const TSubclassOf DefaultAbility : GetCharacterData().DefaultAbilities)
+		for (const TSubclassOf<UGameplayAbility> DefaultAbility : GetCharacterData().DefaultAbilities)
 		{
 			Cast<UProjectN_AbilitySystemComponent>(GetAbilitySystemComponent())->AddAbility(DefaultAbility);
 		}
 		
-		for (const TSubclassOf DefaultAbility : GetCharacterData().PassiveAbilities)
+		for (const TSubclassOf<UGameplayAbility> PassiveAbility : GetCharacterData().PassiveAbilities)
 		{
-			Cast<UProjectN_AbilitySystemComponent>(GetAbilitySystemComponent())->AddPassiveAbility(DefaultAbility);
+			Cast<UProjectN_AbilitySystemComponent>(GetAbilitySystemComponent())->AddPassiveAbility(PassiveAbility);
 		}
 
 		//  Effect for bind dependency of health or other main attribute with their primary attributes

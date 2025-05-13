@@ -27,6 +27,12 @@ public:
 	virtual float GetNPCRewardXP_Implementation() const override;
 	virtual ENPCRarity GetNPCRarity_Implementation() const override;
 	virtual int32 GetNPCLevel_Implementation() const override;
+
+	void HitReactTagChanged(const FGameplayTag CallbackTag, const int32 NewCount);
+	virtual void Die() override;
+
+	UPROPERTY(BlueprintReadOnly, Category="Combat")
+	bool bHitReacting = false;
 	
 protected:
 	virtual void BeginPlay() override;

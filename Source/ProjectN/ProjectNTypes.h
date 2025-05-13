@@ -21,6 +21,9 @@ struct FAnimationData
 	
 	UPROPERTY(EditAnywhere, Category = "Animation")
 	UAnimSequenceBase* IdleAnimation = nullptr;
+
+	UPROPERTY(EditAnywhere, Category = "Animation")
+	UAnimMontage* HitReactAnimation = nullptr;
 };
 
 UENUM(BlueprintType)

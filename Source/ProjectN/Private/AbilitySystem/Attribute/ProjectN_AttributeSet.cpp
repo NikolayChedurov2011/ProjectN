@@ -8,6 +8,7 @@
 #include "ProjectN_GameplayTags.h"
 #include "GameFramework/Character.h"
 #include "Interfaces/AvatarInfoInterface.h"
+#include "Interfaces/CombatInterface.h"
 #include "Interfaces/NPCInterface.h"
 #include "Interfaces/PlayerInterface.h"
 #include "Net/UnrealNetwork.h"
@@ -177,17 +178,32 @@ void UProjectN_AttributeSet::PostGameplayEffectExecute(const struct FGameplayEff
 	SetMana(FMath::Clamp(GetMana(), 0.f, GetMaxMana()));
 	//SetStamina(FMath::Clamp(GetStamina(), 0.f, GetMaxStamina()));
 
-	if (Data.EvaluatedData.Attribute == GetIncomingDamageAttribute())
+	
+	// TODO: Track the damage to get reward xp for the enemies
+	// SendXPEvent(Props);
+	if (Data.EvaluatedData.Attribute == GetIncomingDamageAttribute() && !GetOwningAbilitySystemComponent()->HasMatchingGameplayTag(ProjectNGameplayTags::Effect_DamageImmunity))
 	{
 		const float LocalIncomingDamage = GetIncomingDamage();
 		SetIncomingDamage(0.f);
 
 		if (LocalIncomingDamage > 0.f)
 		{
+			FGameplayTagContainer TagContainer;
+			TagContainer.AddTag(ProjectNGameplayTags::Effect_HitReact);
+			Props.TargetProperties.AbilitySystemComponent->TryActivateAbilitiesByTag(TagContainer);
+			
 			const float NewHealth = GetHealth() - LocalIncomingDamage;
 			SetHealth(FMath::Clamp(NewHealth, 0.f, GetMaxHealth()));
 
 			const bool bIsFatal = NewHealth <= 0.f;
+
+			if (bIsFatal && !GetOwningAbilitySystemComponent()->HasMatchingGameplayTag(ProjectNGameplayTags::Effect_Immortality))
+			{
+				if (ICombatInterface* CombatInterface = Cast<ICombatInterface>(Props.TargetProperties.AvatarActor))
+				{
+					CombatInterface->Die();
+				}
+			}
 		}
 	}
 	
@@ -217,9 +233,6 @@ void UProjectN_AttributeSet::PostGameplayEffectExecute(const struct FGameplayEff
 	    	SetIncomingXP(0.f);
 		}
     }
-
-	// TODO: Track the damage to get reward xp for the enemies
-	// SendXPEvent(Props);
 }
 
 void UProjectN_AttributeSet::SendXPEvent(const FEffectProperties& Props) const

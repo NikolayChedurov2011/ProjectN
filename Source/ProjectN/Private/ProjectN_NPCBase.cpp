@@ -3,6 +3,7 @@
 
 #include "ProjectN_NPCBase.h"
 
+#include "ProjectN_GameplayTags.h"
 #include "AbilitySystem/Attribute/ProjectN_AttributeSet.h"
 
 AProjectN_NPCBase::AProjectN_NPCBase(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
@@ -22,6 +23,8 @@ void AProjectN_NPCBase::BeginPlay()
 
 	InitAbilityActorInfo();
 	GiveStartupAbilitiesAndEffects();
+
+	GetAbilitySystemComponent()->RegisterGameplayTagEvent(ProjectNGameplayTags::Effect_HitReact, EGameplayTagEventType::NewOrRemoved).AddUObject(this, &AProjectN_NPCBase::HitReactTagChanged);
 }
 
 void AProjectN_NPCBase::GiveStartupAbilitiesAndEffects()
@@ -51,11 +54,37 @@ void AProjectN_NPCBase::GiveStartupAbilitiesAndEffects()
 		// Call to init health and other main attributes
 		Cast<UProjectN_AbilitySystemComponent>(GetAbilitySystemComponent())->ApplyGamePlayEffectToSelf_Internal(NPCDataAsset->InitializeAttributes, EffectContext, 1.f);
 
-		for (const TSubclassOf DefaultAbility : NPCDataAsset->GetNPCData(NPCRarity).NPCAbilities)
+		for (const TSubclassOf<UGameplayAbility> DefaultAbility : NPCDataAsset->GetNPCData(NPCRarity).NPCAbilities)
 		{
 			Cast<UProjectN_AbilitySystemComponent>(GetAbilitySystemComponent())->AddAbility(DefaultAbility);
 		}
+
+		for (const TSubclassOf<UGameplayEffect> PassiveEffect : NPCDataAsset->GetNPCData(NPCRarity).PassiveEffects)
+		{
+			Cast<UProjectN_AbilitySystemComponent>(GetAbilitySystemComponent())->ApplyGamePlayEffectToSelf_Internal(PassiveEffect, EffectContext, 1.f);
+		}
 	}
+}
+
+void AProjectN_NPCBase::HitReactTagChanged(const FGameplayTag CallbackTag, const int32 NewCount)
+{
+	bHitReacting = NewCount > 0;
+	//TODO: Add to hit effect new slow walk speed
+	
+	if (bHitReacting)
+	{
+		
+	}
+	else
+	{
+		 
+	}
+}
+
+void AProjectN_NPCBase::Die()
+{
+	SetLifeSpan(3.f);
+	Super::Die();
 }
 
 float AProjectN_NPCBase::GetNPCRewardXP_Implementation() const

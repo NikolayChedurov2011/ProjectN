@@ -9,7 +9,7 @@
 
 enum class ENPCRarity : uint8;
 
-UINTERFACE(MinimalAPI)
+UINTERFACE(MinimalAPI, BlueprintType)
 class UNPCInterface : public UInterface
 {
 	GENERATED_BODY()

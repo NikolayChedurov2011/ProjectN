@@ -3,6 +3,7 @@
 #include "ProjectN_CharacterBase.h"
 
 #include "AbilitySystem/Attribute/ProjectN_AttributeSet.h"
+#include "Components/CapsuleComponent.h"
 #include "Components/ProjectN_MovementComponent.h"
 
 AProjectN_CharacterBase::AProjectN_CharacterBase(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer.SetDefaultSubobjectClass<UProjectN_MovementComponent>(ACharacter::CharacterMovementComponentName))
@@ -42,4 +43,22 @@ void AProjectN_CharacterBase::InitAbilityActorInfo()
 void AProjectN_CharacterBase::OnMaxMovementSpeedChanged(const FOnAttributeChangeData& Data) const
 {
 	GetCharacterMovement()->MaxWalkSpeed = Data.NewValue;
+}
+
+/***********************
+ * Character die
+ ***********************/
+void AProjectN_CharacterBase::Die()
+{
+	MulticastHandleDeath();
+}
+
+void AProjectN_CharacterBase::MulticastHandleDeath_Implementation()
+{
+	GetMesh()->SetSimulatePhysics(true);
+	GetMesh()->SetEnableGravity(true);
+	GetMesh()->SetCollisionEnabled(ECollisionEnabled::PhysicsOnly);
+	GetMesh()->SetCollisionResponseToChannel(ECC_WorldStatic, ECR_Block);
+	
+	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 }

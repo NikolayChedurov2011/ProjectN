@@ -97,6 +97,8 @@ namespace ProjectNGameplayTags
 	/**** Effect Tags ****/
 	UE_DEFINE_GAMEPLAY_TAG(Effect,								"Effect")
 	UE_DEFINE_GAMEPLAY_TAG(Effect_HitReact,						"Effect.HitReact")
+	UE_DEFINE_GAMEPLAY_TAG(Effect_DamageImmunity,				"Effect.DamageImmunity")
+	UE_DEFINE_GAMEPLAY_TAG(Effect_Immortality,					"Effect.Immortality")
 
 	/**** Menu Tags ****/
 	UE_DEFINE_GAMEPLAY_TAG(Menu_SaveSlot,						"Menu.SaveSlot")

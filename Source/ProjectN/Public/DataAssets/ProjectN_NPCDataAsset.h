@@ -25,11 +25,14 @@ struct FNPCDefaultData
 {
 	GENERATED_BODY()
 
-	UPROPERTY(EditDefaultsOnly, Category="Class Defaults")
+	UPROPERTY(EditDefaultsOnly, Category="NPC Defaults")
 	TSubclassOf<UGameplayEffect> PrimaryAttributes;
 
-	UPROPERTY(EditDefaultsOnly, Category="Class Defaults")
+	UPROPERTY(EditDefaultsOnly, Category="NPC Defaults")
 	TArray<TSubclassOf<UGameplayAbility>> NPCAbilities;
+
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "NPC Defaults")
+	TArray<TSubclassOf<UGameplayEffect>> PassiveEffects;
 	
 	UPROPERTY(EditDefaultsOnly)
 	FScalableFloat RewardXP = FScalableFloat();
