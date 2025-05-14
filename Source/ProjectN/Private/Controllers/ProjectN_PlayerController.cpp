@@ -5,8 +5,10 @@
 
 #include "AbilitySystemBlueprintLibrary.h"
 #include "EnhancedInputSubsystems.h"
+#include "MovieSceneTracksComponentTypes.h"
 #include "ProjectN_GameplayTags.h"
 #include "AbilitySystem/ProjectN_AbilitySystemComponent.h"
+#include "Components/ProjectN_DamageTextComponent.h"
 #include "Components/Input/ProjectN_InputComponent.h"
 
 AProjectN_PlayerController::AProjectN_PlayerController()
@@ -126,4 +128,18 @@ void AProjectN_PlayerController::Input_Look(const FInputActionValue& ActionValue
 	{
 		GetPawn()->AddControllerPitchInput(LookAxisVector.Y);
 	}
+}
+
+void AProjectN_PlayerController::ShowDamageNumber_Implementation(const float Damage, AActor* Target)
+{
+	if (!IsValid(Target) || !DamageTextComponentClass)
+	{
+		return;
+	}
+
+	UProjectN_DamageTextComponent* DamageTextComponent = NewObject<UProjectN_DamageTextComponent>(Target, DamageTextComponentClass);
+	DamageTextComponent->RegisterComponent();
+	DamageTextComponent->AttachToComponent(Target->GetRootComponent(), FAttachmentTransformRules::KeepRelativeTransform);
+	DamageTextComponent->DetachFromComponent(FDetachmentTransformRules::KeepWorldTransform);
+	DamageTextComponent->SetDamageText(Damage);
 }

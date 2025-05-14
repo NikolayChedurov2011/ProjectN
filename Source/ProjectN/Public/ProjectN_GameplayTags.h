@@ -79,6 +79,7 @@ namespace ProjectNGameplayTags
 	PROJECTN_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Attribute_Main_MaxCarryingCapacity)
 	
 	PROJECTN_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Attribute_Secondary_Armor)
+	PROJECTN_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Attribute_Secondary_MagicalArmor)
 	PROJECTN_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Attribute_Secondary_Evasion)
 	PROJECTN_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Attribute_Secondary_BlockChance)
 	PROJECTN_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Attribute_Secondary_ArmorPenetration)

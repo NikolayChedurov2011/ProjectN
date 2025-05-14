@@ -79,6 +79,7 @@ namespace ProjectNGameplayTags
 	UE_DEFINE_GAMEPLAY_TAG(Attribute_Main_MaxCarryingCapacity,				"Attribute.Main.MaxCarryingCapacity")
 	
 	UE_DEFINE_GAMEPLAY_TAG(Attribute_Secondary_Armor,						"Attribute.Secondary.Armor")
+	UE_DEFINE_GAMEPLAY_TAG(Attribute_Secondary_MagicalArmor,					"Attribute.Secondary.MagicalArmor")
 	UE_DEFINE_GAMEPLAY_TAG(Attribute_Secondary_Evasion,						"Attribute.Secondary.Evasion")
 	UE_DEFINE_GAMEPLAY_TAG(Attribute_Secondary_BlockChance,					"Attribute.Secondary.BlockChance")
 	UE_DEFINE_GAMEPLAY_TAG(Attribute_Secondary_ArmorPenetration,			"Attribute.Secondary.ArmorPenetration")

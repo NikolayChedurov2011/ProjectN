@@ -9,6 +9,7 @@
 
 struct FInputActionValue;
 class UProjectN_AbilitySystemComponent;
+class UProjectN_DamageTextComponent;
 
 UCLASS(Abstract)
 class PROJECTN_API AProjectN_PlayerController : public APlayerController
@@ -19,6 +20,9 @@ public:
 	AProjectN_PlayerController();
 
 	UProjectN_AbilitySystemComponent* GetAbilitySystemComponent();
+
+	UFUNCTION(Client, Reliable)
+	void ShowDamageNumber(const float Damage, AActor* Target);
 
 protected:
 	virtual void BeginPlay() override;
@@ -34,6 +38,9 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, Category = "Input")
 	TObjectPtr<UProjectN_InputConfig> InputConfig;
+
+	UPROPERTY(EditDefaultsOnly, Category = "UI")
+	TSubclassOf<UProjectN_DamageTextComponent> DamageTextComponentClass;
 
 	UPROPERTY()
 	TObjectPtr<UProjectN_AbilitySystemComponent> ProjectN_AbilitySystemComponent;

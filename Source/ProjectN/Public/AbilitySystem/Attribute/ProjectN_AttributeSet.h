@@ -74,28 +74,28 @@ public:
 	 */
 
 	/*************************************
-	 *  The strength is influence on, damage (*0,07), critical hit damage (*1,3), block chance (*0,0065), //poise (*0,15)
+	 *  The strength is influence on, damage (*0,07), and passive on critical hit damage (*1,3), block chance (*0,0065), //poise (*0,15)
 	 *************************************/
 	UPROPERTY(BlueprintReadOnly, Category = "Strength", ReplicatedUsing = OnRep_Strength)
 	FGameplayAttributeData Strength;
 	ATTRIBUTE_ACCESSORS(UProjectN_AttributeSet, Strength)
 
 	/*************************************
-	*  The intelligence is influence on magical damage (*1,2), max mana (*2), mana regeneration (*0,05)
+	*  The intelligence is influence on magical damage (*1,2), and passive on magical armor(*0,07), max mana (*2), mana regeneration (*0,05)
 	*************************************/
 	UPROPERTY(BlueprintReadOnly, Category = "Intelligence", ReplicatedUsing = OnRep_Intelligence)
 	FGameplayAttributeData Intelligence;
 	ATTRIBUTE_ACCESSORS(UProjectN_AttributeSet, Intelligence)
 
 	/*************************************
-	*  The dexterity is influence on critical hit chance (*0,03), critical hit damage (*0,9), evasion (*0,06), armor penetration (*0,4)
+	*  The dexterity is passive influence on critical hit chance (*0,03), critical hit damage (*0,9), evasion (*0,06), armor penetration (*0,4)
 	*************************************/
 	UPROPERTY(BlueprintReadOnly, Category = "Dexterity", ReplicatedUsing = OnRep_Dexterity)
 	FGameplayAttributeData Dexterity;
 	ATTRIBUTE_ACCESSORS(UProjectN_AttributeSet, Dexterity)
 
 	/*************************************
-	*  The vitality is influence on max health (*0,7), health regeneration (*0,05), //carrying capacity (*0,7)
+	*  The vitality is passive influence on max health (*0,7), health regeneration (*0,05), //carrying capacity (*0,7)
 	*************************************/
 	UPROPERTY(BlueprintReadOnly, Category = "Vitality", ReplicatedUsing = OnRep_Vitality)
 	FGameplayAttributeData Vitality;
@@ -160,10 +160,14 @@ public:
 	UPROPERTY(BlueprintReadOnly, Category = "Armor", ReplicatedUsing = OnRep_Armor)
 	FGameplayAttributeData Armor;
 	ATTRIBUTE_ACCESSORS(UProjectN_AttributeSet, Armor)
+
+	UPROPERTY(BlueprintReadOnly, Category = "MagicalArmor", ReplicatedUsing = OnRep_MagicalArmor)
+	FGameplayAttributeData MagicalArmor;
+	ATTRIBUTE_ACCESSORS(UProjectN_AttributeSet, MagicalArmor)
 	
-	UPROPERTY(BlueprintReadOnly, Category = "Evasion", ReplicatedUsing = OnRep_Evasion)
+	/*UPROPERTY(BlueprintReadOnly, Category = "Evasion", ReplicatedUsing = OnRep_Evasion)
 	FGameplayAttributeData Evasion;
-	ATTRIBUTE_ACCESSORS(UProjectN_AttributeSet, Evasion)
+	ATTRIBUTE_ACCESSORS(UProjectN_AttributeSet, Evasion)*/
 	
 	UPROPERTY(BlueprintReadOnly, Category = "BlockChance", ReplicatedUsing = OnRep_BlockChance)
 	FGameplayAttributeData BlockChance;
@@ -247,7 +251,9 @@ protected:
 	UFUNCTION()
     virtual void OnRep_Armor(const FGameplayAttributeData& OldArmor);
 	UFUNCTION()
-	virtual void OnRep_Evasion(const FGameplayAttributeData& OldEvasion);
+    virtual void OnRep_MagicalArmor(const FGameplayAttributeData& OldMagicalArmor);
+	/*UFUNCTION()
+	virtual void OnRep_Evasion(const FGameplayAttributeData& OldEvasion);*/
 	UFUNCTION()
 	virtual void OnRep_BlockChance(const FGameplayAttributeData& OldBlockChance);
 	UFUNCTION()
@@ -264,4 +270,5 @@ protected:
 private:
 
 	void SetEffectProperties(const FGameplayEffectModCallbackData& Data, FEffectProperties& Props) const;
+	void ShowFloatingText(const FEffectProperties& Props, const float Damage) const;
 };

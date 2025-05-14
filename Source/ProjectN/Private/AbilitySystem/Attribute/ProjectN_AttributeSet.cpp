@@ -6,11 +6,13 @@
 #include "AbilitySystemBlueprintLibrary.h"
 #include "GameplayEffectExtension.h"
 #include "ProjectN_GameplayTags.h"
+#include "Controllers/ProjectN_PlayerController.h"
 #include "GameFramework/Character.h"
 #include "Interfaces/AvatarInfoInterface.h"
 #include "Interfaces/CombatInterface.h"
 #include "Interfaces/NPCInterface.h"
 #include "Interfaces/PlayerInterface.h"
+#include "Kismet/GameplayStatics.h"
 #include "Net/UnrealNetwork.h"
 
 UProjectN_AttributeSet::UProjectN_AttributeSet()
@@ -38,7 +40,8 @@ UProjectN_AttributeSet::UProjectN_AttributeSet()
 
 	// Add secondary attributes to map
 	TagsToAttribute.Add(ProjectNGameplayTags::Attribute_Secondary_Armor, GetArmorAttribute());
-	TagsToAttribute.Add(ProjectNGameplayTags::Attribute_Secondary_Evasion, GetEvasionAttribute());
+	TagsToAttribute.Add(ProjectNGameplayTags::Attribute_Secondary_MagicalArmor, GetMagicalArmorAttribute());
+	//TagsToAttribute.Add(ProjectNGameplayTags::Attribute_Secondary_Evasion, GetEvasionAttribute());
 	TagsToAttribute.Add(ProjectNGameplayTags::Attribute_Secondary_BlockChance, GetBlockChanceAttribute());
 	TagsToAttribute.Add(ProjectNGameplayTags::Attribute_Secondary_ArmorPenetration, GetArmorPenetrationAttribute());
 	TagsToAttribute.Add(ProjectNGameplayTags::Attribute_Secondary_CriticalHitChance, GetCriticalHitChanceAttribute());
@@ -102,7 +105,8 @@ void UProjectN_AttributeSet::GetLifetimeReplicatedProps(TArray<class FLifetimePr
 
 	// Secondary
 	DOREPLIFETIME_CONDITION_NOTIFY(UProjectN_AttributeSet, Armor, COND_None, REPNOTIFY_Always);
-	DOREPLIFETIME_CONDITION_NOTIFY(UProjectN_AttributeSet, Evasion, COND_None, REPNOTIFY_Always);
+	DOREPLIFETIME_CONDITION_NOTIFY(UProjectN_AttributeSet, MagicalArmor, COND_None, REPNOTIFY_Always);
+	//DOREPLIFETIME_CONDITION_NOTIFY(UProjectN_AttributeSet, Evasion, COND_None, REPNOTIFY_Always);
 	DOREPLIFETIME_CONDITION_NOTIFY(UProjectN_AttributeSet, BlockChance, COND_None, REPNOTIFY_Always);
 	DOREPLIFETIME_CONDITION_NOTIFY(UProjectN_AttributeSet, ArmorPenetration, COND_None, REPNOTIFY_Always);
 	DOREPLIFETIME_CONDITION_NOTIFY(UProjectN_AttributeSet, CriticalHitChance, COND_None, REPNOTIFY_Always);
@@ -204,6 +208,8 @@ void UProjectN_AttributeSet::PostGameplayEffectExecute(const struct FGameplayEff
 					CombatInterface->Die();
 				}
 			}
+
+			ShowFloatingText(Props, LocalIncomingDamage);
 		}
 	}
 	
@@ -233,6 +239,17 @@ void UProjectN_AttributeSet::PostGameplayEffectExecute(const struct FGameplayEff
 	    	SetIncomingXP(0.f);
 		}
     }
+}
+
+void UProjectN_AttributeSet::ShowFloatingText(const FEffectProperties& Props, const float Damage) const
+{
+	if (Props.SourceProperties.Character != Props.TargetProperties.Character)
+	{
+		if (AProjectN_PlayerController* PC = Cast<AProjectN_PlayerController>(UGameplayStatics::GetPlayerController(Props.SourceProperties.Character, 0)))
+		{
+			PC->ShowDamageNumber(Damage, Props.TargetProperties.Character);
+		}
+	}
 }
 
 void UProjectN_AttributeSet::SendXPEvent(const FEffectProperties& Props) const
@@ -368,10 +385,17 @@ void UProjectN_AttributeSet::OnRep_Armor(const FGameplayAttributeData& OldArmor)
 	GAMEPLAYATTRIBUTE_REPNOTIFY(UProjectN_AttributeSet, Armor, OldArmor);
 }
 
+void UProjectN_AttributeSet::OnRep_MagicalArmor(const FGameplayAttributeData& OldMagicalArmor)
+{
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UProjectN_AttributeSet, MagicalArmor, OldMagicalArmor);
+}
+
+/*
 void UProjectN_AttributeSet::OnRep_Evasion(const FGameplayAttributeData& OldEvasion)
 {
 	GAMEPLAYATTRIBUTE_REPNOTIFY(UProjectN_AttributeSet, Evasion, OldEvasion);
 }
+*/
 
 void UProjectN_AttributeSet::OnRep_BlockChance(const FGameplayAttributeData& OldBlockChance)
 {
