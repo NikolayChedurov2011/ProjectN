@@ -33,7 +33,7 @@ float UMMC_MaxMana::CalculateBaseMagnitude_Implementation(const FGameplayEffectS
 		Level = IAvatarInfoInterface::Execute_GetCharacterLevel(Spec.GetContext().GetSourceObject());
 	}
 
-	const float Magnitude = IntelligenceMagnitude * 2.f + Level * 20;
+	const float Magnitude = IntelligenceMagnitude * 2.f + /*Level **/ 50;
 	
 	return Magnitude;
 }

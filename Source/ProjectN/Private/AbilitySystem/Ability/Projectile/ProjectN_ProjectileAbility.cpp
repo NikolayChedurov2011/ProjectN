@@ -35,7 +35,7 @@ void UProjectN_ProjectileAbility::SpawnProjectile() const
 		SpawnTransform.SetLocation(SocketLocation);
 		SpawnTransform.SetRotation(GetAvatarActorFromActorInfo()->GetActorRotation().Quaternion());
 
-		AProjectN_ProjectileBase* SpawnedProjectile = GetWorld()->SpawnActorDeferred<AProjectN_ProjectileBase>(ProjectileToSpawn, SpawnTransform, GetOwningActorFromActorInfo(), Cast<APawn>(GetAvatarActorFromActorInfo()),  ESpawnActorCollisionHandlingMethod::AlwaysSpawn);
+		AProjectN_ProjectileBase* SpawnedProjectile = GetWorld()->SpawnActorDeferred<AProjectN_ProjectileBase>(ProjectileClassToSpawn, SpawnTransform, GetOwningActorFromActorInfo(), Cast<APawn>(GetAvatarActorFromActorInfo()),  ESpawnActorCollisionHandlingMethod::AlwaysSpawn);
 		
 		if (GetOwningActorFromActorInfo()->Implements<UInventoryInterface>() && IsValid(DamageEffect))
 		{
@@ -44,7 +44,11 @@ void UProjectN_ProjectileAbility::SpawnProjectile() const
 			const float FinalDamage = UKismetMathLibrary::RandomFloatInRange(MinDamage, MaxDamage);
 			
 			const UAbilitySystemComponent* SourceASC = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(GetOwningActorFromActorInfo());
-			const FGameplayEffectSpecHandle SpecHandle = SourceASC->MakeOutgoingSpec(DamageEffect, GetAbilityLevel(), SourceASC->MakeEffectContext());
+			FGameplayEffectContextHandle ContextHandle = SourceASC->MakeEffectContext();
+			ContextHandle.AddSourceObject(SpawnedProjectile);
+			ContextHandle.SetAbility(this);
+			
+			const FGameplayEffectSpecHandle SpecHandle = SourceASC->MakeOutgoingSpec(DamageEffect, GetAbilityLevel(), ContextHandle);
 			
 			UAbilitySystemBlueprintLibrary::AssignTagSetByCallerMagnitude(SpecHandle, ProjectNGameplayTags::Attribute_Meta_Damage, FinalDamage);
 			SpawnedProjectile->SetDamageEffectHandle(SpecHandle);

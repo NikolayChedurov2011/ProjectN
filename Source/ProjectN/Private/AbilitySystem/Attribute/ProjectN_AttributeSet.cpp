@@ -6,6 +6,7 @@
 #include "AbilitySystemBlueprintLibrary.h"
 #include "GameplayEffectExtension.h"
 #include "ProjectN_GameplayTags.h"
+#include "AbilitySystem/ProjectN_AbilitySystemLibrary.h"
 #include "Controllers/ProjectN_PlayerController.h"
 #include "GameFramework/Character.h"
 #include "Interfaces/AvatarInfoInterface.h"
@@ -181,10 +182,7 @@ void UProjectN_AttributeSet::PostGameplayEffectExecute(const struct FGameplayEff
 	SetHealth(FMath::Clamp(GetHealth(), 0.f, GetMaxHealth()));
 	SetMana(FMath::Clamp(GetMana(), 0.f, GetMaxMana()));
 	//SetStamina(FMath::Clamp(GetStamina(), 0.f, GetMaxStamina()));
-
 	
-	// TODO: Track the damage to get reward xp for the enemies
-	// SendXPEvent(Props);
 	if (Data.EvaluatedData.Attribute == GetIncomingDamageAttribute() && !GetOwningAbilitySystemComponent()->HasMatchingGameplayTag(ProjectNGameplayTags::Effect_DamageImmunity))
 	{
 		const float LocalIncomingDamage = GetIncomingDamage();
@@ -207,9 +205,13 @@ void UProjectN_AttributeSet::PostGameplayEffectExecute(const struct FGameplayEff
 				{
 					CombatInterface->Die();
 				}
+				SendXPEvent(Props);
 			}
 
-			ShowFloatingText(Props, LocalIncomingDamage);
+			const bool bBlocked = UProjectN_AbilitySystemLibrary::IsBlocked(Props.EffectContextHandle);
+			const bool bCriticalHit = UProjectN_AbilitySystemLibrary::IsCriticalHit(Props.EffectContextHandle);
+			
+			ShowFloatingText(Props, LocalIncomingDamage, bBlocked, bCriticalHit);
 		}
 	}
 	
@@ -227,7 +229,7 @@ void UProjectN_AttributeSet::PostGameplayEffectExecute(const struct FGameplayEff
 	    		const int32 AttributePointsReward = IPlayerInterface::Execute_GetAttributePointsReward(Props.SourceProperties.Character, CurrentLevel);
 	    		IPlayerInterface::Execute_AddToLevel(Props.SourceProperties.Character, NumLevelUps);
 	    		IPlayerInterface::Execute_AddToAttributePoints(Props.SourceProperties.Character, AttributePointsReward);
-	    		
+
 	    		SetHealth(GetMaxHealth());
 	    		SetMana(GetMaxMana());
 	    		//SetStamina(GetMaxStamina());
@@ -241,13 +243,13 @@ void UProjectN_AttributeSet::PostGameplayEffectExecute(const struct FGameplayEff
     }
 }
 
-void UProjectN_AttributeSet::ShowFloatingText(const FEffectProperties& Props, const float Damage) const
+void UProjectN_AttributeSet::ShowFloatingText(const FEffectProperties& Props, const float Damage, const bool bBlocked, const bool bCriticalHit) const
 {
 	if (Props.SourceProperties.Character != Props.TargetProperties.Character)
 	{
 		if (AProjectN_PlayerController* PC = Cast<AProjectN_PlayerController>(UGameplayStatics::GetPlayerController(Props.SourceProperties.Character, 0)))
 		{
-			PC->ShowDamageNumber(Damage, Props.TargetProperties.Character);
+			PC->ShowDamageNumber(Damage, Props.TargetProperties.Character, bBlocked, bCriticalHit);
 		}
 	}
 }

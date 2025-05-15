@@ -4,9 +4,11 @@
 #include "AbilitySystem/ExecCalc/ProjectN_ExecCalc_Damage_Physical.h"
 #include "AbilitySystemComponent.h"
 #include "ProjectN_GameplayTags.h"
+#include "AbilitySystem/ProjectN_AbilitySystemLibrary.h"
 #include "AbilitySystem/Attribute/ProjectN_AttributeSet.h"
+#include "ProjectN/ProjectNTypes.h"
 
-struct ProjectNDamageStatics
+struct ProjectNPhysicalDamageStatics
 {
 	// Source attributes
 	DECLARE_ATTRIBUTE_CAPTUREDEF(Strength);
@@ -19,7 +21,7 @@ struct ProjectNDamageStatics
 	DECLARE_ATTRIBUTE_CAPTUREDEF(BlockChance)
 	//DECLARE_ATTRIBUTE_CAPTUREDEF(Evasion);
 	
-	ProjectNDamageStatics()
+	ProjectNPhysicalDamageStatics()
 	{
 		// Source attributes
 		DEFINE_ATTRIBUTE_CAPTUREDEF(UProjectN_AttributeSet, Strength, Source, false);
@@ -34,24 +36,24 @@ struct ProjectNDamageStatics
 	}
 };
 
-static const ProjectNDamageStatics& DamageStatics()
+static const ProjectNPhysicalDamageStatics& PhysicalDamageStatics()
 {
-	static ProjectNDamageStatics DStatics;
-	return DStatics;
+	static ProjectNPhysicalDamageStatics PhysicalDStatics;
+	return PhysicalDStatics;
 }
 
 UProjectN_ExecCalc_Damage_Physical::UProjectN_ExecCalc_Damage_Physical()
 {
-	RelevantAttributesToCapture.Add(DamageStatics().StrengthDef);
-	RelevantAttributesToCapture.Add(DamageStatics().ArmorPenetrationDef);
-	RelevantAttributesToCapture.Add(DamageStatics().CriticalHitChanceDef);
-	RelevantAttributesToCapture.Add(DamageStatics().CriticalHitDamageDef);
+	RelevantAttributesToCapture.Add(PhysicalDamageStatics().StrengthDef);
+	RelevantAttributesToCapture.Add(PhysicalDamageStatics().ArmorPenetrationDef);
+	RelevantAttributesToCapture.Add(PhysicalDamageStatics().CriticalHitChanceDef);
+	RelevantAttributesToCapture.Add(PhysicalDamageStatics().CriticalHitDamageDef);
 	
-	RelevantAttributesToCapture.Add(DamageStatics().ArmorDef);
-	RelevantAttributesToCapture.Add(DamageStatics().BlockChanceDef);
+	RelevantAttributesToCapture.Add(PhysicalDamageStatics().ArmorDef);
+	RelevantAttributesToCapture.Add(PhysicalDamageStatics().BlockChanceDef);
 }
 
-void UProjectN_ExecCalc_Damage_Physical::Execute_Implementation(const FGameplayEffectCustomExecutionParameters& ExecutionParams,	FGameplayEffectCustomExecutionOutput& OutExecutionOutput) const
+void UProjectN_ExecCalc_Damage_Physical::Execute_Implementation(const FGameplayEffectCustomExecutionParameters& ExecutionParams, FGameplayEffectCustomExecutionOutput& OutExecutionOutput) const
 {
 	const UAbilitySystemComponent* SourceASC = ExecutionParams.GetSourceAbilitySystemComponent();
 	const UAbilitySystemComponent* TargetASC = ExecutionParams.GetTargetAbilitySystemComponent();
@@ -68,6 +70,8 @@ void UProjectN_ExecCalc_Damage_Physical::Execute_Implementation(const FGameplayE
 	EvaluateParameters.SourceTags = SourceTags;
 	EvaluateParameters.TargetTags = TargetTags;
 
+	FGameplayEffectContextHandle EffectContextHandle = Spec.GetContext();
+
 	/**********************************
 	 * Get damage set by caller magnitude
 	 **********************************/
@@ -78,35 +82,34 @@ void UProjectN_ExecCalc_Damage_Physical::Execute_Implementation(const FGameplayE
 	 * Source attributes
 	 *********************/
 	float CapturedSourceStrength = 0.f;
-	GetAttributeValue(ExecutionParams, DamageStatics().StrengthDef, EvaluateParameters, CapturedSourceStrength);
-	//ExecutionParams.AttemptCalculateCapturedAttributeMagnitude(DamageStatics().StrengthDef, EvaluateParameters, CapturedSourceStrength);
-	//CapturedSourceStrength = FMath::Max<float>(CapturedSourceStrength, 0.0f);
+	GetAttributeValue(ExecutionParams, PhysicalDamageStatics().StrengthDef, EvaluateParameters, CapturedSourceStrength);
 
 	float CapturedSourceArmorPenetration = 0.f;
-	GetAttributeValue(ExecutionParams, DamageStatics().ArmorPenetrationDef, EvaluateParameters, CapturedSourceArmorPenetration);
+	GetAttributeValue(ExecutionParams, PhysicalDamageStatics().ArmorPenetrationDef, EvaluateParameters, CapturedSourceArmorPenetration);
 	
 	float CapturedSourceCriticalHitChance = 0.f;
-	GetAttributeValue(ExecutionParams, DamageStatics().CriticalHitChanceDef, EvaluateParameters, CapturedSourceCriticalHitChance);
+	GetAttributeValue(ExecutionParams, PhysicalDamageStatics().CriticalHitChanceDef, EvaluateParameters, CapturedSourceCriticalHitChance);
 	
 	float CapturedSourceCriticalHitDamage = 0.f;
-	GetAttributeValue(ExecutionParams, DamageStatics().CriticalHitDamageDef, EvaluateParameters, CapturedSourceCriticalHitDamage);
+	GetAttributeValue(ExecutionParams, PhysicalDamageStatics().CriticalHitDamageDef, EvaluateParameters, CapturedSourceCriticalHitDamage);
 	
 	/*********************
 	 * Target attributes
 	 *********************/
 	float CapturedTargetArmor = 0.f;
-	GetAttributeValue(ExecutionParams, DamageStatics().ArmorDef, EvaluateParameters, CapturedTargetArmor);
+	GetAttributeValue(ExecutionParams, PhysicalDamageStatics().ArmorDef, EvaluateParameters, CapturedTargetArmor);
 
 	float CapturedTargetBlockChance = 0.f;
-	GetAttributeValue(ExecutionParams, DamageStatics().BlockChanceDef, EvaluateParameters, CapturedTargetBlockChance);
+	GetAttributeValue(ExecutionParams, PhysicalDamageStatics().BlockChanceDef, EvaluateParameters, CapturedTargetBlockChance);
 
 	/*********************
 	* Main calculations
 	*********************/
 	const bool bBlocked = FMath::RandRange(1, 100) < CapturedTargetBlockChance;
-
 	if (bBlocked)
 	{
+		UProjectN_AbilitySystemLibrary::SetIsBlock(EffectContextHandle, bBlocked);
+		
 		// Result
 		const FGameplayModifierEvaluatedData EvaluatedData(UProjectN_AttributeSet::GetIncomingDamageAttribute(), EGameplayModOp::Override, 0);
 		OutExecutionOutput.AddOutputModifier(EvaluatedData);
@@ -119,6 +122,14 @@ void UProjectN_ExecCalc_Damage_Physical::Execute_Implementation(const FGameplayE
 	const float EffectiveArmor = CapturedTargetArmor *= (100 - CapturedSourceArmorPenetration * 0.25f) / 100.f;
 	Damage *= (100 - EffectiveArmor * 2.f) / 100.f;
 
+	// Critical hit chance
+	const bool bCritical = FMath::RandRange(1, 100) < CapturedSourceCriticalHitChance;
+	if (bCritical)
+	{
+		UProjectN_AbilitySystemLibrary::SetIsCriticalHit(EffectContextHandle, bCritical);
+		const float CriticalHitDamage = Damage * (CapturedSourceCriticalHitDamage / 100.f);
+		Damage += CriticalHitDamage;
+	}
 	
 	// Result
 	const FGameplayModifierEvaluatedData EvaluatedData(UProjectN_AttributeSet::GetIncomingDamageAttribute(), EGameplayModOp::Override, Damage);

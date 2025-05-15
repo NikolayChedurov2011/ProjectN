@@ -52,7 +52,7 @@ float UMMC_MaxMovementSpeed::CalculateBaseMagnitude_Implementation(const FGamepl
 	
 	const float CarryingCapacityPercent = EquipmentWeightMagnitude / MaxCarryingCapacityMagnitude;
 
-	const float Magnitude = CarryingCapacityPercent > 0.55? MaxMovementSpeedMagnitude * (1 - CarryingCapacityPercent) : MaxMovementSpeedMagnitude;
+	const float Magnitude = CarryingCapacityPercent > 0.55? FMath::Max(MaxMovementSpeedMagnitude * (1 - CarryingCapacityPercent), 100) : MaxMovementSpeedMagnitude;
 	
 	return Magnitude;
 }

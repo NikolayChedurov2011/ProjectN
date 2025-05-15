@@ -33,7 +33,7 @@ float UMMC_MaxHealth::CalculateBaseMagnitude_Implementation(const FGameplayEffec
 		Level = IAvatarInfoInterface::Execute_GetCharacterLevel(Spec.GetContext().GetSourceObject());
 	}
 
-	const float Magnitude = VitalityMagnitude * 1.1 + Level * 20;
+	const float Magnitude = VitalityMagnitude * 1.1 + /*Level **/ 50;
 	
 	return Magnitude;
 }

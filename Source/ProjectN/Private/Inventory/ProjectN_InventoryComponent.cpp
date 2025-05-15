@@ -5,7 +5,6 @@
 
 #include "AbilitySystemBlueprintLibrary.h"
 #include "AbilitySystemComponent.h"
-#include "GameplayTagsManager.h"
 #include "ProjectN_CharacterBase.h"
 #include "ProjectN_GameplayTags.h"
 #include "DataAssets/ProjectN_LootDataAsset.h"
@@ -14,11 +13,9 @@
 #include "Kismet/KismetSystemLibrary.h"
 #include "Net/UnrealNetwork.h"
 
-/*
- **************
+/***************
  * Initialize
- **************
- */
+ ***************/
 UProjectN_InventoryComponent::UProjectN_InventoryComponent()
 {
 	PrimaryComponentTick.bCanEverTick = true;
@@ -405,10 +402,7 @@ void UProjectN_InventoryComponent::UnEquipItemByInstance(UProjectN_ItemInstance*
 		RemoveItemStats(InItemInstance);
 		
 		if (const UWeaponItemStaticClass* WeaponItemStaticClass = Cast<UWeaponItemStaticClass>(InItemInstance->GetItemStaticClass()))
-		{
-			// Update weapon abilities in accordance with equip mode
-			UpdateWeaponMode();
-				
+		{				
 			const IAbilitySystemInterface* ASCInterface = Cast<IAbilitySystemInterface>(GetOwner());
 			
 			// Remove weapon tag
@@ -420,6 +414,9 @@ void UProjectN_InventoryComponent::UnEquipItemByInstance(UProjectN_ItemInstance*
 
 		// Remove item data from list of equipped items
 		RemoveSlot(FindItemDataByInstance(InItemInstance)->ItemSlot);
+
+		// Update weapon abilities in accordance with equip mode
+		UpdateWeaponMode();
 		
 		PrintMessage(TEXT("Slot is un equipped and removed"));
 	}

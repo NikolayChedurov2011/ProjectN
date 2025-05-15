@@ -120,3 +120,45 @@ void UProjectN_AbilitySystemLibrary::SetPrimaryAttributesByCaller(const UObject*
 
 	AbilitySystemComponent->ApplyGameplayEffectSpecToSelf(*SpecHandle.Data.Get());*/
 }
+
+bool UProjectN_AbilitySystemLibrary::IsBlocked(const FGameplayEffectContextHandle& EffectContextHandle)
+{
+	const FProjectNGameplayEffectContext* ProjectNContext = static_cast<const FProjectNGameplayEffectContext*>(EffectContextHandle.Get());
+
+	if (ProjectNContext)
+	{
+		return ProjectNContext->IsBlocked();
+	}
+	return false;
+}
+
+void UProjectN_AbilitySystemLibrary::SetIsBlock(FGameplayEffectContextHandle& EffectContextHandle, bool bBlocked)
+{
+	FProjectNGameplayEffectContext* ProjectNContext = static_cast<FProjectNGameplayEffectContext*>(EffectContextHandle.Get());
+	
+	if (ProjectNContext)
+	{
+		ProjectNContext->SetIsBlock(bBlocked);
+	}
+}
+
+bool UProjectN_AbilitySystemLibrary::IsCriticalHit(const FGameplayEffectContextHandle& EffectContextHandle)
+{
+	const FProjectNGameplayEffectContext* ProjectNContext = static_cast<const FProjectNGameplayEffectContext*>(EffectContextHandle.Get());
+	
+	if (ProjectNContext)
+	{
+		return ProjectNContext->IsCriticalHit();
+	}
+	return false;
+}
+
+void UProjectN_AbilitySystemLibrary::SetIsCriticalHit(FGameplayEffectContextHandle& EffectContextHandle, bool bCritical)
+{
+	FProjectNGameplayEffectContext* ProjectNContext = static_cast<FProjectNGameplayEffectContext*>(EffectContextHandle.Get());
+	
+	if (ProjectNContext)
+	{
+		ProjectNContext->SetIsCriticalHit(bCritical);
+	}
+}

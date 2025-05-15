@@ -203,7 +203,6 @@ public:
 	UPROPERTY(BlueprintReadOnly, Category = "Meta Attributes")
 	FGameplayAttributeData IncomingXP;
 	ATTRIBUTE_ACCESSORS(UProjectN_AttributeSet, IncomingXP)
-
 protected:
 	virtual void PostGameplayEffectExecute(const struct FGameplayEffectModCallbackData& Data) override;
 	virtual void GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const override;
@@ -270,5 +269,5 @@ protected:
 private:
 
 	void SetEffectProperties(const FGameplayEffectModCallbackData& Data, FEffectProperties& Props) const;
-	void ShowFloatingText(const FEffectProperties& Props, const float Damage) const;
+	void ShowFloatingText(const FEffectProperties& Props, const float Damage, bool bBlocked, bool bCriticalHit) const;
 };

@@ -6,6 +6,7 @@
 #include "Kismet/BlueprintFunctionLibrary.h"
 #include "ProjectN_AbilitySystemLibrary.generated.h"
 
+struct FGameplayEffectContextHandle;
 class UCharacter_Save;
 class USaveGame;
 class UAbilitySystemComponent;
@@ -31,4 +32,16 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "AbilitySystem | Attributes")
 	static void SetPrimaryAttributesByCaller(const UObject* WorldContextObject, UAbilitySystemComponent* AbilitySystemComponent, const float Strength, const float Intelligence, const float Dexterity, const float Vitality);
+
+	UFUNCTION(BlueprintPure, Category = "AbilitySystem | Gameplay Effects")
+	static bool IsBlocked(const FGameplayEffectContextHandle& EffectContextHandle);
+
+	UFUNCTION(BlueprintCallable, Category = "AbilitySystem | Gameplay Effects")
+	static void SetIsBlock(UPARAM(ref) FGameplayEffectContextHandle& EffectContextHandle, bool bBlocked);
+
+	UFUNCTION(BlueprintPure, Category = "AbilitySystem | Gameplay Effects")
+	static bool IsCriticalHit(const FGameplayEffectContextHandle& EffectContextHandle);
+	
+	UFUNCTION(BlueprintCallable, Category = "AbilitySystem | Gameplay Effects")
+	static void SetIsCriticalHit(UPARAM(ref) FGameplayEffectContextHandle& EffectContextHandle, bool bCritical);
 };

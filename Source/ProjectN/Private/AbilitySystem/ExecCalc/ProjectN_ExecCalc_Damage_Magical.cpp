@@ -6,7 +6,7 @@
 #include "ProjectN_GameplayTags.h"
 #include "AbilitySystem/Attribute/ProjectN_AttributeSet.h"
 
-struct ProjectNDamageStatics
+struct ProjectNMagicalDamageStatics
 {
 	// Source attributes
 	DECLARE_ATTRIBUTE_CAPTUREDEF(Intelligence);
@@ -14,7 +14,7 @@ struct ProjectNDamageStatics
 	// Target attributes
 	DECLARE_ATTRIBUTE_CAPTUREDEF(MagicalArmor);
 	
-	ProjectNDamageStatics()
+	ProjectNMagicalDamageStatics()
 	{
 		// Source attributes
 		DEFINE_ATTRIBUTE_CAPTUREDEF(UProjectN_AttributeSet, Intelligence, Source, false);
@@ -25,15 +25,15 @@ struct ProjectNDamageStatics
 	}
 };
 
-static const ProjectNDamageStatics& DamageStatics()
+static const ProjectNMagicalDamageStatics& MagicalDamageStatics()
 {
-	static ProjectNDamageStatics DStatics;
-	return DStatics;
+	static ProjectNMagicalDamageStatics MagicalDStatics;
+	return MagicalDStatics;
 }
 
 UProjectN_ExecCalc_Damage_Magical::UProjectN_ExecCalc_Damage_Magical()
 {
-	RelevantAttributesToCapture.Add(DamageStatics().IntelligenceDef);
+	RelevantAttributesToCapture.Add(MagicalDamageStatics().IntelligenceDef);
 }
 
 void UProjectN_ExecCalc_Damage_Magical::Execute_Implementation(const FGameplayEffectCustomExecutionParameters& ExecutionParams,	FGameplayEffectCustomExecutionOutput& OutExecutionOutput) const

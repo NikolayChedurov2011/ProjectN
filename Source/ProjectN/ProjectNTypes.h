@@ -1,6 +1,7 @@
 ﻿#pragma once
 
 #include "CoreMinimal.h"
+#include "GameplayEffectTypes.h"
 #include "GameplayTagContainer.h"
 #include "Inventory/ProjectN_ItemInstance.h"
 #include "ProjectNTypes.generated.h"
@@ -10,6 +11,157 @@ class UGameplayAbility;
 class UBlendSpace;
 class UAnimSequenceBase;
 class AProjectN_ItemActor_Base;
+
+USTRUCT(BlueprintType)
+struct FProjectNGameplayEffectContext : public FGameplayEffectContext
+{
+	GENERATED_BODY()
+
+public:
+	virtual UScriptStruct* GetScriptStruct() const override
+	{
+		return StaticStruct();
+	}
+	
+	/** Creates a copy of this context, used to duplicate for later modifications */
+	virtual FProjectNGameplayEffectContext* Duplicate() const override
+	{
+		FProjectNGameplayEffectContext* NewContext = new FProjectNGameplayEffectContext();
+		*NewContext = *this;
+		if (GetHitResult())
+		{
+			// Does a deep copy of the hit result
+			NewContext->AddHitResult(*GetHitResult(), true);
+		}
+		return NewContext;
+	}
+	
+	virtual bool NetSerialize(FArchive& Ar, class UPackageMap* Map, bool& bOutSuccess) override
+	{
+		uint32 RepBits = 0;
+		if (Ar.IsSaving())
+		{
+			if (bReplicateInstigator && Instigator.IsValid())
+			{
+				RepBits |= 1 << 0;
+			}
+			if (bReplicateEffectCauser && EffectCauser.IsValid() )
+			{
+				RepBits |= 1 << 1;
+			}
+			if (AbilityCDO.IsValid())
+			{
+				RepBits |= 1 << 2;
+			}
+			if (bReplicateSourceObject && SourceObject.IsValid())
+			{
+				RepBits |= 1 << 3;
+			}
+			if (Actors.Num() > 0)
+			{
+				RepBits |= 1 << 4;
+			}
+			if (HitResult.IsValid())
+			{
+				RepBits |= 1 << 5;
+			}
+			if (bHasWorldOrigin)
+			{
+				RepBits |= 1 << 6;
+			}
+			if (bCriticalHit)
+			{
+				RepBits |= (1 << 7);
+			}
+			if (bBlock)
+			{
+				RepBits |= (1 << 8);
+			}
+		}
+
+		Ar.SerializeBits(&RepBits, 9);
+
+		if (RepBits & (1 << 0))
+		{
+			Ar << Instigator;
+		}
+		if (RepBits & (1 << 1))
+		{
+			Ar << EffectCauser;
+		}
+		if (RepBits & (1 << 2))
+		{
+			Ar << AbilityCDO;
+		}
+		if (RepBits & (1 << 3))
+		{
+			Ar << SourceObject;
+		}
+		if (RepBits & (1 << 4))
+		{
+			SafeNetSerializeTArray_Default<31>(Ar, Actors);
+		}
+		if (RepBits & (1 << 5))
+		{
+			if (Ar.IsLoading())
+			{
+				if (!HitResult.IsValid())
+				{
+					HitResult = TSharedPtr<FHitResult>(new FHitResult());
+				}
+			}
+			HitResult->NetSerialize(Ar, Map, bOutSuccess);
+		}
+		if (RepBits & (1 << 6))
+		{
+			Ar << WorldOrigin;
+			bHasWorldOrigin = true;
+		}
+		else
+		{
+			bHasWorldOrigin = false;
+		}
+		if (RepBits & (1 << 7))
+		{
+			Ar << bCriticalHit;
+		}
+		if (RepBits & (1 << 8))
+		{
+			Ar << bBlock;
+		}
+		
+		if (Ar.IsLoading())
+		{
+			AddInstigator(Instigator.Get(), EffectCauser.Get()); // Just to initialize InstigatorAbilitySystemComponent
+		}	
+	
+		bOutSuccess = true;
+		return true;
+	}
+
+	FORCEINLINE bool IsCriticalHit() const { return bCriticalHit; }
+	FORCEINLINE void SetIsCriticalHit(const bool bCritical) { bCriticalHit = bCritical; }
+	FORCEINLINE bool IsBlocked() const { return bBlock; }
+	FORCEINLINE void SetIsBlock(const bool bBlocked) { bBlock = bBlocked; }
+	
+protected:
+
+	UPROPERTY()
+	bool bCriticalHit = false;
+	
+	UPROPERTY()
+	bool bBlock = false;
+};
+
+template<>
+struct TStructOpsTypeTraits< FProjectNGameplayEffectContext > : public TStructOpsTypeTraitsBase2< FGameplayEffectContext >
+{
+	enum
+	{
+		WithNetSerializer = true,
+		WithCopy = true		// Necessary so that TSharedPtr<FHitResult> Data is copied around
+	};
+};
 
 USTRUCT(BlueprintType)
 struct FAnimationData

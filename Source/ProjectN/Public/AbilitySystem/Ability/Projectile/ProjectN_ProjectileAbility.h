@@ -29,5 +29,5 @@ protected:
 	*/
 	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Ability Defaults")
-	TSubclassOf<AProjectN_ProjectileBase> ProjectileToSpawn = nullptr;
+	TSubclassOf<AProjectN_ProjectileBase> ProjectileClassToSpawn = nullptr;
 };

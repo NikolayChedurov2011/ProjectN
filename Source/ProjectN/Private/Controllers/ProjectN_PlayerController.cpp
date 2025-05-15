@@ -82,6 +82,11 @@ void AProjectN_PlayerController::OnActionHeld(FGameplayTag InputTag)
 
 void AProjectN_PlayerController::Input_Move(const FInputActionValue& ActionValue)
 {
+	if (UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(GetPawn())->HasMatchingGameplayTag(ProjectNGameplayTags::Input_Block_Movement))
+	{
+		return;	
+	}
+	
 	const FVector NoZVector(1.f, 1.f, 0.f);
 	const FVector2d MovementVector = ActionValue.Get<FVector2d>();
 
@@ -95,7 +100,6 @@ void AProjectN_PlayerController::Input_Move(const FInputActionValue& ActionValue
 	// Get right vector from rotator and normalize it
 	FVector MovementRightVector = FRotationMatrix(CameraRot).GetScaledAxis(EAxis::Y) * NoZVector;
 	MovementRightVector.Normalize();
-	
 	
 	//const FRotator MovementRotation(0.f, Controller->GetControlRotation().Yaw, 0.f);
 
@@ -130,7 +134,7 @@ void AProjectN_PlayerController::Input_Look(const FInputActionValue& ActionValue
 	}
 }
 
-void AProjectN_PlayerController::ShowDamageNumber_Implementation(const float Damage, AActor* Target)
+void AProjectN_PlayerController::ShowDamageNumber_Implementation(const float Damage, AActor* Target, const bool bBlocked, const bool bCriticalHit)
 {
 	if (!IsValid(Target) || !DamageTextComponentClass)
 	{
@@ -141,5 +145,5 @@ void AProjectN_PlayerController::ShowDamageNumber_Implementation(const float Dam
 	DamageTextComponent->RegisterComponent();
 	DamageTextComponent->AttachToComponent(Target->GetRootComponent(), FAttachmentTransformRules::KeepRelativeTransform);
 	DamageTextComponent->DetachFromComponent(FDetachmentTransformRules::KeepWorldTransform);
-	DamageTextComponent->SetDamageText(Damage);
+	DamageTextComponent->SetDamageText(Damage, bBlocked, bCriticalHit);
 }

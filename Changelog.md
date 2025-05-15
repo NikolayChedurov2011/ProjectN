@@ -1,9 +1,13 @@
-Implement widget component and it spawn widget with damage number.
-Now damage effect use only calculation class, without set value but effect apply set by caller value and calculation class catch it.
-Remove evasion and all magic armor attribute.
-Work for physical calculation class.
+Remove addition HP and Mana by level.
+New tag for block movement
+Implement FProjectNGameplayEffectContext derived from FGameplayEffectContext to handle effect damage info (block, crit etc).
+Implement custom UProjectN_AbilitySystemGlobals to use FProjectNGameplayEffectContext and enabled in DefaultGame.ini.
+Iteration for physic damage calculation class and handle floating damage text depends on effect damage info.
+
 
 TODO: 
+Implement abilities
+Implement overlap and damage from weapon
 Setup physical calculation and magic
 Remove evasion
 Damage depends from attributes
