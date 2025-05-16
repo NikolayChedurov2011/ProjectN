@@ -207,12 +207,12 @@ void UProjectN_AttributeSet::PostGameplayEffectExecute(const struct FGameplayEff
 				}
 				SendXPEvent(Props);
 			}
-
-			const bool bBlocked = UProjectN_AbilitySystemLibrary::IsBlocked(Props.EffectContextHandle);
-			const bool bCriticalHit = UProjectN_AbilitySystemLibrary::IsCriticalHit(Props.EffectContextHandle);
-			
-			ShowFloatingText(Props, LocalIncomingDamage, bBlocked, bCriticalHit);
 		}
+
+		const bool bBlocked = UProjectN_AbilitySystemLibrary::IsBlocked(Props.EffectContextHandle);
+		const bool bCriticalHit = UProjectN_AbilitySystemLibrary::IsCriticalHit(Props.EffectContextHandle);
+			
+		ShowFloatingText(Props, LocalIncomingDamage, bBlocked, bCriticalHit);
 	}
 	
 	if (Data.EvaluatedData.Attribute == GetIncomingXPAttribute())
