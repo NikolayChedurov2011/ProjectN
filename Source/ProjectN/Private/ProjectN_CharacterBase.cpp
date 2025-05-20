@@ -62,3 +62,11 @@ void AProjectN_CharacterBase::MulticastHandleDeath_Implementation()
 	
 	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 }
+
+/*************************
+*  Avatar Actor Interface
+**************************/
+FVector AProjectN_CharacterBase::GetAvatarSocketLocation_Implementation(const FName SocketName) const
+{
+	return GetMesh()->GetSocketLocation(SocketName);
+}

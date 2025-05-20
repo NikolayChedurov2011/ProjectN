@@ -101,10 +101,10 @@ public:
 	AProjectN_ItemActor_Base* GetEquippedWeaponActorBySlot(const EItemSlot InItemSlot);
 
 	UFUNCTION(BlueprintCallable, BlueprintPure)
-	float GetWeaponMinDamageForSlot(const EItemSlot InItemSlot);
+	TMap<FGameplayTag, float> GetWeaponDamageTypesForSlot(const EItemSlot InItemSlot);
 
-	UFUNCTION(BlueprintCallable, BlueprintPure)
-	float GetWeaponMaxDamageForSlot(const EItemSlot InItemSlot);
+	//UFUNCTION(BlueprintCallable, BlueprintPure)
+	//float GetWeaponMaxDamageForSlot(const EItemSlot InItemSlot);
 
 	UFUNCTION(BlueprintCallable, BlueprintPure)
 	FGameplayTag GetWeaponTypeBySlot(const EItemSlot InItemSlot);

@@ -17,7 +17,7 @@ void UProjectN_AttributeController::BroadcastInitialValues()
 
 	checkf(AttributeInfo, TEXT("Fill the attribute info data asset in attribute menu widget controller"))
 	
-	for(const auto& Pair : Attributes->TagsToAttribute)
+	for(const TTuple<FGameplayTag, FGameplayAttribute>& Pair : Attributes->TagsToAttribute)
 	{		
 		BroadcastAttributeInfo(Pair.Key, Pair.Value);
 	}
@@ -32,7 +32,7 @@ void UProjectN_AttributeController::BindCallbacksToResponce()
 	
 	UProjectN_AttributeSet* Attributes = CastChecked<UProjectN_AttributeSet>(AttributeSet);
 
-	for(auto& Pair : Attributes->TagsToAttribute)
+	for(TTuple<FGameplayTag, FGameplayAttribute>& Pair : Attributes->TagsToAttribute)
 	{
 		AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(Pair.Value).AddLambda([this, Pair] (const FOnAttributeChangeData& Data)
 		{

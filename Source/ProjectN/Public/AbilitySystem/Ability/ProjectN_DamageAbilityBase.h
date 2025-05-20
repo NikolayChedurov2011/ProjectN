@@ -13,7 +13,12 @@ class PROJECTN_API UProjectN_DamageAbilityBase : public UProjectN_GameplayAbilit
 	GENERATED_BODY()
 
 protected:
+
+	void AssignDamageTypes(const FGameplayEffectSpecHandle& EffectSpecHandle, TMap<FGameplayTag, float> SourceDamageTypes) const;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Ability Defaults")
 	TSubclassOf<UGameplayEffect> DamageEffect = nullptr;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Ability Defaults")
+	TMap<FGameplayTag, float> DamageTypes;
 };

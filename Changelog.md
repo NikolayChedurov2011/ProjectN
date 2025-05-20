@@ -1,11 +1,10 @@
-Remove addition HP and Mana by level.
-New tag for block movement
-Implement FProjectNGameplayEffectContext derived from FGameplayEffectContext to handle effect damage info (block, crit etc).
-Implement custom UProjectN_AbilitySystemGlobals to use FProjectNGameplayEffectContext and enabled in DefaultGame.ini.
-Iteration for physic damage calculation class and handle floating damage text depends on effect damage info.
+Implement damage types, added tags and refactor functions for this.
+Some refactor for projectile ability + new classes (UProjectN_WeaponProjectileAbility + UProjectN_VersatilityProjectileAbility)
+Iteration for UProjectN_WeaponAbilityBase
 
 
 TODO: 
+Calc damage type defense and multiply
 Implement abilities
 Implement overlap and damage from weapon
 Setup physical calculation and magic

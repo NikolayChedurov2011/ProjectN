@@ -108,4 +108,11 @@ namespace ProjectNGameplayTags
 
 	/**** Progression Tags ****/
 	UE_DEFINE_GAMEPLAY_TAG(Progression_AttributePoint,			"Progression.AttributePoint")
+
+	/**** Damage Type Tags ****/
+	UE_DEFINE_GAMEPLAY_TAG(DamageType,					"DamageType")
+	UE_DEFINE_GAMEPLAY_TAG(DamageType_Physical,			"DamageType.Physical")
+	UE_DEFINE_GAMEPLAY_TAG(DamageType_Magical,			"DamageType.Magical")
 }
+
+FProjectNGameplayTagsStruct FProjectNGameplayTagsStruct::ProjectNGameplayTagsInstance;

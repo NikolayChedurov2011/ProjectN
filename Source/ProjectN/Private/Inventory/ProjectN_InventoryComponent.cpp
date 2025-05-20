@@ -722,20 +722,24 @@ AProjectN_ItemActor_Base* UProjectN_InventoryComponent::GetWeaponActorByType(con
 	return nullptr;
 }
 */
-float UProjectN_InventoryComponent::GetWeaponMinDamageForSlot(const EItemSlot InItemSlot)
+TMap<FGameplayTag, float> UProjectN_InventoryComponent::GetWeaponDamageTypesForSlot(const EItemSlot InItemSlot)
 {
 	if (const FEquippedItemData* ItemData = FindItemDataBySlot(InItemSlot))
 	{
-		return *Cast<UWeaponItemStaticClass>(ItemData->ItemInstance->GetItemStaticClass())->GetItemBonusAttributes().Find(ProjectNGameplayTags::Item_Weapon_Damage_Min);
+		return Cast<UWeaponItemStaticClass>(ItemData->ItemInstance->GetItemStaticClass())->GetWeaponDamageTypes();
 	}
-	return 0.f;
+	
+	TMap<FGameplayTag, float> EmptyMap;
+	return EmptyMap;
 }
 
+/*
 float UProjectN_InventoryComponent::GetWeaponMaxDamageForSlot(const EItemSlot InItemSlot)
 {
 	if (const FEquippedItemData* ItemData = FindItemDataBySlot(InItemSlot))
 	{
-		return *Cast<UWeaponItemStaticClass>(ItemData->ItemInstance->GetItemStaticClass())->GetItemBonusAttributes().Find(ProjectNGameplayTags::Item_Weapon_Damage_Max);
+		return *Cast<UWeaponItemStaticClass>(ItemData->ItemInstance->GetItemStaticClass())->GetItemBonusAttributes();
 	}
 	return 0.f;
 }
+*/

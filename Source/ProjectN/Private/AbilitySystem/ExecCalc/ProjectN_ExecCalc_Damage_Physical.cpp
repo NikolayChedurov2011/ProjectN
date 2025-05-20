@@ -75,7 +75,15 @@ void UProjectN_ExecCalc_Damage_Physical::Execute_Implementation(const FGameplayE
 	/**********************************
 	 * Get damage set by caller magnitude
 	 **********************************/
-	float Damage = Spec.GetSetByCallerMagnitude(ProjectNGameplayTags::Attribute_Meta_Damage, false);
+	float Damage = 0.f; /*Spec.GetSetByCallerMagnitude(ProjectNGameplayTags::Attribute_Meta_Damage, false);*/
+
+	for(const FGameplayTag& Tag : FProjectNGameplayTagsStruct::Get().DamageTypes)
+	{
+		const float DamageTypeValue = Spec.GetSetByCallerMagnitude(Tag, false);
+		Damage += DamageTypeValue;
+
+		//TODO: Here we can apply modifiers or defence for each damage type
+	}
 
 	// Capture attributes
 	/*********************

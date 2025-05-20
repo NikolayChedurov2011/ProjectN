@@ -412,6 +412,9 @@ public:
 
 	UFUNCTION(BlueprintCallable, BlueprintPure)
 	FORCEINLINE FGameplayTag GetWeaponTypeTag() const { return WeaponTypeTag; }
+
+	UFUNCTION(BlueprintCallable, BlueprintPure)
+	FORCEINLINE TMap<FGameplayTag, float> GetWeaponDamageTypes() const { return WeaponDamageTypes; }
 	
 protected:
 
@@ -423,6 +426,9 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	FGameplayTag WeaponTypeTag;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	TMap<FGameplayTag, float> WeaponDamageTypes;
 
 	/*UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	TSubclassOf<UGameplayAbility> MainWeaponAbility;

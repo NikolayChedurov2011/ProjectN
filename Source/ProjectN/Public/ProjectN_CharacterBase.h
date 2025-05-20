@@ -24,7 +24,9 @@ public:
 	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override;
 	UAttributeSet* GetAttributeSet() const { return ProjectN_AttributeSet; }
 
-	/* Combat interface*/
+	/*************************
+	*  Combat Interface
+	**************************/
 	virtual UAnimMontage* GetHitReactMontage_Implementation() const override
 	{
 		return IsValid(AnimationDataAsset)? AnimationDataAsset->AnimationData.HitReactAnimation : nullptr;
@@ -33,6 +35,11 @@ public:
 
 	UFUNCTION(NetMulticast, Reliable)
 	virtual void MulticastHandleDeath();
+
+	/*************************
+	*  Avatar Actor Interface
+	**************************/
+	FVector GetAvatarSocketLocation_Implementation(const FName SocketName) const;
 	
 protected:
 	virtual void InitAbilityActorInfo();

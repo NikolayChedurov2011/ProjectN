@@ -54,7 +54,7 @@ void AProjectN_ProjectileBase::Destroyed()
 
 void AProjectN_ProjectileBase::OnSphereComponentOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	if (OtherActor == GetOwner())
+	if (OtherActor == GetInstigator())
 	{
 		return;
 	}

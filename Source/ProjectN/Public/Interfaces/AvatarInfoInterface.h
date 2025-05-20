@@ -26,4 +26,7 @@ public:
 	
 	UFUNCTION(BlueprintNativeEvent)
 	FVector GetWeaponSocketLocation(const EItemSlot ItemSlot) const;
+
+	UFUNCTION(BlueprintNativeEvent)
+	FVector GetAvatarSocketLocation(const FName SocketName) const;
 };

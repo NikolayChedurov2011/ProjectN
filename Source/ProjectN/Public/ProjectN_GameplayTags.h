@@ -107,4 +107,24 @@ namespace ProjectNGameplayTags
 
 	/**** Progression Tags ****/
 	PROJECTN_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Progression_AttributePoint)
+
+	/**** Damage Type Tags ****/
+	PROJECTN_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(DamageType)
+	PROJECTN_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(DamageType_Physical)
+	PROJECTN_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(DamageType_Magical)
 }
+
+struct FProjectNGameplayTagsStruct
+{
+public:
+	static const FProjectNGameplayTagsStruct& Get() { return ProjectNGameplayTagsInstance; }
+	FProjectNGameplayTagsStruct()
+	{
+		DamageTypes.Add(ProjectNGameplayTags::DamageType_Physical);
+		DamageTypes.Add(ProjectNGameplayTags::DamageType_Magical);
+	}
+	TArray<FGameplayTag> DamageTypes;
+
+private:
+	static FProjectNGameplayTagsStruct ProjectNGameplayTagsInstance;
+};

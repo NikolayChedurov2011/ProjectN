@@ -1,23 +1,21 @@
 // N Chedurov All Rights Reserved
 
 
-#include "AbilitySystem/Ability/Projectile/ProjectN_ProjectileAbility.h"
+#include "AbilitySystem/Ability/Projectile/ProjectN_WeaponProjectileAbility.h"
 
 #include "AbilitySystemBlueprintLibrary.h"
 #include "AbilitySystemComponent.h"
-#include "ProjectN_GameplayTags.h"
 #include "Actors/ProjectN_ProjectileBase.h"
 #include "Interfaces/AvatarInfoInterface.h"
 #include "Interfaces/InventoryInterface.h"
-#include "Kismet/KismetMathLibrary.h"
 
-void UProjectN_ProjectileAbility::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData)
+void UProjectN_WeaponProjectileAbility::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData)
 {
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
 	
 }
 
-void UProjectN_ProjectileAbility::SpawnProjectile() const
+void UProjectN_WeaponProjectileAbility::SpawnProjectile() const
 {
 	const bool bIsServer = GetOwningActorFromActorInfo()->HasAuthority();
 
@@ -38,11 +36,7 @@ void UProjectN_ProjectileAbility::SpawnProjectile() const
 		AProjectN_ProjectileBase* SpawnedProjectile = GetWorld()->SpawnActorDeferred<AProjectN_ProjectileBase>(ProjectileClassToSpawn, SpawnTransform, GetOwningActorFromActorInfo(), Cast<APawn>(GetAvatarActorFromActorInfo()),  ESpawnActorCollisionHandlingMethod::AlwaysSpawn);
 		
 		if (GetOwningActorFromActorInfo()->Implements<UInventoryInterface>() && IsValid(DamageEffect))
-		{
-			const float MinDamage = IInventoryInterface::Execute_GetWeaponMinDamageForSlot(GetOwningActorFromActorInfo(), RequiredSlot);
-			const float MaxDamage = IInventoryInterface::Execute_GetWeaponMaxDamageForSlot(GetOwningActorFromActorInfo(), RequiredSlot);
-			const float FinalDamage = UKismetMathLibrary::RandomFloatInRange(MinDamage, MaxDamage);
-			
+		{			
 			const UAbilitySystemComponent* SourceASC = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(GetOwningActorFromActorInfo());
 			FGameplayEffectContextHandle ContextHandle = SourceASC->MakeEffectContext();
 			ContextHandle.AddSourceObject(SpawnedProjectile);
@@ -50,7 +44,8 @@ void UProjectN_ProjectileAbility::SpawnProjectile() const
 			
 			const FGameplayEffectSpecHandle SpecHandle = SourceASC->MakeOutgoingSpec(DamageEffect, GetAbilityLevel(), ContextHandle);
 			
-			UAbilitySystemBlueprintLibrary::AssignTagSetByCallerMagnitude(SpecHandle, ProjectNGameplayTags::Attribute_Meta_Damage, FinalDamage);
+			AssignDamageTypes(SpecHandle, IInventoryInterface::Execute_GetWeaponDamageTypes(GetOwningActorFromActorInfo(), RequiredSlot));
+			
 			SpawnedProjectile->SetDamageEffectHandle(SpecHandle);
 		}
 		
