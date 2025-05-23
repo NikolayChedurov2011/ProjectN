@@ -66,7 +66,7 @@ void UProjectN_EquippableItemInstance::OnEquip(AActor* Owner, const FName InSock
 	
 	if (UWorld* World = Owner->GetWorld())
 	{
-		FTransform Transform;
+		const FTransform Transform;
 		
 		ItemActor = World->SpawnActorDeferred<AProjectN_ItemActor_Base>(GetItemStaticClass()->GetItemActorClass(), Transform, Owner);
 		ItemActor->Init(this);

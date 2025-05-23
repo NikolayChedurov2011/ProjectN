@@ -10,6 +10,7 @@
 #include "DataAssets/ProjectN_LootDataAsset.h"
 #include "Engine/ActorChannel.h"
 #include "GameFramework/PlayerState.h"
+#include "Inventory/ProjectN_WeaponActor.h"
 #include "Kismet/KismetSystemLibrary.h"
 #include "Net/UnrealNetwork.h"
 
@@ -508,11 +509,11 @@ FVector UProjectN_InventoryComponent::FindSocketLocationBySlot(const EItemSlot I
 	return FVector::ZeroVector;
 }
 
-AProjectN_ItemActor_Base* UProjectN_InventoryComponent::GetEquippedWeaponActorBySlot(const EItemSlot InItemSlot)
+AProjectN_WeaponActor* UProjectN_InventoryComponent::GetEquippedWeaponActorBySlot(const EItemSlot InItemSlot)
 {
 	if (const FEquippedItemData* ItemData = FindItemDataBySlot(InItemSlot))
 	{
-		return Cast<UProjectN_EquippableItemInstance>(ItemData->ItemInstance)->GetItemActor();
+		return Cast<AProjectN_WeaponActor>(Cast<UProjectN_EquippableItemInstance>(ItemData->ItemInstance)->GetItemActor());
 	}
 	return nullptr;
 }

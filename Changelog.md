@@ -1,12 +1,11 @@
-Implement damage types, added tags and refactor functions for this.
-Some refactor for projectile ability + new classes (UProjectN_WeaponProjectileAbility + UProjectN_VersatilityProjectileAbility)
-Iteration for UProjectN_WeaponAbilityBase
-
+Now we have three weapon (Magic staff, iron sword, great sword)
+Iteration for melee weapon damage ability
+Clean test abilities and implement good one
 
 TODO: 
+Setup tags to block other abilities
+Stop movement when attack
 Calc damage type defense and multiply
-Implement abilities
-Implement overlap and damage from weapon
 Setup physical calculation and magic
 Remove evasion
 Damage depends from attributes

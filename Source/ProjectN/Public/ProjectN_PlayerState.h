@@ -73,7 +73,7 @@ public:
 	**************************/
 	//float GetWeaponMinDamageForSlot_Implementation(const EItemSlot ItemSlot) const override;
 	TMap<FGameplayTag, float> GetWeaponDamageTypes_Implementation(const EItemSlot ItemSlot) const override;
-	AProjectN_ItemActor_Base* GetEquippedWeaponForSlot_Implementation(const EItemSlot ItemSlot) const override;
+	AProjectN_WeaponActor* GetEquippedWeaponForSlot_Implementation(const EItemSlot ItemSlot) const override;
 
 protected:
 	

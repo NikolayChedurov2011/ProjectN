@@ -47,6 +47,6 @@ protected:
 	UFUNCTION()
 	void OnRep_ItemState();
 	
-	UPROPERTY(Replicated)
-	TObjectPtr<USphereComponent> SphereComponent = nullptr;
+	//UPROPERTY(Replicated)
+	//TObjectPtr<USphereComponent> SphereComponent = nullptr;
 };

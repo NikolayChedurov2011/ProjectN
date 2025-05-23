@@ -9,7 +9,7 @@
 
 enum class EItemSlot : uint8;
 class UWeaponItemStaticClass;
-class AProjectN_ItemActor_Base;
+class AProjectN_WeaponActor;
 
 UINTERFACE(MinimalAPI)
 class UInventoryInterface : public UInterface
@@ -30,5 +30,5 @@ public:
 	//float GetWeaponMaxDamageForSlot(const EItemSlot ItemSlot) const;
 
 	UFUNCTION(BlueprintNativeEvent)
-	AProjectN_ItemActor_Base* GetEquippedWeaponForSlot(const EItemSlot ItemSlot) const;
+	AProjectN_WeaponActor* GetEquippedWeaponForSlot(const EItemSlot ItemSlot) const;
 };

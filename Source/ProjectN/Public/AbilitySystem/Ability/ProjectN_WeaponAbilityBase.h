@@ -6,6 +6,8 @@
 #include "ProjectN_DamageAbilityBase.h"
 #include "ProjectN_WeaponAbilityBase.generated.h"
 
+class AProjectN_WeaponActor;
+
 UCLASS()
 class PROJECTN_API UProjectN_WeaponAbilityBase : public UProjectN_DamageAbilityBase
 {
@@ -13,11 +15,15 @@ class PROJECTN_API UProjectN_WeaponAbilityBase : public UProjectN_DamageAbilityB
 	
 protected:
 
-	virtual void ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData) override;
+	//virtual void ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData) override;
 
-	UFUNCTION(Blueprintable)
-	virtual void StartWeaponHit() const;
+	UFUNCTION(BlueprintCallable)
+	virtual void StartWeaponHit(const EItemSlot InSlot) const;
 
-	UFUNCTION(Blueprintable)
-	virtual void StopWeaponHit() const;
+	UFUNCTION(BlueprintCallable)
+	virtual void StopWeaponHit(const EItemSlot InSlot) const;
+
+private:
+	
+	//TObjectPtr<AProjectN_WeaponActor> Weapon = nullptr;
 };

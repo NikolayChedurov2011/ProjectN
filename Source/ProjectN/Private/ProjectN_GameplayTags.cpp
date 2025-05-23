@@ -33,9 +33,9 @@ namespace ProjectNGameplayTags
 	UE_DEFINE_GAMEPLAY_TAG(Input_Block_Movement,			"Input.Block.Movement")
 	
 	/**** Inventory Tags ****/
-	UE_DEFINE_GAMEPLAY_TAG(InventoryTag_Equip,				"InventoryTag.Equip")
-	UE_DEFINE_GAMEPLAY_TAG(InventoryTag_UnEquip,			"InventoryTag.UnEquip")
-	UE_DEFINE_GAMEPLAY_TAG(InventoryTag_Drop,				"InventoryTag.Drop")
+	UE_DEFINE_GAMEPLAY_TAG(InventoryTag_Equip,					"InventoryTag.Equip")
+	UE_DEFINE_GAMEPLAY_TAG(InventoryTag_UnEquip,				"InventoryTag.UnEquip")
+	UE_DEFINE_GAMEPLAY_TAG(InventoryTag_Drop,					"InventoryTag.Drop")
 
 	/**** Inventory Tags ****/
 	UE_DEFINE_GAMEPLAY_TAG(Item_Weapon,							"Item.Weapon")
@@ -44,6 +44,7 @@ namespace ProjectNGameplayTags
 	UE_DEFINE_GAMEPLAY_TAG(Item_Weapon_Type_Sword,				"Item.Weapon.Type.Sword")
 	UE_DEFINE_GAMEPLAY_TAG(Item_Weapon_Type_GreatSword,			"Item.Weapon.Type.GreatSword")
 	UE_DEFINE_GAMEPLAY_TAG(Item_Weapon_Type_Bow,				"Item.Weapon.Type.Bow")
+	UE_DEFINE_GAMEPLAY_TAG(Item_Weapon_Type_MagicStaff,			"Item.Weapon.Type.MagicStaff")
 	
 	UE_DEFINE_GAMEPLAY_TAG(Item_Weapon_Damage,					"Item.Weapon.Damage")
 	UE_DEFINE_GAMEPLAY_TAG(Item_Weapon_Damage_Min,				"Item.Weapon.Damage.Min")
@@ -55,9 +56,9 @@ namespace ProjectNGameplayTags
 	UE_DEFINE_GAMEPLAY_TAG(Equipment_Slot_TwoHanded,			"Equipment.Slot.TwoHanded")
 
 	/**** Message Tags ****/
-	UE_DEFINE_GAMEPLAY_TAG(Message,					"Message")
-	UE_DEFINE_GAMEPLAY_TAG(Message_Potion,			"Message.Potion")
-	UE_DEFINE_GAMEPLAY_TAG(Message_Damage,			"Message.Damage")
+	UE_DEFINE_GAMEPLAY_TAG(Message,								"Message")
+	UE_DEFINE_GAMEPLAY_TAG(Message_Potion,						"Message.Potion")
+	UE_DEFINE_GAMEPLAY_TAG(Message_Damage,						"Message.Damage")
 
 	/**** Attributes Tags ****/
 	UE_DEFINE_GAMEPLAY_TAG(Attribute_Primary,								"Attribute.Primary")
@@ -81,7 +82,7 @@ namespace ProjectNGameplayTags
 	UE_DEFINE_GAMEPLAY_TAG(Attribute_Main_MaxCarryingCapacity,				"Attribute.Main.MaxCarryingCapacity")
 	
 	UE_DEFINE_GAMEPLAY_TAG(Attribute_Secondary_Armor,						"Attribute.Secondary.Armor")
-	UE_DEFINE_GAMEPLAY_TAG(Attribute_Secondary_MagicalArmor,					"Attribute.Secondary.MagicalArmor")
+	UE_DEFINE_GAMEPLAY_TAG(Attribute_Secondary_MagicalArmor,				"Attribute.Secondary.MagicalArmor")
 	UE_DEFINE_GAMEPLAY_TAG(Attribute_Secondary_Evasion,						"Attribute.Secondary.Evasion")
 	UE_DEFINE_GAMEPLAY_TAG(Attribute_Secondary_BlockChance,					"Attribute.Secondary.BlockChance")
 	UE_DEFINE_GAMEPLAY_TAG(Attribute_Secondary_ArmorPenetration,			"Attribute.Secondary.ArmorPenetration")
@@ -95,24 +96,30 @@ namespace ProjectNGameplayTags
 	UE_DEFINE_GAMEPLAY_TAG(Attribute_Meta_Damage,							"Attribute.Meta.Damage")
 
 	/**** Event Tags ****/
-	UE_DEFINE_GAMEPLAY_TAG(Event_Montage_SpawnEffect,			"Event.Montage.SpawnEffect")
+	UE_DEFINE_GAMEPLAY_TAG(Event_Montage_SpawnEffect,						"Event.Montage.SpawnEffect")
+	UE_DEFINE_GAMEPLAY_TAG(Event_Montage_StartWeaponHit,					"Event.Montage.StartWeaponHit")
+	UE_DEFINE_GAMEPLAY_TAG(Event_Montage_StartWeaponHit_Main,				"Event.Montage.StartWeaponHit.Main")
+	UE_DEFINE_GAMEPLAY_TAG(Event_Montage_StartWeaponHit_Auxiliary,			"Event.Montage.StartWeaponHit.Auxiliary")
+	UE_DEFINE_GAMEPLAY_TAG(Event_Montage_StopWeaponHit,						"Event.Montage.StopWeaponHit")
+	UE_DEFINE_GAMEPLAY_TAG(Event_Montage_StopWeaponHit_Main,				"Event.Montage.StopWeaponHit.Main")
+	UE_DEFINE_GAMEPLAY_TAG(Event_Montage_StopWeaponHit_Auxiliary,			"Event.Montage.StopWeaponHit.Auxiliary")
 
 	/**** Effect Tags ****/
-	UE_DEFINE_GAMEPLAY_TAG(Effect,								"Effect")
-	UE_DEFINE_GAMEPLAY_TAG(Effect_HitReact,						"Effect.HitReact")
-	UE_DEFINE_GAMEPLAY_TAG(Effect_DamageImmunity,				"Effect.DamageImmunity")
-	UE_DEFINE_GAMEPLAY_TAG(Effect_Immortality,					"Effect.Immortality")
+	UE_DEFINE_GAMEPLAY_TAG(Effect,											"Effect")
+	UE_DEFINE_GAMEPLAY_TAG(Effect_HitReact,									"Effect.HitReact")
+	UE_DEFINE_GAMEPLAY_TAG(Effect_DamageImmunity,							"Effect.DamageImmunity")
+	UE_DEFINE_GAMEPLAY_TAG(Effect_Immortality,								"Effect.Immortality")
 
 	/**** Menu Tags ****/
-	UE_DEFINE_GAMEPLAY_TAG(Menu_SaveSlot,						"Menu.SaveSlot")
+	UE_DEFINE_GAMEPLAY_TAG(Menu_SaveSlot,									"Menu.SaveSlot")
 
 	/**** Progression Tags ****/
-	UE_DEFINE_GAMEPLAY_TAG(Progression_AttributePoint,			"Progression.AttributePoint")
+	UE_DEFINE_GAMEPLAY_TAG(Progression_AttributePoint,						"Progression.AttributePoint")
 
 	/**** Damage Type Tags ****/
-	UE_DEFINE_GAMEPLAY_TAG(DamageType,					"DamageType")
-	UE_DEFINE_GAMEPLAY_TAG(DamageType_Physical,			"DamageType.Physical")
-	UE_DEFINE_GAMEPLAY_TAG(DamageType_Magical,			"DamageType.Magical")
+	UE_DEFINE_GAMEPLAY_TAG(DamageType,										"DamageType")
+	UE_DEFINE_GAMEPLAY_TAG(DamageType_Physical,								"DamageType.Physical")
+	UE_DEFINE_GAMEPLAY_TAG(DamageType_Magical,								"DamageType.Magical")
 }
 
 FProjectNGameplayTagsStruct FProjectNGameplayTagsStruct::ProjectNGameplayTagsInstance;

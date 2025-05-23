@@ -98,7 +98,7 @@ public:
 	 *   Weapon items
 	 *********************/
 	UFUNCTION(BlueprintCallable, BlueprintPure)
-	AProjectN_ItemActor_Base* GetEquippedWeaponActorBySlot(const EItemSlot InItemSlot);
+	AProjectN_WeaponActor* GetEquippedWeaponActorBySlot(const EItemSlot InItemSlot);
 
 	UFUNCTION(BlueprintCallable, BlueprintPure)
 	TMap<FGameplayTag, float> GetWeaponDamageTypesForSlot(const EItemSlot InItemSlot);

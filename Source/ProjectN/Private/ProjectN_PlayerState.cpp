@@ -168,7 +168,7 @@ float AProjectN_PlayerState::GetWeaponMaxDamageForSlot_Implementation(const EIte
 }
 */
 
-AProjectN_ItemActor_Base* AProjectN_PlayerState::GetEquippedWeaponForSlot_Implementation(const EItemSlot ItemSlot) const
+AProjectN_WeaponActor* AProjectN_PlayerState::GetEquippedWeaponForSlot_Implementation(const EItemSlot ItemSlot) const
 {
 	if (ItemSlot == EItemSlot::None)
 	{
