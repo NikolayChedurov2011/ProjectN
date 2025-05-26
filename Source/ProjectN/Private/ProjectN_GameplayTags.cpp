@@ -31,6 +31,7 @@ namespace ProjectNGameplayTags
 	UE_DEFINE_GAMEPLAY_TAG(Input_Slot0,						"Input.Slot0")
 	
 	UE_DEFINE_GAMEPLAY_TAG(Input_Block_Movement,			"Input.Block.Movement")
+	UE_DEFINE_GAMEPLAY_TAG(Input_Block_Action,				"Input.Block.Action")
 	
 	/**** Inventory Tags ****/
 	UE_DEFINE_GAMEPLAY_TAG(InventoryTag_Equip,					"InventoryTag.Equip")

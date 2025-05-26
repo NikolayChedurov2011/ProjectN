@@ -26,6 +26,7 @@ public:
 	FActiveGameplayEffectHandle ApplyGamePlayEffectToSelf_Internal(const TSubclassOf<UGameplayEffect> Effect, const FGameplayEffectContextHandle& InEffectContext, const float Level);
 	FGameplayAbilitySpecHandle AddPassiveAbility(const TSubclassOf<UGameplayAbility> DefaultAbility, const FGameplayTag& InputTag = FGameplayTag());
 
+	void OnActionPressed(const FGameplayTag& InputTag);
 	void OnActionHeld(const FGameplayTag& InputTag);
 	void OnActionReleased(const FGameplayTag& InputTag);
 

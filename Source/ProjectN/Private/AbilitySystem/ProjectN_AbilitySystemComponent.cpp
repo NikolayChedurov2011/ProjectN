@@ -68,6 +68,26 @@ FActiveGameplayEffectHandle UProjectN_AbilitySystemComponent::ApplyGamePlayEffec
 	return EmptyGameplayEffectHandle;
 }
 
+void UProjectN_AbilitySystemComponent::OnActionPressed(const FGameplayTag& InputTag)
+{
+	if (!InputTag.IsValid())
+	{
+		return;
+	}
+	
+	for (FGameplayAbilitySpec& AbilitySpec : GetActivatableAbilities())
+	{
+		if (AbilitySpec.DynamicAbilityTags.HasTagExact(InputTag))
+		{
+			AbilitySpecInputPressed(AbilitySpec);
+			if (AbilitySpec.IsActive())
+			{
+				InvokeReplicatedEvent(EAbilityGenericReplicatedEvent::InputPressed, AbilitySpec.Handle, AbilitySpec.ActivationInfo.GetActivationPredictionKey());
+			}
+		}
+	}
+}
+
 void UProjectN_AbilitySystemComponent::OnActionHeld(const FGameplayTag& InputTag)
 {
 	if (!InputTag.IsValid())
@@ -97,9 +117,10 @@ void UProjectN_AbilitySystemComponent::OnActionReleased(const FGameplayTag& Inpu
 
 	for (FGameplayAbilitySpec& AbilitySpec : GetActivatableAbilities())
 	{
-		if (AbilitySpec.DynamicAbilityTags.HasTagExact(InputTag))
+		if (AbilitySpec.DynamicAbilityTags.HasTagExact(InputTag) && AbilitySpec.IsActive())
 		{
 			AbilitySpecInputReleased(AbilitySpec);
+			InvokeReplicatedEvent(EAbilityGenericReplicatedEvent::InputReleased, AbilitySpec.Handle, AbilitySpec.ActivationInfo.GetActivationPredictionKey());
 		}
 	}
 }

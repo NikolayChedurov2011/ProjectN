@@ -1,8 +1,13 @@
-Now we have three weapon (Magic staff, iron sword, great sword)
-Iteration for melee weapon damage ability
-Clean test abilities and implement good one
+Update anim notifies, UI hit message, HitReact and other weapon abilities for multiplayer.
+Adde OnActionPressed and InvokeReplicateEvent for Input press and release
+Little update with ability relationship
 
 TODO: 
+ROOTMOTION (With rootmotion we can run, walk or stop with attack or hit reaction and we no need modify movement speed I guess)
+Abilities relationship
+
+МБ каждое оружие может дать определённые доп способности, которые можно перенести на панель и использовать?
+
 Setup tags to block other abilities
 Stop movement when attack
 Calc damage type defense and multiply

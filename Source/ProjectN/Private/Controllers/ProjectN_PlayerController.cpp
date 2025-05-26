@@ -61,11 +61,24 @@ void AProjectN_PlayerController::SetupInputComponent()
 
 void AProjectN_PlayerController::OnActionPressed(FGameplayTag InputTag)
 {
-
+	if (GetAbilitySystemComponent() && GetAbilitySystemComponent()->HasMatchingGameplayTag(ProjectNGameplayTags::Input_Block_Action))
+	{
+		return;
+	}
+	
+	if (GetAbilitySystemComponent())
+	{
+		GetAbilitySystemComponent()->OnActionPressed(InputTag);
+	}
 }
 
 void AProjectN_PlayerController::OnActionReleased(FGameplayTag InputTag)
 {
+	if (GetAbilitySystemComponent() && GetAbilitySystemComponent()->HasMatchingGameplayTag(ProjectNGameplayTags::Input_Block_Action))
+	{
+		return;
+	}
+	
 	if (GetAbilitySystemComponent())
 	{
 		GetAbilitySystemComponent()->OnActionReleased(InputTag);
@@ -74,6 +87,11 @@ void AProjectN_PlayerController::OnActionReleased(FGameplayTag InputTag)
 
 void AProjectN_PlayerController::OnActionHeld(FGameplayTag InputTag)
 {
+	if (GetAbilitySystemComponent() && GetAbilitySystemComponent()->HasMatchingGameplayTag(ProjectNGameplayTags::Input_Block_Action))
+	{
+		return;
+	}
+	
 	if (GetAbilitySystemComponent())
 	{
 		GetAbilitySystemComponent()->OnActionHeld(InputTag);
@@ -136,7 +154,7 @@ void AProjectN_PlayerController::Input_Look(const FInputActionValue& ActionValue
 
 void AProjectN_PlayerController::ShowDamageNumber_Implementation(const float Damage, AActor* Target, const bool bBlocked, const bool bCriticalHit)
 {
-	if (!IsValid(Target) || !DamageTextComponentClass)
+	if (!IsValid(Target) || !DamageTextComponentClass && IsLocalController())
 	{
 		return;
 	}

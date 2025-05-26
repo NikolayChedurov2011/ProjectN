@@ -83,5 +83,9 @@ void AProjectN_ProjectileBase::SpawnImpactSoundAndEffect() const
 
 	UGameplayStatics::PlaySoundAtLocation(this, ImpactSound, GetActorLocation());
 	UNiagaraFunctionLibrary::SpawnSystemAtLocation(this, ImpactEffect, GetActorLocation());
-	ProjectileSoundComponent->Stop();
+	if (ProjectileSoundComponent)
+	{
+		ProjectileSoundComponent->Stop();
+		ProjectileSoundComponent->DestroyComponent();
+	}
 }

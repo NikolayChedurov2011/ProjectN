@@ -247,7 +247,7 @@ void UProjectN_AttributeSet::ShowFloatingText(const FEffectProperties& Props, co
 {
 	if (Props.SourceProperties.Character != Props.TargetProperties.Character)
 	{
-		if (AProjectN_PlayerController* PC = Cast<AProjectN_PlayerController>(UGameplayStatics::GetPlayerController(Props.SourceProperties.Character, 0)))
+		if (AProjectN_PlayerController* PC = Cast<AProjectN_PlayerController>(Props.SourceProperties.Controller))
 		{
 			PC->ShowDamageNumber(Damage, Props.TargetProperties.Character, bBlocked, bCriticalHit);
 		}
