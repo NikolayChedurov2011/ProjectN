@@ -12,7 +12,7 @@ void UProjectN_InventoryController::BindCallbacksToResponce()
 
 	if (InventoryComponent)
 	{
-		InventoryComponent->OnUpdateItem.BindLambda([this, InventoryComponent](UProjectN_ItemInstance* NewItemInstance)
+		/*InventoryComponent->OnUpdateItem.BindLambda([this, InventoryComponent](UProjectN_ItemInstance* NewItemInstance)
 		{
 			FInventoryItemInfo Item;
 			Item.ItemIcon = NewItemInstance->GetItemStaticClass()->GetItemIcon();
@@ -28,6 +28,22 @@ void UProjectN_InventoryController::BindCallbacksToResponce()
 		InventoryComponent->OnRemoveItem.BindLambda([this](UProjectN_ItemInstance* ItemInstanceToRemove)
 		{
 			OnInventoryItemRemoved.Broadcast(ItemInstanceToRemove);
+		});*/
+
+		InventoryComponent->OnBagChanged.BindLambda([this, InventoryComponent](const int32 BagID, const int32 BagSlots)
+		{
+			if (OnUpdateBag.IsBound())
+			{
+				OnUpdateBag.Broadcast(BagID, BagSlots);
+			}
+		});
+
+		InventoryComponent->OnSlotChange.BindLambda([this, InventoryComponent](const int32 BagID, const int32 BagSlots, const FInventorySlotData& ItemData)
+		{
+			if (OnUpdateSlot.IsBound())
+			{
+				OnUpdateSlot.Broadcast(BagID, BagSlots, ItemData);
+			}
 		});
 	}
 }
@@ -38,7 +54,7 @@ void UProjectN_InventoryController::BroadcastInitialValues()
 
 	if (InventoryComponent)
 	{
-		TArray<FInventoryItemInfo> ItemsInfo;
+		/*TArray<FInventoryItemInfo> ItemsInfo;
 		for (const FInventoryItem ItemInfo : InventoryComponent->GetItemsList())
 		{
 			FInventoryItemInfo Item;
@@ -52,7 +68,17 @@ void UProjectN_InventoryController::BroadcastInitialValues()
 			ItemsInfo.Add(Item);
 		}
 
-		OnInventoryItems.Broadcast(ItemsInfo);
+		OnInventoryItems.Broadcast(ItemsInfo);*/
+
+		// TODO: Init inventory items
+		for (int32 i = 0; i < InventoryComponent->GetBags().Num(); i++)
+		{
+			if (OnUpdateBag.IsBound())
+			{
+				OnUpdateBag.Broadcast(i, InventoryComponent->GetBags()[i].Slots.Num());
+			}
+		}
+		
 	}
 }
 

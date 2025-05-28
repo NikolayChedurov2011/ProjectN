@@ -51,3 +51,9 @@ struct TStructOpsTypeTraits<FInventoryList> : public TStructOpsTypeTraitsBase2<F
 {
 	enum { WithNetDeltaSerializer = true };
 };
+
+
+
+
+///////////////////////////////////////////////////
+/// Wow realization

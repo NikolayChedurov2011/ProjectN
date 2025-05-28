@@ -7,9 +7,9 @@ namespace ProjectNGameplayTags
 {
 	/**** Input Tags ****/
 	UE_DEFINE_GAMEPLAY_TAG(Input,							"Input")
-	UE_DEFINE_GAMEPLAY_TAG(InputTag_Move,					"InputTag.Move")
-	UE_DEFINE_GAMEPLAY_TAG(InputTag_Look,					"InputTag.Look")
-	UE_DEFINE_GAMEPLAY_TAG(InputTag_Esc,					"InputTag.Esc")
+	UE_DEFINE_GAMEPLAY_TAG(Input_Move,						"Input.Move")
+	UE_DEFINE_GAMEPLAY_TAG(Input_Look,						"Input.Look")
+	UE_DEFINE_GAMEPLAY_TAG(Input_Esc,						"Input.Esc")
 	UE_DEFINE_GAMEPLAY_TAG(Input_Interaction,				"Input.Interaction")
 	UE_DEFINE_GAMEPLAY_TAG(Input_Inventory,					"Input.Inventory")
 	UE_DEFINE_GAMEPLAY_TAG(Input_RMB,						"Input.RMB")
@@ -121,6 +121,24 @@ namespace ProjectNGameplayTags
 	UE_DEFINE_GAMEPLAY_TAG(DamageType,										"DamageType")
 	UE_DEFINE_GAMEPLAY_TAG(DamageType_Physical,								"DamageType.Physical")
 	UE_DEFINE_GAMEPLAY_TAG(DamageType_Magical,								"DamageType.Magical")
+
+	/**** Ability Tags ****/
+	UE_DEFINE_GAMEPLAY_TAG(Ability,											"Ability")
+	UE_DEFINE_GAMEPLAY_TAG(Ability_Summon,									"Ability.Summon")
+	UE_DEFINE_GAMEPLAY_TAG(Ability_Weapon,									"Ability.Weapon")
+	UE_DEFINE_GAMEPLAY_TAG(Ability_Weapon_ChargeSlash,						"Ability.Weapon.ChargeSlash")
+	UE_DEFINE_GAMEPLAY_TAG(Ability_Magic,									"Ability.Magic")
+	UE_DEFINE_GAMEPLAY_TAG(Ability_Magic_Fire,								"Ability.Magic.Fire")
+	UE_DEFINE_GAMEPLAY_TAG(Ability_Magic_Fire_EyeFire,						"Ability.Magic.Fire.EyeFire")
+
+	/**** Ability cooldown Tags ****/
+	UE_DEFINE_GAMEPLAY_TAG(Cooldown,										"Cooldown")
+	UE_DEFINE_GAMEPLAY_TAG(Cooldown_Summon,									"Cooldown.Summon")
+	UE_DEFINE_GAMEPLAY_TAG(Cooldown_Weapon,									"Cooldown.Weapon")
+	UE_DEFINE_GAMEPLAY_TAG(Cooldown_Weapon_ChargeSlash,						"Cooldown.Weapon.ChargeSlash")
+	UE_DEFINE_GAMEPLAY_TAG(Cooldown_Magic,									"Cooldown.Magic")
+	UE_DEFINE_GAMEPLAY_TAG(Cooldown_Magic_Fire,								"Cooldown.Magic.Fire")
+	UE_DEFINE_GAMEPLAY_TAG(Cooldown_Magic_Fire_EyeFire,						"Cooldown.Magic.Fire.EyeFire")
 }
 
 FProjectNGameplayTagsStruct FProjectNGameplayTagsStruct::ProjectNGameplayTagsInstance;

@@ -1,8 +1,8 @@
-Update anim notifies, UI hit message, HitReact and other weapon abilities for multiplayer.
-Adde OnActionPressed and InvokeReplicateEvent for Input press and release
-Little update with ability relationship
+Iteration for inventory, items abilities and action bar.
+Implement data assets and base logic for add/remove bag, add/replace item and bind it with inventory widget controller and show it
 
 TODO: 
+
 ROOTMOTION (With rootmotion we can run, walk or stop with attack or hit reaction and we no need modify movement speed I guess)
 Abilities relationship
 

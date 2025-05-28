@@ -54,12 +54,17 @@ struct TStructOpsTypeTraits<FEquippedItemsList> : public TStructOpsTypeTraitsBas
 
 DECLARE_DELEGATE_OneParam(FOnUpdateItemSignature, UProjectN_ItemInstance* /*NewItem*/);
 
+DECLARE_DELEGATE_TwoParams(FOnBagChangedSignature, const int32 /*BagID*/, const int32 /*BagSlot*/);
+DECLARE_DELEGATE_ThreeParams(FOnSlotChangeSignature, const int32 /*BagID*/, const int32 /*BagSlot*/, FInventorySlotData /*ItemData*/);
+
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class PROJECTN_API UProjectN_InventoryComponent : public UActorComponent
 {
 	GENERATED_BODY()
 
 public:
+
+	// Default bag id
 	
 	FOnUpdateItemSignature OnUpdateItem;
 	FOnUpdateItemSignature OnRemoveItem;
@@ -119,6 +124,27 @@ public:
 	
 	UFUNCTION(Client, Reliable)
 	void ClientRemoveItem(UProjectN_ItemInstance* ItemInstance);
+
+	/*
+	USTRUCT()
+	struct FActionSlotData
+	{
+		GENERATED_BODY()
+		int32 ID;                         // 101, 201, 301, 401…
+		EItemEntryType EntryType;        // Spell, Consumable, Equipment, Weapon
+		int32 BagID, SlotIndex;          // только для айтемов
+	};
+	USTRUCT()
+	struct FInventorySlotData
+	{
+		GENERATED_BODY()
+		int32 ItemID;
+		EItemEntryType EntryType;        // однозначно говорит, в какую таблицу копать
+		int32 Quantity;
+		float Durability;
+		// …
+	};
+	*/
 	
 protected:
 	virtual void InitializeComponent() override;
@@ -166,6 +192,65 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	TMap<FGameplayTag, EItemSlot> AssociatedInputTagWithSlot;
+
+	/*UPROPERTY(EditDefaultsOnly)
+	TSoftObjectPtr<UDataTable> ItemsDataTable;
+
+	UPROPERTY(EditDefaultsOnly)
+	TSoftObjectPtr<UDataTable> EquipmentItemsDataTable;
+
+	UPROPERTY(EditDefaultsOnly)
+	TSoftObjectPtr<UDataTable> WeaponItemsDataTable;*/
+
+
+
+	//////////////////////////////////////////////////////
+	// Wow realisation
+public:
+	FOnBagChangedSignature OnBagChanged;
+	//FOnBagChangedSignature OnBagAdded;
+	//FOnBagChangedSignature OnBagRemoved;
+	FOnSlotChangeSignature OnSlotChange;
+
+	UFUNCTION(BlueprintCallable)
+	void AddBag(const FName InBagItemID);
+	UFUNCTION(BlueprintCallable)
+	void RemoveBag(const int32 BagID);
+	UFUNCTION(BlueprintCallable)
+	bool TryAddItemToFirstFreeSlot(const FName& ItemID, const EEntryType ItemType, const int32 Quantity);
+	UFUNCTION(BlueprintCallable)
+	bool TryAddItemToStack(const FName& ItemID, const EEntryType ItemType, const int32 Quantity);
+	UFUNCTION(BlueprintCallable)
+	bool TryAddItem(const FName& ItemID, const EEntryType ItemType, const int32 Quantity);
+	UFUNCTION(BlueprintCallable)
+	void ReplaceItemInBag(const int32 FromBagID, const int32 ToBagID, const int32 FromSlotIndex, const int32 ToSlotIndex);
+
+	UFUNCTION(Client, Reliable)
+	void BroadcastBagChange(const int32 BagID, const int32 BagSlots);
+	UFUNCTION(Client, Reliable)
+	void BroadcastSlotChange(const int32 BagID, const int32 BagSlot, const FInventorySlotData& ItemData);
+	
+	UFUNCTION(BlueprintCallable)
+	FORCEINLINE TArray<FBagData> GetBags() const { return Bags; }
+	
+protected:
+	UPROPERTY(EditDefaultsOnly, Category="WOW Realisation")
+	TSoftObjectPtr<UDataTable> BagDataTable;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="WOW Realisation")
+	TArray<FName> BagsDefaultID;
+
+	UPROPERTY(Replicated)
+	TArray<FBagData> Bags;
+
+	void InitBags();
+
+	FInventorySlotData& GetSlot(const int32 BagID, const int32 SlotIndex)
+	{
+		check(Bags.IsValidIndex(BagID));
+		check(Bags[BagID].Slots.IsValidIndex(SlotIndex));
+		return Bags[BagID].Slots[SlotIndex];
+	}
 
 private:
 	

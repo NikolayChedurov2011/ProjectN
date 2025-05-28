@@ -6,6 +6,7 @@
 #include "ProjectN_PlayerState.h"
 #include "AbilitySystem/ProjectN_AbilitySystemComponent.h"
 #include "AbilitySystem/Attribute/ProjectN_AttributeSet.h"
+#include "AbilitySystem/Data/AbilityInfo.h"
 #include "AbilitySystem/Data/LevelUpDataInfo.h"
 
 void UProjectN_OverlayWidgetController::BroadcastInitialValues()
@@ -43,19 +44,31 @@ void UProjectN_OverlayWidgetController::BindCallbacksToResponce()
 	BindGameplayAttributeValueChange(ProjectN_AttributeSet->GetMaxManaAttribute(), OnMaxManaChanged);
 	//BindGameplayAttributeValueChange(ProjectN_AttributeSet->GetStaminaAttribute(), OnStaminaChanged);
 	//BindGameplayAttributeValueChange(ProjectN_AttributeSet->GetMaxStaminaAttribute(), OnMaxStaminaChanged);
-	
-	Cast<UProjectN_AbilitySystemComponent>(AbilitySystemComponent)->EffectAssetTags.AddLambda([this] (const FGameplayTagContainer& EffectAssetTags)
+
+	if (UProjectN_AbilitySystemComponent* ProjectN_AbilitySystemComponent = Cast<UProjectN_AbilitySystemComponent>(AbilitySystemComponent))
 	{
-		for (const FGameplayTag& Tag : EffectAssetTags)
+		if (ProjectN_AbilitySystemComponent->bIsAbilityAdded)
 		{
-			const FGameplayTag MessageTag = FGameplayTag::RequestGameplayTag(FName("Message"));
-			if (Tag.MatchesTag(MessageTag))
-			{
-				const FUIWidgetRow* WidgetRow = GetTableRowByTag<FUIWidgetRow>(MessageWidgetDataTable, Tag);
-				OnMessageRowSignature.Broadcast(*WidgetRow);
-			}
+			OnInitializeAbility(ProjectN_AbilitySystemComponent);
 		}
-	});
+		else
+		{
+			ProjectN_AbilitySystemComponent->AbilitiesGiven.AddUObject(this, &UProjectN_OverlayWidgetController::OnInitializeAbility);
+		}
+		
+		ProjectN_AbilitySystemComponent->EffectAssetTags.AddLambda([this] (const FGameplayTagContainer& EffectAssetTags)
+		{
+			for (const FGameplayTag& Tag : EffectAssetTags)
+			{
+				const FGameplayTag MessageTag = FGameplayTag::RequestGameplayTag(FName("Message"));
+				if (Tag.MatchesTag(MessageTag))
+				{
+					const FUIWidgetRow* WidgetRow = GetTableRowByTag<FUIWidgetRow>(MessageWidgetDataTable, Tag);
+					OnMessageRowSignature.Broadcast(*WidgetRow);
+				}
+			}
+		});
+	}
 
 	AProjectN_PlayerState* ProjectNPlayerState = CastChecked<AProjectN_PlayerState>(PlayerState);
 	ProjectNPlayerState->OnXPChanged.AddUObject(this, &UProjectN_OverlayWidgetController::ProcessXP);
@@ -90,4 +103,29 @@ void UProjectN_OverlayWidgetController::BindGameplayAttributeValueChange(const F
 	{
 		OnAttributeChangedDelegate.Broadcast(Data.NewValue, Data.OldValue);
 	});
+}
+
+void UProjectN_OverlayWidgetController::OnInitializeAbility(UProjectN_AbilitySystemComponent* ProjectN_AbilitySystemComponent) const
+{
+	if (!ProjectN_AbilitySystemComponent->bIsAbilityAdded)
+	{
+		return;
+	}
+
+	FForEachAbilitySignature BroadcastDelegate;
+	BroadcastDelegate.BindLambda([this, ProjectN_AbilitySystemComponent] (const FGameplayAbilitySpec& AbilitySpec)
+	{
+		FProjectNAbilityInfo* AbilityInfo = &AbilityInfoDataAsset->GetAbilityInfoByTag(ProjectN_AbilitySystemComponent->GetAbilityTagFromSpec(AbilitySpec));
+		if (AbilityInfo != nullptr)
+		{
+			AbilityInfo->InputTag = ProjectN_AbilitySystemComponent->GetInputTagFromSpec(AbilitySpec);
+
+			if (OnAbilityInfo.IsBound())
+			{
+				OnAbilityInfo.Broadcast(*AbilityInfo);
+			}
+		}
+	});
+
+	ProjectN_AbilitySystemComponent->ForEachAbility(BroadcastDelegate);
 }

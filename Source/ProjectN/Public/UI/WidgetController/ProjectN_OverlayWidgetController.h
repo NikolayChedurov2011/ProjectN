@@ -7,6 +7,9 @@
 #include "UI/WidgetController/ProjectN_WidgetControllerBase.h"
 #include "ProjectN_OverlayWidgetController.generated.h"
 
+struct FProjectNAbilityInfo;
+class UProjectN_AbilitySystemComponent;
+class UAbilityInfo;
 struct FOnAttributeChangeData;
 struct FGameplayAttribute;
 class UProjectN_WidgetBase;
@@ -33,6 +36,7 @@ public:
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnAttributeChangedSignature, float, NewValue, float, OldValue);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnMessageRowSignature, FUIWidgetRow, WidgetRow);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnAbilityInfoSignature, const FProjectNAbilityInfo&, AbilityInfo);
 
 UCLASS(BlueprintType, Blueprintable)
 class PROJECTN_API UProjectN_OverlayWidgetController : public UProjectN_WidgetControllerBase
@@ -61,6 +65,9 @@ public:
 
 	UPROPERTY(BlueprintAssignable)
 	FOnMessageRowSignature			OnMessageRowSignature;
+
+	UPROPERTY(BlueprintAssignable)
+	FOnAbilityInfoSignature			OnAbilityInfo;
 	
 	UPROPERTY(BlueprintAssignable, Category="Gameplay Values")
 	FOnCharacterStatChangedSignature OnXPChanged;
@@ -73,12 +80,16 @@ public:
 
 protected:
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	TObjectPtr<UDataTable> MessageWidgetDataTable; 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Widget Data")
+	TObjectPtr<UDataTable> MessageWidgetDataTable;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Widget Data")
+	TObjectPtr<UAbilityInfo> AbilityInfoDataAsset;
 
 	void BindGameplayAttributeValueChange(const FGameplayAttribute& AttributeData, const FOnAttributeChangedSignature& OnAttributeChangedDelegate) const;
 
 	void ProcessXP(const int32 Value) const;
+	void OnInitializeAbility(UProjectN_AbilitySystemComponent* ProjectN_AbilitySystemComponent) const;
 	
 	template <typename T>
 	T* GetTableRowByTag(UDataTable* DataTable, FGameplayTag GameplayTag);

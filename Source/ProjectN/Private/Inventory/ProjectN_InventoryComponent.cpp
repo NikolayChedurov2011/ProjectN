@@ -44,6 +44,7 @@ void UProjectN_InventoryComponent::GetLifetimeReplicatedProps(TArray<class FLife
 	DOREPLIFETIME(UProjectN_InventoryComponent, InventoryList);
 	//DOREPLIFETIME(UProjectN_InventoryComponent, CurrentItemInstance);
 	DOREPLIFETIME(UProjectN_InventoryComponent, EquippedItemSlots);
+	DOREPLIFETIME(UProjectN_InventoryComponent, Bags);
 }
 
 bool UProjectN_InventoryComponent::ReplicateSubobjects(class UActorChannel* Channel, class FOutBunch* Bunch, FReplicationFlags* RepFlags)
@@ -83,6 +84,7 @@ void UProjectN_InventoryComponent::InitializeComponent()
             	AddItemByStaticClass(Loot.ItemStaticClass, Loot.MaxCount);
             }
 		}
+		InitBags();
 	}
 
 	if (UAbilitySystemComponent* ASC = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(GetOwner()))
@@ -744,3 +746,211 @@ float UProjectN_InventoryComponent::GetWeaponMaxDamageForSlot(const EItemSlot In
 	return 0.f;
 }
 */
+
+//////////////////////////////////////////////////////
+// Wow realisation
+void UProjectN_InventoryComponent::InitBags()
+{
+	for (int32 i = 0; i < BagsDefaultID.Num(); i++)
+	{
+		AddBag(BagsDefaultID[i]);
+		/*static const FString Context = FString(TEXT("UProjectN_InventoryComponent::FindBagFromDataTable"));
+		
+		if (const FBagDefinition* DageDef = BagDataTable.LoadSynchronous()->FindRow<FBagDefinition>(BagsDefaultID[i], Context, false))
+		{
+			FBagData NewBag;
+			NewBag.BagItemID = BagsDefaultID[i];
+			NewBag.Slots.SetNum(DageDef->NumSlots);
+			Bags.Add(MoveTemp(NewBag));
+			
+			if (OnBagAdded.IsBound())
+			{
+				OnBagAdded.Execute(i, DageDef->NumSlots);
+			}
+		}*/
+	}
+}
+
+void UProjectN_InventoryComponent::AddBag(const FName InBagItemID)
+{
+	if (!GetOwner()->HasAuthority())
+	{
+		return;
+	}
+	
+	static const FString Context = FString(TEXT("UProjectN_InventoryComponent::FindBagFromDataTable"));
+		
+	if (const FBagDefinition* BagDef = BagDataTable.LoadSynchronous()->FindRow<FBagDefinition>(InBagItemID, Context, false))
+	{
+		FBagData NewBag;
+		NewBag.BagID = Bags.Num();
+		NewBag.BagItemID = InBagItemID;
+		NewBag.Slots.SetNum(BagDef->NumSlots);
+		BroadcastBagChange(NewBag.BagID, BagDef->NumSlots);
+		
+		Bags.Add(MoveTemp(NewBag));
+
+		
+		/*if (OnBagAdded.IsBound())
+		{
+			OnBagAdded.Execute(Bags.Num() - 1, BagDef->NumSlots);
+		}*/
+	}
+}
+
+void UProjectN_InventoryComponent::RemoveBag(const int32 BagID)
+{
+	if (!GetOwner()->HasAuthority())
+	{
+		return;
+	}
+	
+	const FBagData* BagToRemove= nullptr;
+	for (int32 i = 0; i < Bags.Num(); i++)
+	{
+		if (Bags[i].BagID == BagID)
+		{
+			Bags.RemoveAt(i);
+			BroadcastBagChange(i, 0);
+			return;
+		}
+	}
+	
+		
+		/*if (OnBagRemoved.IsBound())
+		{
+			OnBagRemoved.Execute(Bags.Num(), 0);
+		}*/
+}
+
+bool UProjectN_InventoryComponent::TryAddItemToFirstFreeSlot(const FName& ItemID, const EEntryType ItemType, const int32 Quantity)
+{
+	for (FBagData& Bag : Bags)
+	{
+		for (int32 i = 0; i < Bag.Slots.Num(); i++)
+		{
+			if (Bag.Slots[i].ItemID.IsNone())
+			{
+				FInventorySlotData NewSlotData;
+				NewSlotData.ItemID = ItemID;
+				NewSlotData.EntryType = ItemType;
+				NewSlotData.Quantity = Quantity;
+				
+				Bag.Slots[i] = MoveTemp(NewSlotData);
+
+				BroadcastSlotChange(Bag.BagID, i, Bag.Slots[i]);
+				
+				return true;
+			}
+		}
+	}
+	return false;
+}
+
+bool UProjectN_InventoryComponent::TryAddItemToStack(const FName& ItemID, const EEntryType ItemType, const int32 Quantity)
+{
+	static const FString Context = FString(TEXT("UProjectN_InventoryComponent::FindBagFromDataTable"));
+		
+	if (const FItemDefinition* ItemDef = BagDataTable.LoadSynchronous()->FindRow<FItemDefinition>(ItemID, Context, false))
+	{
+		const int32 ItemMaxStack = ItemDef->MaxStack;
+
+		for (FBagData& Bag : Bags)
+		{
+			for (int32 i = 0; i < Bag.Slots.Num(); i++)
+			{
+				if (Bag.Slots[i].ItemID == ItemID && Bag.Slots[i].EntryType == ItemType)
+				{
+					if (Bag.Slots[i].Quantity != ItemMaxStack)
+					{
+						const int32 TotalQuantity = Quantity + Bag.Slots[i].Quantity;
+						if (TotalQuantity <= ItemMaxStack)
+						{
+							Bag.Slots[i].Quantity = TotalQuantity;
+							
+							BroadcastSlotChange(Bag.BagID, i, Bag.Slots[i]);
+							
+							return true;
+						}
+						else
+						{
+							Bag.Slots[i].Quantity = ItemMaxStack;
+							const int32 Remaining = ItemMaxStack - TotalQuantity;
+							
+							BroadcastSlotChange(Bag.BagID, i, Bag.Slots[i]);
+							
+							return TryAddItemToStack(ItemID, ItemType, Remaining)? true : TryAddItemToFirstFreeSlot(ItemID, ItemType, Remaining);
+						}
+					}
+				}
+			}
+		}
+		
+		/*if (OnItemAdded.IsBound())
+		{
+			OnItemAdded.Execute(false);
+		}*/
+	}
+	return false;
+}
+
+bool UProjectN_InventoryComponent::TryAddItem(const FName& ItemID, const EEntryType ItemType, const int32 Quantity)
+{
+	if (ItemType == EEntryType::Item)
+	{
+		return TryAddItemToStack(ItemID, ItemType, Quantity);
+	}
+	return TryAddItemToFirstFreeSlot(ItemID, ItemType, Quantity);
+}
+
+void UProjectN_InventoryComponent::ReplaceItemInBag(const int32 FromBagID, const int32 ToBagID, const int32 FromSlotIndex, const int32 ToSlotIndex)
+{
+	FInventorySlotData FromSlotData;
+	FInventorySlotData ToSlotData;
+
+	for (FBagData& Bag : Bags)
+	{
+		if (Bag.BagID == FromBagID)
+		{
+			FromSlotData = Bag.Slots[FromSlotIndex];
+		}
+		
+		if (Bag.BagID == ToBagID)
+		{
+			ToSlotData = Bag.Slots[ToSlotIndex];
+		}
+	}
+
+	for (FBagData& Bag : Bags)
+	{
+		if (Bag.BagID == FromBagID)
+		{
+			Bag.Slots[FromSlotIndex] = MoveTemp(ToSlotData);
+
+			BroadcastSlotChange(Bag.BagID, ToSlotIndex, Bag.Slots[ToSlotIndex]);
+		}
+		
+		if (Bag.BagID == ToBagID)
+		{
+			Bag.Slots[ToSlotIndex] = MoveTemp(FromSlotData);
+
+			BroadcastSlotChange(Bag.BagID, ToSlotIndex, Bag.Slots[ToSlotIndex]);
+		}
+	}
+}
+
+void UProjectN_InventoryComponent::BroadcastBagChange_Implementation(const int32 BagID, const int32 BagSlots)
+{
+	if (OnBagChanged.IsBound())
+	{
+		OnBagChanged.Execute(BagID, BagSlots);
+	}
+}
+
+void UProjectN_InventoryComponent::BroadcastSlotChange_Implementation(const int32 BagID, const int32 BagSlot, const FInventorySlotData& ItemData)
+{
+	if (OnSlotChange.IsBound())
+	{
+		OnSlotChange.Execute(BagID, BagSlot, ItemData);
+	}
+}

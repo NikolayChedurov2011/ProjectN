@@ -4,6 +4,7 @@
 #include "AbilitySystem/ProjectN_AbilitySystemComponent.h"
 
 #include "AbilitySystemBlueprintLibrary.h"
+#include "ProjectN_GameplayTags.h"
 #include "AbilitySystem/Ability/ProjectN_GameplayAbilityBase.h"
 #include "AbilitySystem/Attribute/ProjectN_AttributeSet.h"
 
@@ -24,12 +25,16 @@ FGameplayAbilitySpecHandle UProjectN_AbilitySystemComponent::AddAbility(const TS
 {
 	if (IsValid(DefaultAbility))
 	{
+		//bIsAbilityAdded = true;
+		
 		FGameplayAbilitySpec AbilitySpec = FGameplayAbilitySpec(DefaultAbility, 1.f);
 		if (const UProjectN_GameplayAbilityBase* ProjectN_Ability = Cast<UProjectN_GameplayAbilityBase>(AbilitySpec.Ability))
 		{
 			AbilitySpec.DynamicAbilityTags.AddTag(InputTag.IsValid()? InputTag : ProjectN_Ability->GetStartupTag());
+			//AbilitiesGiven.Broadcast(this);
 			return GiveAbility(AbilitySpec);
 		}
+		//AbilitiesGiven.Broadcast(this);
 		return GiveAbility(AbilitySpec);
 		
 	}
@@ -141,4 +146,55 @@ void UProjectN_AbilitySystemComponent::ServerAddToAttributeByTag_Implementation(
 	
 	UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(GetAvatarActor(), AttributeTag,Payload);
 	//ProjectNPlayerState->AddToAttributePoints(-Value);
+}
+
+void UProjectN_AbilitySystemComponent::ForEachAbility(const FForEachAbilitySignature& Delegate)
+{
+	FScopedAbilityListLock ActiveScopeLock(*this);
+	
+	for (const FGameplayAbilitySpec& AbilitySpec : GetActivatableAbilities())
+	{
+		if (!Delegate.ExecuteIfBound(AbilitySpec))
+		{
+			//TODO: Log failed execute delegate %hs __FUNCTION__
+		}
+	}
+}
+
+FGameplayTag UProjectN_AbilitySystemComponent::GetAbilityTagFromSpec(const FGameplayAbilitySpec& AbilitySpec)
+{
+	if (AbilitySpec.Ability)
+	{
+		for (FGameplayTag Tag : AbilitySpec.Ability.Get()->AbilityTags)
+		{
+			if (Tag.MatchesTag(ProjectNGameplayTags::Ability))
+			{
+				return Tag;
+			}
+		}
+	}
+	return FGameplayTag();
+}
+
+FGameplayTag UProjectN_AbilitySystemComponent::GetInputTagFromSpec(const FGameplayAbilitySpec& AbilitySpec)
+{
+	if (AbilitySpec.Ability)
+	{
+		for (FGameplayTag Tag : AbilitySpec.DynamicAbilityTags)
+		{
+			if (Tag.MatchesTag(ProjectNGameplayTags::Input))
+			{
+				return Tag;
+			}
+		}
+	}
+	return FGameplayTag();
+}
+
+void UProjectN_AbilitySystemComponent::OnRep_ActivateAbilities()
+{
+	Super::OnRep_ActivateAbilities();
+
+	bIsAbilityAdded = true;
+	AbilitiesGiven.Broadcast(this);
 }

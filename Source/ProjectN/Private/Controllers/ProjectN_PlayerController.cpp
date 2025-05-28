@@ -54,8 +54,8 @@ void AProjectN_PlayerController::SetupInputComponent()
 	}
 	EnhancedInputSubsystem->AddMappingContext(InputConfig->DefaultMappingContext, 0);
 	
-	ProjectNInputComponent->BindNativeInputAction(InputConfig, ProjectNGameplayTags::InputTag_Move, ETriggerEvent::Triggered, this, &ThisClass::Input_Move);
-	ProjectNInputComponent->BindNativeInputAction(InputConfig, ProjectNGameplayTags::InputTag_Look, ETriggerEvent::Triggered, this, &ThisClass::Input_Look);
+	ProjectNInputComponent->BindNativeInputAction(InputConfig, ProjectNGameplayTags::Input_Move, ETriggerEvent::Triggered, this, &ThisClass::Input_Move);
+	ProjectNInputComponent->BindNativeInputAction(InputConfig, ProjectNGameplayTags::Input_Look, ETriggerEvent::Triggered, this, &ThisClass::Input_Look);
 	ProjectNInputComponent->BindAbilityActions(InputConfig, this, &ThisClass::OnActionPressed, &ThisClass::OnActionReleased, &ThisClass::OnActionHeld);
 }
 
