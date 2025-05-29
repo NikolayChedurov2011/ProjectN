@@ -42,6 +42,11 @@ FGameplayAbilitySpecHandle UProjectN_AbilitySystemComponent::AddAbility(const TS
 	return EmptyGameplayAbilitySpecHandle;
 }
 
+void UProjectN_AbilitySystemComponent::ServerAddAbility_Implementation(TSubclassOf<UGameplayAbility> DefaultAbility, const FGameplayTag& InputTag)
+{
+	AddAbility(DefaultAbility, InputTag);
+}
+
 FGameplayAbilitySpecHandle UProjectN_AbilitySystemComponent::AddPassiveAbility(const TSubclassOf<UGameplayAbility> DefaultAbility, const FGameplayTag& InputTag)
 {
 	if (IsValid(DefaultAbility))

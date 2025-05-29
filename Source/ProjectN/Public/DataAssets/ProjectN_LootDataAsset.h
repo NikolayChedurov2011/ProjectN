@@ -13,7 +13,10 @@ struct FItemLootData
 	GENERATED_USTRUCT_BODY()
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Item Loot Data")
-	TSubclassOf<UItemStaticClass> ItemStaticClass;
+	FName ItemID;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Item Loot Data")
+	EEntryType ItemType = EEntryType::None;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Item Loot Data", meta=(ClampMin = 1))
 	int32 MinCount = 1;

@@ -5,7 +5,6 @@
 
 #include "AbilitySystemBlueprintLibrary.h"
 #include "EnhancedInputSubsystems.h"
-#include "MovieSceneTracksComponentTypes.h"
 #include "ProjectN_GameplayTags.h"
 #include "AbilitySystem/ProjectN_AbilitySystemComponent.h"
 #include "Components/ProjectN_DamageTextComponent.h"
@@ -56,6 +55,8 @@ void AProjectN_PlayerController::SetupInputComponent()
 	
 	ProjectNInputComponent->BindNativeInputAction(InputConfig, ProjectNGameplayTags::Input_Move, ETriggerEvent::Triggered, this, &ThisClass::Input_Move);
 	ProjectNInputComponent->BindNativeInputAction(InputConfig, ProjectNGameplayTags::Input_Look, ETriggerEvent::Triggered, this, &ThisClass::Input_Look);
+	ProjectNInputComponent->BindNativeInputAction(InputConfig, ProjectNGameplayTags::Input_Alt, ETriggerEvent::Started, this, &ThisClass::Input_AltPressed);
+	ProjectNInputComponent->BindNativeInputAction(InputConfig, ProjectNGameplayTags::Input_Alt, ETriggerEvent::Completed, this, &ThisClass::Input_AltReleased);
 	ProjectNInputComponent->BindAbilityActions(InputConfig, this, &ThisClass::OnActionPressed, &ThisClass::OnActionReleased, &ThisClass::OnActionHeld);
 }
 
@@ -150,6 +151,24 @@ void AProjectN_PlayerController::Input_Look(const FInputActionValue& ActionValue
 	{
 		GetPawn()->AddControllerPitchInput(LookAxisVector.Y);
 	}
+}
+
+void AProjectN_PlayerController::Input_AltPressed(const FInputActionValue& ActionValue)
+{
+	FInputModeGameAndUI InputModeData;
+	InputModeData.SetLockMouseToViewportBehavior(EMouseLockMode::DoNotLock);
+	InputModeData.SetHideCursorDuringCapture(false);
+	SetInputMode(InputModeData);
+	
+	SetShowMouseCursor(true);
+}
+
+void AProjectN_PlayerController::Input_AltReleased(const FInputActionValue& ActionValue)
+{
+	FInputModeGameOnly InputModeData;
+	SetInputMode(InputModeData);
+	
+	SetShowMouseCursor(false);
 }
 
 void AProjectN_PlayerController::ShowDamageNumber_Implementation(const float Damage, AActor* Target, const bool bBlocked, const bool bCriticalHit)

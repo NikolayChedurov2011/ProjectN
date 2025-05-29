@@ -107,7 +107,7 @@ void UProjectN_OverlayWidgetController::BindGameplayAttributeValueChange(const F
 
 void UProjectN_OverlayWidgetController::OnInitializeAbility(UProjectN_AbilitySystemComponent* ProjectN_AbilitySystemComponent) const
 {
-	if (!ProjectN_AbilitySystemComponent->bIsAbilityAdded)
+	/*if (!ProjectN_AbilitySystemComponent->bIsAbilityAdded)
 	{
 		return;
 	}
@@ -115,7 +115,7 @@ void UProjectN_OverlayWidgetController::OnInitializeAbility(UProjectN_AbilitySys
 	FForEachAbilitySignature BroadcastDelegate;
 	BroadcastDelegate.BindLambda([this, ProjectN_AbilitySystemComponent] (const FGameplayAbilitySpec& AbilitySpec)
 	{
-		FProjectNAbilityInfo* AbilityInfo = &AbilityInfoDataAsset->GetAbilityInfoByTag(ProjectN_AbilitySystemComponent->GetAbilityTagFromSpec(AbilitySpec));
+		FProjectNActionSlotInfo* AbilityInfo = &AbilityInfoDataAsset->GetAbilityInfoByIndex();
 		if (AbilityInfo != nullptr)
 		{
 			AbilityInfo->InputTag = ProjectN_AbilitySystemComponent->GetInputTagFromSpec(AbilitySpec);
@@ -127,5 +127,5 @@ void UProjectN_OverlayWidgetController::OnInitializeAbility(UProjectN_AbilitySys
 		}
 	});
 
-	ProjectN_AbilitySystemComponent->ForEachAbility(BroadcastDelegate);
+	ProjectN_AbilitySystemComponent->ForEachAbility(BroadcastDelegate);*/
 }

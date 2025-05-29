@@ -6,6 +6,7 @@
 #include "Kismet/BlueprintFunctionLibrary.h"
 #include "ProjectN_AbilitySystemLibrary.generated.h"
 
+class UProjectN_ActionBarController;
 struct FGameplayEffectContextHandle;
 class UCharacter_Save;
 class USaveGame;
@@ -29,6 +30,9 @@ public:
 
 	UFUNCTION(BlueprintPure, Category = "AbilitySystem | Inventory Widget Controller")
 	static UProjectN_InventoryController* GetInventoryWidgetController(const UObject* WorldContextObject);
+
+	UFUNCTION(BlueprintPure, Category = "AbilitySystem | Inventory Widget Controller")
+	static UProjectN_ActionBarController* GetActionBarWidgetController(const UObject* WorldContextObject);
 
 	UFUNCTION(BlueprintCallable, Category = "AbilitySystem | Attributes")
 	static void SetPrimaryAttributesByCaller(const UObject* WorldContextObject, UAbilitySystemComponent* AbilitySystemComponent, const float Strength, const float Intelligence, const float Dexterity, const float Vitality);

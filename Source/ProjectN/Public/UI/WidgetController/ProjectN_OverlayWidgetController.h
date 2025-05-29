@@ -7,11 +7,11 @@
 #include "UI/WidgetController/ProjectN_WidgetControllerBase.h"
 #include "ProjectN_OverlayWidgetController.generated.h"
 
-struct FProjectNAbilityInfo;
+struct FProjectNActionSlotInfo;
+struct FGameplayAttribute;
+struct FOnAttributeChangeData;
 class UProjectN_AbilitySystemComponent;
 class UAbilityInfo;
-struct FOnAttributeChangeData;
-struct FGameplayAttribute;
 class UProjectN_WidgetBase;
 
 USTRUCT(BlueprintType)
@@ -36,7 +36,7 @@ public:
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnAttributeChangedSignature, float, NewValue, float, OldValue);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnMessageRowSignature, FUIWidgetRow, WidgetRow);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnAbilityInfoSignature, const FProjectNAbilityInfo&, AbilityInfo);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnAbilityInfoSignature, const FProjectNActionSlotInfo&, AbilityInfo);
 
 UCLASS(BlueprintType, Blueprintable)
 class PROJECTN_API UProjectN_OverlayWidgetController : public UProjectN_WidgetControllerBase

@@ -3,10 +3,10 @@
 
 #include "AbilitySystem/Data/AbilityInfo.h"
 
-FProjectNAbilityInfo& UAbilityInfo::GetAbilityInfoByTag(const FGameplayTag& AbilityTag)
+FProjectNActionSlotInfo2& UAbilityInfo::GetAbilityInfoByIndex(const int32 InActionSlotIndex)
 {
-	return *AbilityInformation.FindByPredicate([AbilityTag](const FProjectNAbilityInfo& SpellInfo)
+	return *AbilityInformation.FindByPredicate([InActionSlotIndex](const FProjectNActionSlotInfo2& SpellInfo)
 	{
-		return SpellInfo.AbilityTag == AbilityTag;
+		return SpellInfo.ActionSlotIndex == InActionSlotIndex;
 	});
 }

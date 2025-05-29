@@ -1,5 +1,9 @@
-Iteration for inventory, items abilities and action bar.
-Implement data assets and base logic for add/remove bag, add/replace item and bind it with inventory widget controller and show it
+Mark classes for delete ("Mark for delete")
+
+Massive items and inventory refactor, remove item static class and item instance. Use itemId, item type and data tables only
+
+Now we can add bagID to inventory component to set default bag
+Now we can "load" data for action bar to restore it (id, action bar index, entry type), and if this item have ability it will work
 
 TODO: 
 

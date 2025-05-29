@@ -34,6 +34,8 @@ protected:
 
 	void Input_Move(const FInputActionValue& ActionValue);
 	void Input_Look(const FInputActionValue& ActionValue);
+	void Input_AltPressed(const FInputActionValue& ActionValue);
+	void Input_AltReleased(const FInputActionValue& ActionValue);
 
 
 	UPROPERTY(EditDefaultsOnly, Category = "Input")

@@ -8,6 +8,7 @@
 #include "ProjectN_PlayerState.h"
 #include "Kismet/GameplayStatics.h"
 #include "UI/HUD/ProjectN_HUD.h"
+#include "UI/WidgetController/ProjectN_ActionBarController.h"
 #include "UI/WidgetController/ProjectN_WidgetControllerBase.h"
 
 
@@ -98,6 +99,18 @@ UProjectN_InventoryController* UProjectN_AbilitySystemLibrary::GetInventoryWidge
 	}
 	
 	return nullptr;
+}
+
+UProjectN_ActionBarController* UProjectN_AbilitySystemLibrary::GetActionBarWidgetController(const UObject* WorldContextObject)
+{
+	APlayerController* DefaultPlayerController = UGameplayStatics::GetPlayerController(WorldContextObject, 0);
+	const APlayerController* PlayerController = Cast<APlayerController>(DefaultPlayerController);
+	if (AProjectN_HUD* HUD = Cast<AProjectN_HUD>(PlayerController->GetHUD()))
+	{
+		const FWidgetControllerParams WidgetParams;
+
+		return HUD->GetActionBarWidgetController(WidgetParams);
+	}
 	
 	return nullptr;
 }

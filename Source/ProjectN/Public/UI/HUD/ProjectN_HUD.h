@@ -10,6 +10,7 @@
 #include "UI/WidgetController/ProjectN_OverlayWidgetController.h"
 #include "ProjectN_HUD.generated.h"
 
+class UProjectN_ActionBarController;
 class UAttributeSet;
 class UAbilitySystemComponent;
 struct FWidgetControllerParams;
@@ -24,6 +25,7 @@ public:
 	UProjectN_OverlayWidgetController* GetOverlayWidgetController(const FWidgetControllerParams& WCParams);
 	UProjectN_AttributeController* GetAttributeWidgetController(const FWidgetControllerParams& WCParams);
 	UProjectN_InventoryController* GetInventoryWidgetController(const FWidgetControllerParams& WCParams);
+	UProjectN_ActionBarController* GetActionBarWidgetController(const FWidgetControllerParams& WCParams);
 
 	UFUNCTION(BlueprintCallable)
 	virtual void InitOverlay(APlayerController* PC, APlayerState* PS, UAbilitySystemComponent* ASC, UAttributeSet* AS);
@@ -57,4 +59,10 @@ protected:
 	TSubclassOf<UProjectN_InventoryController> InventoryWidgetControllerClass;
 	UPROPERTY()
 	TObjectPtr<UProjectN_InventoryController> InventoryWidgetController;
+
+	// Action bar widget controller
+	UPROPERTY(EditAnywhere)
+	TSubclassOf<UProjectN_ActionBarController> ActionBarWidgetControllerClass;
+	UPROPERTY()
+	TObjectPtr<UProjectN_ActionBarController> ActionBarWidgetController;
 };

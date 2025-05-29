@@ -42,7 +42,7 @@ UAbilitySystemComponent* AProjectN_PlayerState::GetAbilitySystemComponent() cons
 
 FVector AProjectN_PlayerState::GetWeaponSocketLocation_Implementation(const EItemSlot ItemSlot) const
 {
-	return ProjectN_InventoryComponent->FindSocketLocationBySlot(ItemSlot);
+	return ProjectN_InventoryComponent->FindWeaponSocketLocationForProjectileBySlot(ItemSlot);
 }
 
 void AProjectN_PlayerState::SetLevel(const int32 NewLevel)

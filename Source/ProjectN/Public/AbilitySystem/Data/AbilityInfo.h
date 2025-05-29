@@ -3,26 +3,23 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "GameplayTagContainer.h"
 #include "Engine/DataAsset.h"
+#include "ProjectN/ProjectNTypes.h"
 #include "AbilityInfo.generated.h"
 
 USTRUCT(BlueprintType, Blueprintable)
-struct FProjectNAbilityInfo
+struct FProjectNActionSlotInfo2
 {
 	GENERATED_BODY()
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	FGameplayTag AbilityTag = FGameplayTag();
+	int32 ActionSlotIndex = INDEX_NONE;
+	
+	UPROPERTY(BlueprintReadOnly)
+	FName ItemID = NAME_None;
 
 	UPROPERTY(BlueprintReadOnly)
-	FGameplayTag InputTag = FGameplayTag();
-	
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	TObjectPtr<const UTexture2D> Icon = nullptr;
-	
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	FText AbilityDescription = FText();
+	EEntryType EntryType = EEntryType::None;
 };
 
 UCLASS()
@@ -33,8 +30,8 @@ class PROJECTN_API UAbilityInfo : public UDataAsset
 public:
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	TArray<FProjectNAbilityInfo> AbilityInformation;
+	TArray<FProjectNActionSlotInfo2> AbilityInformation;
 
 	UFUNCTION(BlueprintCallable, BlueprintPure)
-	FProjectNAbilityInfo& GetAbilityInfoByTag(const FGameplayTag& AbilityTag);
+	FProjectNActionSlotInfo2& GetAbilityInfoByIndex(const int32 InActionSlotIndex);
 };

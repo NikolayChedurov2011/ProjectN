@@ -3,6 +3,8 @@
 
 #include "UI/HUD/ProjectN_HUD.h"
 
+#include "UI/WidgetController/ProjectN_ActionBarController.h"
+
 UProjectN_OverlayWidgetController* AProjectN_HUD::GetOverlayWidgetController(const FWidgetControllerParams& WCParams)
 {
 	if (OverlayWidgetController == nullptr)
@@ -45,6 +47,20 @@ UProjectN_InventoryController* AProjectN_HUD::GetInventoryWidgetController(const
 	return InventoryWidgetController;
 }
 
+UProjectN_ActionBarController* AProjectN_HUD::GetActionBarWidgetController(const FWidgetControllerParams& WCParams)
+{
+	if (ActionBarWidgetController == nullptr)
+	{
+		ActionBarWidgetController = NewObject<UProjectN_ActionBarController>(this, ActionBarWidgetControllerClass);
+		ActionBarWidgetController->SetWidgetControllerParams(WCParams);
+		ActionBarWidgetController->BindCallbacksToResponce();
+
+		return ActionBarWidgetController;
+	}
+
+	return ActionBarWidgetController;
+}
+
 void AProjectN_HUD::InitOverlay(APlayerController* PC, APlayerState* PS, UAbilitySystemComponent* ASC, UAttributeSet* AS)
 {
 	checkf(OverlayWidgetClass, TEXT("Overlay widget class uninitialized, please fill out HUD data"))
@@ -56,6 +72,7 @@ void AProjectN_HUD::InitOverlay(APlayerController* PC, APlayerState* PS, UAbilit
 	OverlayWidgetController = GetOverlayWidgetController(WidgetControllerParams);
 	AttributeWidgetController = GetAttributeWidgetController(WidgetControllerParams);
 	InventoryWidgetController = GetInventoryWidgetController(WidgetControllerParams);
+	ActionBarWidgetController = GetActionBarWidgetController(WidgetControllerParams);
 	
 	OverlayWidget->AddToViewport();
 }
