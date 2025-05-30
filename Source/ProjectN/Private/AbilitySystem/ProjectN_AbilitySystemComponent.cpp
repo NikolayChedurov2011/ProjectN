@@ -47,6 +47,19 @@ void UProjectN_AbilitySystemComponent::ServerAddAbility_Implementation(TSubclass
 	AddAbility(DefaultAbility, InputTag);
 }
 
+void UProjectN_AbilitySystemComponent::ServerRemoveAbility_Implementation(const FGameplayTag& InputTag)
+{
+	FScopedAbilityListLock ActiveScopeLock(*this);
+	
+	for (const FGameplayAbilitySpec& AbilitySpec : GetActivatableAbilities())
+	{
+		if (AbilitySpec.DynamicAbilityTags.HasTagExact(InputTag))
+		{
+			ClearAbility(AbilitySpec.Handle);
+		}
+	}
+}
+
 FGameplayAbilitySpecHandle UProjectN_AbilitySystemComponent::AddPassiveAbility(const TSubclassOf<UGameplayAbility> DefaultAbility, const FGameplayTag& InputTag)
 {
 	if (IsValid(DefaultAbility))

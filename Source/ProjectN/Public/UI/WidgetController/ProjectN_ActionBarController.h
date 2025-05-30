@@ -31,10 +31,18 @@ public:
 	virtual void BroadcastInitialValues() override;
 	virtual void BindCallbacksToResponce() override;
 
-	void AddAbility(const FProjectNActionSlotInfo& ActionSlotInfo) const;
+	UFUNCTION(BlueprintCallable)
+	void ClearSlot(const int32 SlotIndex);
+	
+	UFUNCTION(BlueprintCallable)
+	void AddSlot(FProjectNActionSlotInfo ActionSlotInfo);
 	
 protected:
 
+	void LoadItemIcon(FProjectNActionSlotInfo& ActionSlotInfo) const;
+	void AddAbility(const FProjectNActionSlotInfo& ActionSlotInfo) const;
+	void RemoveAbility(const FGameplayTag InputActionTag) const;
+	
 	const FAbilityDefinition* GetAbilityData(const FName& ItemID) const;
 	const FItemDefinition* GetItemData(const FName& ItemID) const;
 	const FEquippableItemDefinition* GetEquippableItemData(const FName& ItemID) const;
@@ -42,6 +50,9 @@ protected:
 	const FBagDefinition* GetBagData(const FName& ItemID) const;
 	
 	TArray<FProjectNActionSlotInfo> ActionSlots;
+
+	UPROPERTY(EditDefaultsOnly, Category="Action Slots Tag Dependency")
+	TMap<int32, FGameplayTag> ActionSlotsTagDependency;
 	
 	UPROPERTY(EditDefaultsOnly, Category="Items Data Table")
 	TSoftObjectPtr<UDataTable> ItemsDataTable;

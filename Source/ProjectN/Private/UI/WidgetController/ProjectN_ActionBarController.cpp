@@ -3,9 +3,8 @@
 
 #include "UI/WidgetController/ProjectN_ActionBarController.h"
 
-#include "ProjectN_GameplayTags.h"
 #include "AbilitySystem/ProjectN_AbilitySystemComponent.h"
-#include "GameFramework/PlayerState.h"
+//#include "GameFramework/PlayerState.h"
 
 void UProjectN_ActionBarController::BindCallbacksToResponce()
 {
@@ -34,30 +33,22 @@ void UProjectN_ActionBarController::BindCallbacksToResponce()
 
 void UProjectN_ActionBarController::BroadcastInitialValues()
 {
+	// TODO: Load saved action bar from save
 	FProjectNActionSlotInfo NewActionSlotInfo;
 	NewActionSlotInfo.EntryType = EEntryType::Ability;
-	NewActionSlotInfo.InputAction = ProjectNGameplayTags::Input_Slot0;
 	NewActionSlotInfo.ItemID = FName("ability_001");
-	NewActionSlotInfo.ActionSlotIndex = 9;
+	NewActionSlotInfo.ActionSlotIndex = 0;
 
-	ActionSlots.Add(NewActionSlotInfo);
+	AddSlot(NewActionSlotInfo);
 
 	FProjectNActionSlotInfo NewActionSlotInfo2;
 	NewActionSlotInfo2.EntryType = EEntryType::Ability;
-	NewActionSlotInfo2.InputAction = ProjectNGameplayTags::Input_Slot5;
 	NewActionSlotInfo2.ItemID = FName("ability_002");
-	NewActionSlotInfo2.ActionSlotIndex = 4;
+	NewActionSlotInfo2.ActionSlotIndex = 5;
 
-	ActionSlots.Add(NewActionSlotInfo2);
+	AddSlot(NewActionSlotInfo2);
+
 	
-	for (const FProjectNActionSlotInfo& ActionSlot : ActionSlots)
-	{
-		AddAbility(ActionSlot);
-		if (OnUpdateActionSlot.IsBound())
-		{
-			OnUpdateActionSlot.Broadcast(ActionSlot);
-		}
-	}
 	/*if (InventoryComponent)
 	{
 		
@@ -73,8 +64,51 @@ void UProjectN_ActionBarController::BroadcastInitialValues()
 	}*/
 }
 
+void UProjectN_ActionBarController::AddSlot(FProjectNActionSlotInfo ActionSlotInfo)
+{
+	if (ActionSlotInfo.ItemIcon == nullptr)
+	{
+		LoadItemIcon(ActionSlotInfo);
+	}
+	
+	AddAbility(ActionSlotInfo);
+
+	ActionSlots.Add(MoveTemp(ActionSlotInfo));
+	
+	if (OnUpdateActionSlot.IsBound())
+	{
+		OnUpdateActionSlot.Broadcast(ActionSlotInfo);
+	}
+}
+
+void UProjectN_ActionBarController::ClearSlot(const int32 SlotIndex)
+{
+	for (int32 i = 0; i < ActionSlots.Num(); i++)
+	{
+		if (ActionSlots[i].ActionSlotIndex == SlotIndex)
+		{
+			RemoveAbility(*ActionSlotsTagDependency.Find(ActionSlots[i].ActionSlotIndex));
+
+			ActionSlots.RemoveAt(i);
+
+			if (OnUpdateActionSlot.IsBound())
+			{
+				FProjectNActionSlotInfo EmptyActionSlotInfo;
+				EmptyActionSlotInfo.ActionSlotIndex = SlotIndex;
+				
+				OnUpdateActionSlot.Broadcast(EmptyActionSlotInfo);
+			}
+		}
+	}
+}
+
 void UProjectN_ActionBarController::AddAbility(const FProjectNActionSlotInfo& ActionSlotInfo) const
 {
+	if (ActionSlotInfo.EntryType == EEntryType::None || ActionSlotInfo.ItemID == NAME_None)
+	{
+		return;
+	}
+	
 	if (UProjectN_AbilitySystemComponent* ProjectN_AbilitySystemComponent = Cast<UProjectN_AbilitySystemComponent>(AbilitySystemComponent))
 	{
 		switch (ActionSlotInfo.EntryType)
@@ -82,13 +116,13 @@ void UProjectN_ActionBarController::AddAbility(const FProjectNActionSlotInfo& Ac
 		case EEntryType::Ability :
 			if (const FAbilityDefinition* ItemDef = GetAbilityData(ActionSlotInfo.ItemID))
 			{
-				ProjectN_AbilitySystemComponent->ServerAddAbility(ItemDef->Ability, ActionSlotInfo.InputAction);
+				ProjectN_AbilitySystemComponent->ServerAddAbility(ItemDef->Ability, *ActionSlotsTagDependency.Find(ActionSlotInfo.ActionSlotIndex));
 				return;
 			}
 		case EEntryType::Item :
 			if (const FItemDefinition* ItemDef = GetItemData(ActionSlotInfo.ItemID))
 			{
-				ProjectN_AbilitySystemComponent->ServerAddAbility(ItemDef->UseItemAbility, ActionSlotInfo.InputAction);
+				ProjectN_AbilitySystemComponent->ServerAddAbility(ItemDef->UseItemAbility, *ActionSlotsTagDependency.Find(ActionSlotInfo.ActionSlotIndex));
 				return;
 			}
 		case EEntryType::Equipment :
@@ -111,6 +145,55 @@ void UProjectN_ActionBarController::AddAbility(const FProjectNActionSlotInfo& Ac
 	}	
 }
 
+void UProjectN_ActionBarController::RemoveAbility(const FGameplayTag InputActionTag) const
+{
+	if (UProjectN_AbilitySystemComponent* ProjectN_AbilitySystemComponent = Cast<UProjectN_AbilitySystemComponent>(AbilitySystemComponent))
+	{
+		ProjectN_AbilitySystemComponent->ServerRemoveAbility(InputActionTag);
+	}	
+}
+
+void UProjectN_ActionBarController::LoadItemIcon(FProjectNActionSlotInfo& ActionSlotInfo) const
+{
+	switch (ActionSlotInfo.EntryType)
+	{
+	case EEntryType::Ability :
+		if (const FAbilityDefinition* ItemDef = GetAbilityData(ActionSlotInfo.ItemID))
+		{
+			ActionSlotInfo.ItemIcon = ItemDef->ItemIcon;
+			return;
+		}
+	case EEntryType::Item :
+		if (const FItemDefinition* ItemDef = GetItemData(ActionSlotInfo.ItemID))
+		{
+			ActionSlotInfo.ItemIcon = ItemDef->ItemIcon;
+			return;
+		}
+	case EEntryType::Equipment :
+		if (const FEquippableItemDefinition* ItemDef = GetEquippableItemData(ActionSlotInfo.ItemID))
+		{
+			ActionSlotInfo.ItemIcon = ItemDef->ItemIcon;
+			return;
+		}
+	case EEntryType::Weapon :
+		if (const FWeaponItemDefinition* ItemDef = GetWeaponData(ActionSlotInfo.ItemID))
+		{
+			ActionSlotInfo.ItemIcon = ItemDef->ItemIcon;
+			return;
+		}
+	case EEntryType::Bag :
+		if (const FBagDefinition* ItemDef = GetBagData(ActionSlotInfo.ItemID))
+		{
+			ActionSlotInfo.ItemIcon = ItemDef->ItemIcon;
+			return;
+		}
+	default: ;
+	}
+}
+
+/*******************
+*   Getters
+********************/
 const FAbilityDefinition* UProjectN_ActionBarController::GetAbilityData(const FName& ItemID) const
 {
 	static const FString Context = FString(TEXT("UProjectN_InventoryComponent::FindAbilityDefFromDataTable"));

@@ -629,15 +629,36 @@ struct FProjectNActionSlotInfo
 {
 	GENERATED_BODY()
 
-	UPROPERTY(BlueprintReadOnly)
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	int32 ActionSlotIndex = INDEX_NONE;
 	
-	UPROPERTY(BlueprintReadOnly)
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	FName ItemID = NAME_None;
 
-	UPROPERTY(BlueprintReadOnly)
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	EEntryType EntryType = EEntryType::None;
 
-	UPROPERTY(BlueprintReadOnly)
-	FGameplayTag InputAction = FGameplayTag();
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	UTexture2D* ItemIcon = nullptr;
+};
+
+USTRUCT(BlueprintType, Blueprintable)
+struct FProjectNInventorySlotInfo
+{
+	GENERATED_BODY()
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	int32 BadIndex = INDEX_NONE;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	int32 SlotIndex = INDEX_NONE;
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	FName ItemID = NAME_None;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	EEntryType EntryType = EEntryType::None;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	UTexture2D* ItemIcon = nullptr;
 };

@@ -1,11 +1,9 @@
-Mark classes for delete ("Mark for delete")
-
-Massive items and inventory refactor, remove item static class and item instance. Use itemId, item type and data tables only
-
-Now we can add bagID to inventory component to set default bag
-Now we can "load" data for action bar to restore it (id, action bar index, entry type), and if this item have ability it will work
+Iteration for drag drop for action bar, inventory.
+Now we can replace action slot in action bar, it will remap abilities for activation
 
 TODO: 
+
+Drag drop and controller for ability menu and equip menu
 
 ROOTMOTION (With rootmotion we can run, walk or stop with attack or hit reaction and we no need modify movement speed I guess)
 Abilities relationship
