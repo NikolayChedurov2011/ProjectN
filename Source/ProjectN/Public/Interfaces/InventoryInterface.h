@@ -7,7 +7,7 @@
 #include "AbilitySystemBlueprintLibrary.h"
 #include "InventoryInterface.generated.h"
 
-enum class EItemSlot : uint8;
+enum class EEquipSlot : uint8;
 class UWeaponItemStaticClass;
 class AProjectN_WeaponActor;
 
@@ -24,11 +24,11 @@ class PROJECTN_API IInventoryInterface
 public:
 
 	UFUNCTION(BlueprintNativeEvent)
-	TMap<FGameplayTag, float> GetWeaponDamageTypes(const EItemSlot ItemSlot) const;
+	TMap<FGameplayTag, float> GetWeaponDamageTypes(const EEquipSlot ItemSlot) const;
 
 	//UFUNCTION(BlueprintNativeEvent)
 	//float GetWeaponMaxDamageForSlot(const EItemSlot ItemSlot) const;
 
 	UFUNCTION(BlueprintNativeEvent)
-	AProjectN_WeaponActor* GetEquippedWeaponForSlot(const EItemSlot ItemSlot) const;
+	AProjectN_WeaponActor* GetEquippedWeaponForSlot(const EEquipSlot ItemSlot) const;
 };

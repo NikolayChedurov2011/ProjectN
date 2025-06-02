@@ -7,7 +7,7 @@
 #include "ProjectN_GameplayAbilityBase.generated.h"
 
 
-enum class EItemSlot : uint8;
+enum class EEquipSlot : uint8;
 
 UCLASS()
 class PROJECTN_API UProjectN_GameplayAbilityBase : public UGameplayAbility
@@ -24,5 +24,5 @@ protected:
 	FGameplayTag StartupTag;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Slot")
-	EItemSlot RequiredSlot;
+	EEquipSlot RequiredSlot;
 };

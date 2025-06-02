@@ -15,9 +15,9 @@ class PROJECTN_API UProjectN_InventorySlotDragDropOperation : public UDragDropOp
 public:
 
 	UPROPERTY(BlueprintReadWrite)
-	FProjectNInventorySlotInfo MyPayload;
+	FInventorySlotData MyPayload;
 
-	static UProjectN_InventorySlotDragDropOperation* New(const FProjectNInventorySlotInfo& InPayload)
+	static UProjectN_InventorySlotDragDropOperation* New(const FInventorySlotData& InPayload)
 	{
 		UProjectN_InventorySlotDragDropOperation* Op = NewObject<UProjectN_InventorySlotDragDropOperation>();
 		Op->MyPayload = InPayload;
@@ -34,9 +34,9 @@ class PROJECTN_API UProjectN_ActionSlotDragDropOperation : public UDragDropOpera
 public:
 
 	UPROPERTY(BlueprintReadWrite)
-	FProjectNActionSlotInfo MyPayload;
+	FActionSlotData MyPayload;
 
-	static UProjectN_ActionSlotDragDropOperation* New(const FProjectNActionSlotInfo& InPayload)
+	static UProjectN_ActionSlotDragDropOperation* New(const FActionSlotData& InPayload)
 	{
 		UProjectN_ActionSlotDragDropOperation* Op = NewObject<UProjectN_ActionSlotDragDropOperation>();
 		Op->MyPayload = InPayload;
@@ -45,23 +45,21 @@ public:
 	}
 };
 
-/*
 UCLASS()
-class PROJECTN_API UProjectN_AbilitySlotDragDropOperation : public UDragDropOperation
+class PROJECTN_API UProjectN_EquipSlotDragDropOperation : public UDragDropOperation
 {
 	GENERATED_BODY()
 
 public:
 
-	UPROPERTY()
-	FProjectNActionSlotInfo MyPayload;
+	UPROPERTY(BlueprintReadWrite)
+	FEquipSlotData MyPayload;
 
-	static UProjectN_AbilitySlotDragDropOperation* New(const FProjectNActionSlotInfo& InPayload)
+	static UProjectN_EquipSlotDragDropOperation* New(const FEquipSlotData& InPayload)
 	{
-		UProjectN_AbilitySlotDragDropOperation* Op = NewObject<UProjectN_AbilitySlotDragDropOperation>();
+		UProjectN_EquipSlotDragDropOperation* Op = NewObject<UProjectN_EquipSlotDragDropOperation>();
 		Op->MyPayload = InPayload;
 		Op->Pivot  = EDragPivot::MouseDown;
 		return Op;
 	}
 };
-*/

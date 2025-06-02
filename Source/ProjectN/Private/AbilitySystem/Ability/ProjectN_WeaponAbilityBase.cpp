@@ -20,7 +20,7 @@
 
 }*/
 
-void UProjectN_WeaponAbilityBase::StartWeaponHit(const EItemSlot InSlot) const
+void UProjectN_WeaponAbilityBase::StartWeaponHit(const EEquipSlot InSlot) const
 {
 	if (!GetOwningActorFromActorInfo()->HasAuthority())
 	{
@@ -54,7 +54,7 @@ void UProjectN_WeaponAbilityBase::StartWeaponHit(const EItemSlot InSlot) const
 	}
 }
 
-void UProjectN_WeaponAbilityBase::StopWeaponHit(const EItemSlot InSlot) const
+void UProjectN_WeaponAbilityBase::StopWeaponHit(const EEquipSlot InSlot) const
 {
 	if (!GetOwningActorFromActorInfo()->HasAuthority())
 	{

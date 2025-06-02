@@ -40,7 +40,7 @@ UAbilitySystemComponent* AProjectN_PlayerState::GetAbilitySystemComponent() cons
 	return ProjectN_AbilitySystemComponent;
 }
 
-FVector AProjectN_PlayerState::GetWeaponSocketLocation_Implementation(const EItemSlot ItemSlot) const
+FVector AProjectN_PlayerState::GetWeaponSocketLocation_Implementation(const EEquipSlot ItemSlot) const
 {
 	return ProjectN_InventoryComponent->FindWeaponSocketLocationForProjectileBySlot(ItemSlot);
 }
@@ -145,9 +145,9 @@ TArray<FLevelUpInfo>& AProjectN_PlayerState::GetLevelUpInformationContainer() co
 /*************************
 *  Inventory Interface
 **************************/
-TMap<FGameplayTag, float> AProjectN_PlayerState::GetWeaponDamageTypes_Implementation(const EItemSlot ItemSlot) const
+TMap<FGameplayTag, float> AProjectN_PlayerState::GetWeaponDamageTypes_Implementation(const EEquipSlot ItemSlot) const
 {
-	if (ItemSlot == EItemSlot::None)
+	if (ItemSlot == EEquipSlot::None)
 	{
 		TMap<FGameplayTag, float> EmptyMap;
 		return EmptyMap;
@@ -168,9 +168,9 @@ float AProjectN_PlayerState::GetWeaponMaxDamageForSlot_Implementation(const EIte
 }
 */
 
-AProjectN_WeaponActor* AProjectN_PlayerState::GetEquippedWeaponForSlot_Implementation(const EItemSlot ItemSlot) const
+AProjectN_WeaponActor* AProjectN_PlayerState::GetEquippedWeaponForSlot_Implementation(const EEquipSlot ItemSlot) const
 {
-	if (ItemSlot == EItemSlot::None)
+	if (ItemSlot == EEquipSlot::None)
 	{
 		return nullptr;
 	}

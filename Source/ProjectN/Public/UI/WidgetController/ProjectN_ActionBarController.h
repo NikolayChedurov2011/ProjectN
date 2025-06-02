@@ -9,7 +9,7 @@
 
 struct FGameplayTag;
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnUpdateActionSlotSignature, const FProjectNActionSlotInfo, ActionSlotInfo);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnUpdateActionSlotSignature, const FActionSlotData, ActionSlotInfo);
 //DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnUpdateBagSignature, const int32, BagID, const int32, BagSlots);
 //DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FOnUpdateSlotSignature, const int32, BagID, const int32, BagSlots, FInventorySlotData, ItemData);
 
@@ -35,12 +35,12 @@ public:
 	void ClearSlot(const int32 SlotIndex);
 	
 	UFUNCTION(BlueprintCallable)
-	void AddSlot(FProjectNActionSlotInfo ActionSlotInfo);
+	void AddSlot(FActionSlotData ActionSlotInfo);
 	
 protected:
 
-	void LoadItemIcon(FProjectNActionSlotInfo& ActionSlotInfo) const;
-	void AddAbility(const FProjectNActionSlotInfo& ActionSlotInfo) const;
+	void LoadItemIcon(FActionSlotData& ActionSlotInfo) const;
+	void AddAbility(const FActionSlotData& ActionSlotInfo) const;
 	void RemoveAbility(const FGameplayTag InputActionTag) const;
 	
 	const FAbilityDefinition* GetAbilityData(const FName& ItemID) const;
@@ -49,7 +49,7 @@ protected:
 	const FWeaponItemDefinition* GetWeaponData(const FName& ItemID) const;
 	const FBagDefinition* GetBagData(const FName& ItemID) const;
 	
-	TArray<FProjectNActionSlotInfo> ActionSlots;
+	TArray<FActionSlotData> ActionSlots;
 
 	UPROPERTY(EditDefaultsOnly, Category="Action Slots Tag Dependency")
 	TMap<int32, FGameplayTag> ActionSlotsTagDependency;

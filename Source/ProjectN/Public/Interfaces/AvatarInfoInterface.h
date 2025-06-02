@@ -6,7 +6,7 @@
 #include "UObject/Interface.h"
 #include "AvatarInfoInterface.generated.h"
 
-enum class EItemSlot : uint8;
+enum class EEquipSlot : uint8;
 struct FGameplayTag;
 
 UINTERFACE(MinimalAPI)
@@ -25,7 +25,7 @@ public:
 	int32 GetCharacterLevel() const;
 	
 	UFUNCTION(BlueprintNativeEvent)
-	FVector GetWeaponSocketLocation(const EItemSlot ItemSlot) const;
+	FVector GetWeaponSocketLocation(const EEquipSlot ItemSlot) const;
 
 	UFUNCTION(BlueprintNativeEvent)
 	FVector GetAvatarSocketLocation(const FName SocketName) const;

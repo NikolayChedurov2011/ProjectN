@@ -34,14 +34,14 @@ void UProjectN_ActionBarController::BindCallbacksToResponce()
 void UProjectN_ActionBarController::BroadcastInitialValues()
 {
 	// TODO: Load saved action bar from save
-	FProjectNActionSlotInfo NewActionSlotInfo;
+	FActionSlotData NewActionSlotInfo;
 	NewActionSlotInfo.EntryType = EEntryType::Ability;
 	NewActionSlotInfo.ItemID = FName("ability_001");
 	NewActionSlotInfo.ActionSlotIndex = 0;
 
 	AddSlot(NewActionSlotInfo);
 
-	FProjectNActionSlotInfo NewActionSlotInfo2;
+	FActionSlotData NewActionSlotInfo2;
 	NewActionSlotInfo2.EntryType = EEntryType::Ability;
 	NewActionSlotInfo2.ItemID = FName("ability_002");
 	NewActionSlotInfo2.ActionSlotIndex = 5;
@@ -64,7 +64,7 @@ void UProjectN_ActionBarController::BroadcastInitialValues()
 	}*/
 }
 
-void UProjectN_ActionBarController::AddSlot(FProjectNActionSlotInfo ActionSlotInfo)
+void UProjectN_ActionBarController::AddSlot(FActionSlotData ActionSlotInfo)
 {
 	if (ActionSlotInfo.ItemIcon == nullptr)
 	{
@@ -88,21 +88,19 @@ void UProjectN_ActionBarController::ClearSlot(const int32 SlotIndex)
 		if (ActionSlots[i].ActionSlotIndex == SlotIndex)
 		{
 			RemoveAbility(*ActionSlotsTagDependency.Find(ActionSlots[i].ActionSlotIndex));
-
-			ActionSlots.RemoveAt(i);
+			ActionSlots[i].EntryType = EEntryType::None;
+			ActionSlots[i].ItemIcon = nullptr;
+			ActionSlots[i].ItemID = NAME_None;
 
 			if (OnUpdateActionSlot.IsBound())
 			{
-				FProjectNActionSlotInfo EmptyActionSlotInfo;
-				EmptyActionSlotInfo.ActionSlotIndex = SlotIndex;
-				
-				OnUpdateActionSlot.Broadcast(EmptyActionSlotInfo);
+				OnUpdateActionSlot.Broadcast(ActionSlots[i]);
 			}
 		}
 	}
 }
 
-void UProjectN_ActionBarController::AddAbility(const FProjectNActionSlotInfo& ActionSlotInfo) const
+void UProjectN_ActionBarController::AddAbility(const FActionSlotData& ActionSlotInfo) const
 {
 	if (ActionSlotInfo.EntryType == EEntryType::None || ActionSlotInfo.ItemID == NAME_None)
 	{
@@ -153,7 +151,7 @@ void UProjectN_ActionBarController::RemoveAbility(const FGameplayTag InputAction
 	}	
 }
 
-void UProjectN_ActionBarController::LoadItemIcon(FProjectNActionSlotInfo& ActionSlotInfo) const
+void UProjectN_ActionBarController::LoadItemIcon(FActionSlotData& ActionSlotInfo) const
 {
 	switch (ActionSlotInfo.EntryType)
 	{

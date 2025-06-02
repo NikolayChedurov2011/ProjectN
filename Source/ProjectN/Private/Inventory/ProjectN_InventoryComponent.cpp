@@ -38,6 +38,7 @@ void UProjectN_InventoryComponent::InitializeComponent()
 	if (GetOwner()->HasAuthority())
 	{
 		InitBags();
+		// TODO: Load Items
 	}
 }
 /************************************************************************************************
@@ -62,9 +63,9 @@ void UProjectN_InventoryComponent::PrintMessage(const FString& InText) const
 /*********************************
  *  Getters
  *********************************/
-FVector UProjectN_InventoryComponent::FindWeaponSocketLocationForProjectileBySlot(const EItemSlot ItemSlot) const
+FVector UProjectN_InventoryComponent::FindWeaponSocketLocationForProjectileBySlot(const EEquipSlot ItemSlot) const
 {
-	if (ItemSlot == EItemSlot::None)
+	if (ItemSlot == EEquipSlot::None)
 	{
 		return FVector::ZeroVector;
 	}
@@ -72,7 +73,7 @@ FVector UProjectN_InventoryComponent::FindWeaponSocketLocationForProjectileBySlo
 	return Cast<AProjectN_ItemActor_Base>(GetEquippedSlotData(ItemSlot)->SpawnedActor)->GetWeaponSocketLocationForProjectile();
 }
 
-AProjectN_WeaponActor* UProjectN_InventoryComponent::GetEquippedWeaponActorBySlot(const EItemSlot InItemSlot)
+AProjectN_WeaponActor* UProjectN_InventoryComponent::GetEquippedWeaponActorBySlot(const EEquipSlot InItemSlot)
 {
 	if (GetEquippedSlotData(InItemSlot))
 	{
@@ -82,21 +83,21 @@ AProjectN_WeaponActor* UProjectN_InventoryComponent::GetEquippedWeaponActorBySlo
 	return nullptr;
 }
 
-FGameplayTag UProjectN_InventoryComponent::GetWeaponTypeBySlot(const EItemSlot InItemSlot) const
+FGameplayTag UProjectN_InventoryComponent::GetWeaponTypeBySlot(const EEquipSlot InItemSlot) const
 {
 	return GetEquippedWeaponData(InItemSlot)->WeaponTypeTag;
 }
 
-TMap<FGameplayTag, float> UProjectN_InventoryComponent::GetWeaponDamageTypesForSlot(const EItemSlot InItemSlot) const
+TMap<FGameplayTag, float> UProjectN_InventoryComponent::GetWeaponDamageTypesForSlot(const EEquipSlot InItemSlot) const
 {
 	return GetEquippedWeaponData(InItemSlot)->WeaponDamageTypes;
 }
 
-bool UProjectN_InventoryComponent::IsSlotEquipped(const EItemSlot Slot)
+bool UProjectN_InventoryComponent::IsSlotEquipped(const EEquipSlot Slot)
 {
-	for (const FEquippedItemData& Item : EquippedSlots.EquippedItems)
+	for (const FEquipSlotData& Item : EquippedSlots.EquippedItems)
 	{
-		if (Item.ItemSlot == Slot)
+		if (Item.EquipSlot == Slot)
 		{
 			return true;
 		}
@@ -104,9 +105,9 @@ bool UProjectN_InventoryComponent::IsSlotEquipped(const EItemSlot Slot)
 	return false;
 }
 
-const FEquippedItemData* UProjectN_InventoryComponent::GetEquippedSlotData(const FName& ItemID, const EEntryType ItemType) const
+const FEquipSlotData* UProjectN_InventoryComponent::GetEquippedSlotData(const FName& ItemID, const EEntryType ItemType) const
 {
-	for (const FEquippedItemData& Item : EquippedSlots.EquippedItems)
+	for (const FEquipSlotData& Item : EquippedSlots.EquippedItems)
 	{
 		if (Item.ItemID == ItemID && Item.ItemType == ItemType)
 		{
@@ -116,11 +117,11 @@ const FEquippedItemData* UProjectN_InventoryComponent::GetEquippedSlotData(const
 	return nullptr;
 }
 
-const FEquippedItemData* UProjectN_InventoryComponent::GetEquippedSlotData(const EItemSlot ItemSlot) const
+const FEquipSlotData* UProjectN_InventoryComponent::GetEquippedSlotData(const EEquipSlot ItemSlot) const
 {
-	for (const FEquippedItemData& Item : EquippedSlots.EquippedItems)
+	for (const FEquipSlotData& Item : EquippedSlots.EquippedItems)
 	{
-		if (Item.ItemSlot == ItemSlot)
+		if (Item.EquipSlot == ItemSlot)
 		{
 			return &Item;
 		}
@@ -128,7 +129,7 @@ const FEquippedItemData* UProjectN_InventoryComponent::GetEquippedSlotData(const
 	return nullptr;
 }
 
-const FEquippableItemDefinition* UProjectN_InventoryComponent::GetEquipmentData(const EItemSlot ItemSlot) const
+const FEquippableItemDefinition* UProjectN_InventoryComponent::GetEquipmentData(const EEquipSlot ItemSlot) const
 {
 	return GetEquippableItemData(GetEquippedSlotData(ItemSlot)->ItemID);
 }
@@ -144,7 +145,7 @@ const FEquippableItemDefinition* UProjectN_InventoryComponent::GetEquippableItem
 	return nullptr;
 }
 
-const FWeaponItemDefinition* UProjectN_InventoryComponent::GetEquippedWeaponData(const EItemSlot ItemSlot) const
+const FWeaponItemDefinition* UProjectN_InventoryComponent::GetEquippedWeaponData(const EEquipSlot ItemSlot) const
 {
 	return GetWeaponData(GetEquippedSlotData(ItemSlot)->ItemID);
 }
@@ -187,16 +188,24 @@ void UProjectN_InventoryComponent::AddBag(const FName InBagItemID)
 	if (const FBagDefinition* BagDef = BagDataTable.LoadSynchronous()->FindRow<FBagDefinition>(InBagItemID, Context, false))
 	{
 		FBagData& NewBag = BagList.Bags.AddDefaulted_GetRef();
-		NewBag.BagID = BagList.Bags.Num();
+		NewBag.BagIndex = BagList.Bags.Num();
 		NewBag.BagItemID = InBagItemID;
 		NewBag.Slots.SetNum(BagDef->NumSlots);
-		BroadcastBagChange(NewBag.BagID, BagDef->NumSlots);
+
+		// Init slots
+		for (int32 i = 0; i < NewBag.Slots.Num(); i++)
+		{
+			NewBag.Slots[i].BagIndex = NewBag.BagIndex;
+			NewBag.Slots[i].SlotIndex = i;
+		}
+		
+		BroadcastBagChange(NewBag);
 
 		BagList.MarkItemDirty(NewBag);
 	}
 }
 
-void UProjectN_InventoryComponent::RemoveBag(const int32 BagID)
+void UProjectN_InventoryComponent::RemoveBag(const int32 BagIndex)
 {
 	if (!GetOwner()->HasAuthority())
 	{
@@ -205,10 +214,14 @@ void UProjectN_InventoryComponent::RemoveBag(const int32 BagID)
 	
 	for (int32 i = 0; i < BagList.Bags.Num(); i++)
 	{
-		if (BagList.Bags[i].BagID == BagID)
+		if (BagList.Bags[i].BagIndex == BagIndex)
 		{
 			BagList.Bags.RemoveAt(i);
-			BroadcastBagChange(i, 0);
+
+			FBagData EmptyBag;
+			EmptyBag.BagIndex = BagIndex;
+			
+			BroadcastBagChange(EmptyBag);
 			BagList.MarkArrayDirty();
 			return;
 		}
@@ -222,25 +235,25 @@ void UProjectN_InventoryComponent::RemoveBag(const int32 BagID)
 /*********************************
  *  Items manage
  *********************************/
-bool UProjectN_InventoryComponent::TryAddItem(const FName& ItemID, const EEntryType ItemType, const int32 Quantity)
+void UProjectN_InventoryComponent::TryAddItem_Implementation(const FName& ItemID, const EEntryType ItemType, const int32 Quantity)
 {
 	if (ItemType == EEntryType::Ability || ItemType == EEntryType::None)
 	{
-		return false;
+		return;
 	}
 	
 	if (ItemType == EEntryType::Item)
 	{
-		return TryAddItemToStack(ItemID, ItemType, Quantity);
+		TryAddItemToStack(ItemID, ItemType, Quantity);
 	}
 	for (int32 i = 0; i < Quantity; i++)
 	{
 		if (!TryAddItemToFirstFreeSlot(ItemID, ItemType, Quantity))
 		{
-			return false;
+			return;
 		}
 	}
-	return true;
+	return;
 }
 
 bool UProjectN_InventoryComponent::TryAddItemToFirstFreeSlot(const FName& ItemID, const EEntryType ItemType, const int32 Quantity)
@@ -253,13 +266,15 @@ bool UProjectN_InventoryComponent::TryAddItemToFirstFreeSlot(const FName& ItemID
 			{
 				FInventorySlotData NewSlotData;
 				NewSlotData.ItemID = ItemID;
-				NewSlotData.EntryType = ItemType;
+				NewSlotData.ItemType = ItemType;
 				NewSlotData.Quantity = Quantity;
+				NewSlotData.BagIndex = Bag.BagIndex;
+				NewSlotData.SlotIndex = i;
 				
 				Bag.Slots[i] = MoveTemp(NewSlotData);
 				BagList.MarkItemDirty(Bag);
 				
-				BroadcastSlotChange(Bag.BagID, i, Bag.Slots[i]);
+				BroadcastSlotChange(Bag.Slots[i]);
 				
 				return true;
 			}
@@ -289,7 +304,7 @@ bool UProjectN_InventoryComponent::TryAddItemToStack(const FName& ItemID, const 
 						{
 							Bag.Slots[i].Quantity = TotalQuantity;
 							
-							BroadcastSlotChange(Bag.BagID, i, Bag.Slots[i]);
+							BroadcastSlotChange(Bag.Slots[i]);
 							
 							return true;
 						}
@@ -298,7 +313,7 @@ bool UProjectN_InventoryComponent::TryAddItemToStack(const FName& ItemID, const 
 							Bag.Slots[i].Quantity = ItemMaxStack;
 							const int32 Remaining = ItemMaxStack - TotalQuantity;
 							
-							BroadcastSlotChange(Bag.BagID, i, Bag.Slots[i]);
+							BroadcastSlotChange(Bag.Slots[i]);
 							
 							return TryAddItemToStack(ItemID, ItemType, Remaining)? true : TryAddItemToFirstFreeSlot(ItemID, ItemType, Remaining);
 						}
@@ -310,32 +325,49 @@ bool UProjectN_InventoryComponent::TryAddItemToStack(const FName& ItemID, const 
 	return false;
 }
 
-void UProjectN_InventoryComponent::RemoveItem(const int32 FromBagID, const int32 FromSlotIndex)
+void UProjectN_InventoryComponent::RemoveItem_Implementation(const int32 FromBagIndex, const int32 FromSlotIndex)
 {
 	if (!GetOwner()->HasAuthority())
 	{
 		return;
 	}
-	
-	BagList.Bags[FromBagID].Slots.RemoveAt(FromSlotIndex);
 
-	const FInventorySlotData EmptyInventorySlotData;
-	BroadcastSlotChange(FromBagID, FromSlotIndex, EmptyInventorySlotData);
+	for (FBagData& Bag : BagList.Bags)
+	{
+		if (Bag.BagIndex == FromBagIndex)
+		{
+			for (int32 i = 0; i < Bag.Slots.Num(); i++)
+			{
+				if (Bag.Slots[i].SlotIndex == FromSlotIndex)
+				{
+					Bag.Slots[i].ItemID = NAME_None;
+					Bag.Slots[i].ItemType = EEntryType::None;
+					Bag.Slots[i].ItemIcon = nullptr;
+					Bag.Slots[i].Quantity = 0;
+					BagList.MarkItemDirty(Bag);
+					
+					BroadcastSlotChange(Bag.Slots[i]);
+
+					return;
+				}
+			}
+		}
+	}	
 }
 
-void UProjectN_InventoryComponent::ReplaceItemInBag(const int32 FromBagID, const int32 ToBagID, const int32 FromSlotIndex, const int32 ToSlotIndex)
+void UProjectN_InventoryComponent::ReplaceItemInBag_Implementation(const int32 FromBagIndex, const int32 ToBagIndex, const int32 FromSlotIndex, const int32 ToSlotIndex)
 {
 	FInventorySlotData FromSlotData;
 	FInventorySlotData ToSlotData;
 
 	for (FBagData& Bag : BagList.Bags)
 	{
-		if (Bag.BagID == FromBagID)
+		if (Bag.BagIndex == FromBagIndex)
 		{
 			FromSlotData = Bag.Slots[FromSlotIndex];
 		}
 		
-		if (Bag.BagID == ToBagID)
+		if (Bag.BagIndex == ToBagIndex)
 		{
 			ToSlotData = Bag.Slots[ToSlotIndex];
 		}
@@ -343,20 +375,26 @@ void UProjectN_InventoryComponent::ReplaceItemInBag(const int32 FromBagID, const
 
 	for (FBagData& Bag : BagList.Bags)
 	{
-		if (Bag.BagID == FromBagID)
+		if (Bag.BagIndex == FromBagIndex)
 		{
-			Bag.Slots[FromSlotIndex] = MoveTemp(ToSlotData);
+			Bag.Slots[FromSlotIndex].ItemID = ToSlotData.ItemID;
+			Bag.Slots[FromSlotIndex].ItemType = ToSlotData.ItemType;
+			Bag.Slots[FromSlotIndex].ItemIcon = ToSlotData.ItemIcon;
+			Bag.Slots[FromSlotIndex].Quantity = ToSlotData.Quantity;
 			BagList.MarkItemDirty(Bag);
 
-			BroadcastSlotChange(Bag.BagID, ToSlotIndex, Bag.Slots[ToSlotIndex]);
+			BroadcastSlotChange(Bag.Slots[FromSlotIndex]);
 		}
 		
-		if (Bag.BagID == ToBagID)
+		if (Bag.BagIndex == ToBagIndex)
 		{
-			Bag.Slots[ToSlotIndex] = MoveTemp(FromSlotData);
+			Bag.Slots[ToSlotIndex].ItemID = FromSlotData.ItemID;
+			Bag.Slots[ToSlotIndex].ItemType = FromSlotData.ItemType;
+			Bag.Slots[ToSlotIndex].ItemIcon = FromSlotData.ItemIcon;
+			Bag.Slots[ToSlotIndex].Quantity = FromSlotData.Quantity;
 			BagList.MarkItemDirty(Bag);
 
-			BroadcastSlotChange(Bag.BagID, ToSlotIndex, Bag.Slots[ToSlotIndex]);
+			BroadcastSlotChange(Bag.Slots[ToSlotIndex]);
 		}
 	}
 }
@@ -368,7 +406,7 @@ void UProjectN_InventoryComponent::ReplaceItemInBag(const int32 FromBagID, const
 /*********************************
  *  Equipping manage
  *********************************/
-void UProjectN_InventoryComponent::EquipItemToSlot(const FName& ItemID, const EEntryType ItemType, const EItemSlot ToSlot)
+void UProjectN_InventoryComponent::EquipItemToSlot_Implementation(const FName& ItemID, const EEntryType ItemType, const EEquipSlot ToSlot)
 {
 	AProjectN_CharacterBase* BaseCharacter = Cast<AProjectN_CharacterBase>(Cast<APlayerState>(GetOwner())->GetPawn());
 	
@@ -413,28 +451,30 @@ void UProjectN_InventoryComponent::EquipItemToSlot(const FName& ItemID, const EE
 		}
 
 		// Special check for two-handed mode
-		if (ToSlot == EItemSlot::TwoHand)
+		if (ToSlot == EEquipSlot::TwoHand)
 		{
 			PrintMessage(TEXT("Un equip slot for two-handed mode"));
 
-			UnEquipSlot(EItemSlot::MainArm);
-			UnEquipSlot(EItemSlot::AuxiliaryArm);
+			UnEquipSlot(EEquipSlot::MainArm);
+			UnEquipSlot(EEquipSlot::AuxiliaryArm);
 		}
 		else
 		{
-			UnEquipSlot(EItemSlot::TwoHand);
+			UnEquipSlot(EEquipSlot::TwoHand);
 		}
 		
 		
 		AActor* ItemActor = SpawnItemActor(ItemID, ItemType, ToSlot, BaseCharacter);
 
 		////////// Add item data to list of equipped items
-		FEquippedItemData& NewItem = EquippedSlots.EquippedItems.AddDefaulted_GetRef();
-		NewItem.ItemSlot = ToSlot;
+		FEquipSlotData& NewItem = EquippedSlots.EquippedItems.AddDefaulted_GetRef();
+		NewItem.EquipSlot = ToSlot;
 		NewItem.ItemType = ItemType;
 		NewItem.SpawnedActor = ItemActor;
 		NewItem.ItemID = ItemID;
 		EquippedSlots.MarkItemDirty(NewItem);
+
+		BroadcastEquipSlotChange(NewItem);
 		///////////////////////
 		ApplyItemStats(ItemID, ItemType);
 		
@@ -448,7 +488,7 @@ void UProjectN_InventoryComponent::EquipItemToSlot(const FName& ItemID, const EE
 	}
 }
 
-AActor* UProjectN_InventoryComponent::SpawnItemActor(const FName& ItemID, const EEntryType ItemType, const EItemSlot EItemSlot, AActor* Owner) const
+AActor* UProjectN_InventoryComponent::SpawnItemActor(const FName& ItemID, const EEntryType ItemType, const EEquipSlot EItemSlot, AActor* Owner) const
 {
 	static const FString Context = FString(TEXT("UProjectN_InventoryComponent::FindItemFromDataTable"));
 
@@ -499,7 +539,7 @@ AActor* UProjectN_InventoryComponent::SpawnItemActor(const FName& ItemID, const 
 	return nullptr;
 }
 
-void UProjectN_InventoryComponent::UnEquipSlot(const EItemSlot Slot)
+void UProjectN_InventoryComponent::UnEquipSlot_Implementation(const EEquipSlot Slot)
 {
 	if (!GetOwner()->HasAuthority())
 	{
@@ -508,14 +548,18 @@ void UProjectN_InventoryComponent::UnEquipSlot(const EItemSlot Slot)
 	
 	for (int32 i = 0; i < EquippedSlots.EquippedItems.Num(); i++)
 	{
-		if (EquippedSlots.EquippedItems[i].ItemSlot == Slot)
+		if (EquippedSlots.EquippedItems[i].EquipSlot == Slot)
 		{
 			RemoveItemStats(EquippedSlots.EquippedItems[i].ItemID, EquippedSlots.EquippedItems[i].ItemType);
 			
 			EquippedSlots.EquippedItems[i].SpawnedActor->Destroy();
 			EquippedSlots.EquippedItems.RemoveAt(i);
 			EquippedSlots.MarkArrayDirty();
-			return;
+
+			FEquipSlotData EmptyEquipSlot;
+			EmptyEquipSlot.EquipSlot = Slot;
+			BroadcastEquipSlotChange(EmptyEquipSlot);
+			break;
 		}
 	}
 	UpdateWeaponMode();
@@ -657,25 +701,25 @@ void UProjectN_InventoryComponent::UpdateWeaponMode()
 	RemoveWeaponAbilities(EWeaponMode::Dual);
 	RemoveWeaponAbilities(EWeaponMode::TwoHand);
 	
-	if (IsSlotEquipped(EItemSlot::TwoHand))
+	if (IsSlotEquipped(EEquipSlot::TwoHand))
 	{
-		GiveWeaponAbilities(GetEquippedWeaponData(EItemSlot::TwoHand), EWeaponMode::TwoHand, true, true);
+		GiveWeaponAbilities(GetEquippedWeaponData(EEquipSlot::TwoHand), EWeaponMode::TwoHand, true, true);
 
 		return;
 	}
-	if (IsSlotEquipped(EItemSlot::MainArm) && IsSlotEquipped(EItemSlot::AuxiliaryArm) &&  GetEquippedWeaponData(EItemSlot::MainArm)->WeaponTypeTag == GetEquippedWeaponData(EItemSlot::AuxiliaryArm)->WeaponTypeTag)
+	if (IsSlotEquipped(EEquipSlot::MainArm) && IsSlotEquipped(EEquipSlot::AuxiliaryArm) &&  GetEquippedWeaponData(EEquipSlot::MainArm)->WeaponTypeTag == GetEquippedWeaponData(EEquipSlot::AuxiliaryArm)->WeaponTypeTag)
 	{
-		GiveWeaponAbilities(GetEquippedWeaponData(EItemSlot::MainArm), EWeaponMode::Dual, true, true);
+		GiveWeaponAbilities(GetEquippedWeaponData(EEquipSlot::MainArm), EWeaponMode::Dual, true, true);
 
 		return;
 	}
-	if (IsSlotEquipped(EItemSlot::MainArm))
+	if (IsSlotEquipped(EEquipSlot::MainArm))
 	{
-		GiveWeaponAbilities(GetEquippedWeaponData(EItemSlot::MainArm), EWeaponMode::Single, true, false);
+		GiveWeaponAbilities(GetEquippedWeaponData(EEquipSlot::MainArm), EWeaponMode::Single, true, false);
 	}
-	if (IsSlotEquipped(EItemSlot::AuxiliaryArm))
+	if (IsSlotEquipped(EEquipSlot::AuxiliaryArm))
 	{
-		GiveWeaponAbilities(GetEquippedWeaponData(EItemSlot::AuxiliaryArm), EWeaponMode::Single, false, true);
+		GiveWeaponAbilities(GetEquippedWeaponData(EEquipSlot::AuxiliaryArm), EWeaponMode::Single, false, true);
 	}
 }
 /************************************************************************************************
@@ -685,18 +729,26 @@ void UProjectN_InventoryComponent::UpdateWeaponMode()
 /***********************************
  *  Broadcast to widget controller
  ***********************************/
-void UProjectN_InventoryComponent::BroadcastBagChange_Implementation(const int32 BagID, const int32 BagSlots)
+void UProjectN_InventoryComponent::BroadcastBagChange_Implementation(const FBagData& BagData)
 {
 	if (OnBagChanged.IsBound())
 	{
-		OnBagChanged.Execute(BagID, BagSlots);
+		OnBagChanged.Execute(BagData);
 	}
 }
 
-void UProjectN_InventoryComponent::BroadcastSlotChange_Implementation(const int32 BagID, const int32 BagSlot, const FInventorySlotData& ItemData)
+void UProjectN_InventoryComponent::BroadcastSlotChange_Implementation(const FInventorySlotData& ItemData)
 {
-	if (OnSlotChange.IsBound())
+	if (OnInventorySlotChange.IsBound())
 	{
-		OnSlotChange.Execute(BagID, BagSlot, ItemData);
+		OnInventorySlotChange.Execute(ItemData);
+	}
+}
+
+void UProjectN_InventoryComponent::BroadcastEquipSlotChange_Implementation(const FEquipSlotData& EquipSlotData)
+{
+	if (OnEquipSlotChange.IsBound())
+	{
+		OnEquipSlotChange.Execute(EquipSlotData);
 	}
 }

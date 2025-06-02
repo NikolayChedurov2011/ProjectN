@@ -187,7 +187,7 @@ enum class EItemState : uint8
 };
 
 UENUM(BlueprintType, Blueprintable)
-enum class EItemSlot : uint8
+enum class EEquipSlot : uint8
 {
 	None			UMETA(DisplayName = "None"),
 	Head			UMETA(DisplayName = "Head"),
@@ -511,10 +511,10 @@ struct FEquippableItemDefinition : public FItemDefinition
 	}
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	TMap<EItemSlot, FName> SocketToAttach;
+	TMap<EEquipSlot, FName> SocketToAttach;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	TArray<EItemSlot> AllowedSlots;
+	TArray<EEquipSlot> AllowedSlots;
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	TArray<TSubclassOf<UGameplayEffect>> ItemPassiveEffects;
@@ -573,18 +573,27 @@ struct FBagDefinition : public FItemDefinition
 	int32 NumSlots = 16;
 };
 
-USTRUCT(BlueprintType)
+USTRUCT(BlueprintType, Blueprintable)
 struct FInventorySlotData
 {
 	GENERATED_BODY()
 
-	UPROPERTY(BlueprintReadOnly)
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	int32 BagIndex = INDEX_NONE;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	int32 SlotIndex = INDEX_NONE;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	FName ItemID = NAME_None;
 
-	UPROPERTY(BlueprintReadOnly)
-	EEntryType EntryType = EEntryType::None;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	EEntryType ItemType = EEntryType::None;
 
-	UPROPERTY(BlueprintReadOnly)
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	UTexture2D* ItemIcon = nullptr;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	int32 Quantity = 1;
 };
 
@@ -593,13 +602,13 @@ struct FBagData : public FFastArraySerializerItem
 {
 	GENERATED_BODY()
 
-	UPROPERTY()
-	int32 BagID = INDEX_NONE;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	int32 BagIndex = INDEX_NONE;
 	
-	UPROPERTY()
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	FName BagItemID = NAME_None;
 
-	UPROPERTY()
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	TArray<FInventorySlotData> Slots;
 };
 
@@ -625,7 +634,7 @@ struct TStructOpsTypeTraits<FBagList> : public TStructOpsTypeTraitsBase2<FBagLis
 };
 
 USTRUCT(BlueprintType, Blueprintable)
-struct FProjectNActionSlotInfo
+struct FActionSlotData
 {
 	GENERATED_BODY()
 
@@ -643,21 +652,24 @@ struct FProjectNActionSlotInfo
 };
 
 USTRUCT(BlueprintType, Blueprintable)
-struct FProjectNInventorySlotInfo
+struct FEquipSlotData : public FFastArraySerializerItem
 {
 	GENERATED_BODY()
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	int32 BadIndex = INDEX_NONE;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	int32 SlotIndex = INDEX_NONE;
 	
+	FEquipSlotData(){}
+	FEquipSlotData(const FName NewItemID, const EEntryType NewItemType, const EEquipSlot NewSlot) : ItemID(NewItemID), ItemType(NewItemType), EquipSlot(NewSlot) {}
+
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	FName ItemID = NAME_None;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	EEntryType EntryType = EEntryType::None;
+	EEntryType ItemType = EEntryType::None;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	EEquipSlot EquipSlot = EEquipSlot::None;
+
+	UPROPERTY()
+	AActor* SpawnedActor = nullptr;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	UTexture2D* ItemIcon = nullptr;

@@ -1,9 +1,15 @@
-Iteration for drag drop for action bar, inventory.
-Now we can replace action slot in action bar, it will remap abilities for activation
+Iteration for equip menu with drag drop.
+Now possibly replace items in the bag, from bag to equip slot with equipping and remove item from bag, from equip menu to bag, from bag to action slot with ability activation if item has it.
 
 TODO: 
 
-Drag drop and controller for ability menu and equip menu
+Return weapon from main and auxiliary hand when equipped two hand
+Load Items
+Load Action slots
+Warn if item was added or not
+Warn if item being destroy
+
+Drag drop and controller for ability menu
 
 ROOTMOTION (With rootmotion we can run, walk or stop with attack or hit reaction and we no need modify movement speed I guess)
 Abilities relationship

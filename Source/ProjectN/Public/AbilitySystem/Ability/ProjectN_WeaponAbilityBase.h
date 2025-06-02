@@ -18,10 +18,10 @@ protected:
 	//virtual void ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData) override;
 
 	UFUNCTION(BlueprintCallable)
-	virtual void StartWeaponHit(const EItemSlot InSlot) const;
+	virtual void StartWeaponHit(const EEquipSlot InSlot) const;
 
 	UFUNCTION(BlueprintCallable)
-	virtual void StopWeaponHit(const EItemSlot InSlot) const;
+	virtual void StopWeaponHit(const EEquipSlot InSlot) const;
 
 private:
 	

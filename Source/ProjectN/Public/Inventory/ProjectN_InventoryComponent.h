@@ -17,37 +17,16 @@ struct FGrantedAbilityHandles
 };
 
 USTRUCT()
-struct FEquippedItemData : public FFastArraySerializerItem
-{
-	GENERATED_BODY()
-	
-	FEquippedItemData(){}
-	FEquippedItemData(const FName NewItemID, const EEntryType NewItemType, const EItemSlot NewSlot) : ItemID(NewItemID), ItemType(NewItemType), ItemSlot(NewSlot) {}
-
-	UPROPERTY()
-	FName ItemID = NAME_None;
-
-	UPROPERTY()
-	EEntryType ItemType = EEntryType::None;
-
-	UPROPERTY()
-	EItemSlot ItemSlot = EItemSlot::None;
-
-	UPROPERTY()
-	AActor* SpawnedActor = nullptr;
-};
-
-USTRUCT()
 struct FEquippedItemsList : public FFastArraySerializer
 {
 	GENERATED_BODY()
 	
 	UPROPERTY()
-	TArray<FEquippedItemData> EquippedItems;
+	TArray<FEquipSlotData> EquippedItems;
 
 	bool NetDeltaSerialize(FNetDeltaSerializeInfo& Delta)
 	{
-		return FastArrayDeltaSerialize<FEquippedItemData, FEquippedItemsList>(EquippedItems, Delta, *this);
+		return FastArrayDeltaSerialize<FEquipSlotData, FEquippedItemsList>(EquippedItems, Delta, *this);
 	}
 };
 
@@ -57,8 +36,9 @@ struct TStructOpsTypeTraits<FEquippedItemsList> : public TStructOpsTypeTraitsBas
 	enum { WithNetDeltaSerializer = true };
 };
 
-DECLARE_DELEGATE_TwoParams(FOnBagChangedSignature, const int32 /*BagID*/, const int32 /*BagSlot*/);
-DECLARE_DELEGATE_ThreeParams(FOnSlotChangeSignature, const int32 /*BagID*/, const int32 /*BagSlot*/, FInventorySlotData /*ItemData*/);
+DECLARE_DELEGATE_OneParam(FOnBagChangedSignature, FBagData /*BagData*/);
+DECLARE_DELEGATE_OneParam(FOnSlotChangeSignature, FInventorySlotData /*ItemData*/);
+DECLARE_DELEGATE_OneParam(FOnEquipSlotChangeSignature, FEquipSlotData /*SlotData*/);
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class PROJECTN_API UProjectN_InventoryComponent : public UActorComponent
@@ -68,7 +48,8 @@ class PROJECTN_API UProjectN_InventoryComponent : public UActorComponent
 public:
 
 	FOnBagChangedSignature OnBagChanged;
-	FOnSlotChangeSignature OnSlotChange;
+	FOnSlotChangeSignature OnInventorySlotChange;
+	FOnEquipSlotChangeSignature OnEquipSlotChange;
 	
 	UProjectN_InventoryComponent();
 	virtual void GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const override;
@@ -81,15 +62,15 @@ public:
 	FORCEINLINE TArray<FBagData> GetBags() const { return BagList.Bags; }
 	
 	UFUNCTION(BlueprintCallable, BlueprintPure)
-	AProjectN_WeaponActor* GetEquippedWeaponActorBySlot(const EItemSlot InItemSlot);
+	AProjectN_WeaponActor* GetEquippedWeaponActorBySlot(const EEquipSlot InItemSlot);
 	
 	UFUNCTION(BlueprintCallable, BlueprintPure)
-	FGameplayTag GetWeaponTypeBySlot(const EItemSlot InItemSlot) const;
+	FGameplayTag GetWeaponTypeBySlot(const EEquipSlot InItemSlot) const;
 	
 	UFUNCTION(BlueprintCallable, BlueprintPure)
-	TMap<FGameplayTag, float> GetWeaponDamageTypesForSlot(const EItemSlot InItemSlot) const;
+	TMap<FGameplayTag, float> GetWeaponDamageTypesForSlot(const EEquipSlot InItemSlot) const;
 
-	FVector FindWeaponSocketLocationForProjectileBySlot(const EItemSlot ItemSlot) const;
+	FVector FindWeaponSocketLocationForProjectileBySlot(const EEquipSlot ItemSlot) const;
 
 	FInventorySlotData& GetSlot(const int32 BagID, const int32 SlotIndex)
 	{
@@ -106,36 +87,30 @@ public:
 	void AddBag(const FName InBagItemID);
 	
 	UFUNCTION(BlueprintCallable)
-	void RemoveBag(const int32 BagID);
+	void RemoveBag(const int32 BagIndex);
 
 	
 	/*********************************
 	 *  Items manage
 	 *********************************/
-	UFUNCTION(BlueprintCallable)
-	bool TryAddItem(const FName& ItemID, const EEntryType ItemType, const int32 Quantity);
+	UFUNCTION(Server, Reliable)
+	void TryAddItem(const FName& ItemID, const EEntryType ItemType, const int32 Quantity);
 	
-	UFUNCTION(BlueprintCallable)
-	bool TryAddItemToFirstFreeSlot(const FName& ItemID, const EEntryType ItemType, const int32 Quantity);
+	UFUNCTION(Server, Reliable)
+	void RemoveItem(const int32 FromBagIndex, const int32 FromSlotIndex);
 	
-	UFUNCTION(BlueprintCallable)
-	bool TryAddItemToStack(const FName& ItemID, const EEntryType ItemType, const int32 Quantity);
-
-	UFUNCTION(BlueprintCallable)
-	void RemoveItem(const int32 FromBagID, const int32 FromSlotIndex);
-	
-	UFUNCTION(BlueprintCallable)
-	void ReplaceItemInBag(const int32 FromBagID, const int32 ToBagID, const int32 FromSlotIndex, const int32 ToSlotIndex);
+	UFUNCTION(Server, Reliable)
+	void ReplaceItemInBag(const int32 FromBagIndex, const int32 ToBagIndex, const int32 FromSlotIndex, const int32 ToSlotIndex);
 
 	
 	/*********************************
 	 *  Equipping manage
 	 *********************************/
-	UFUNCTION(BlueprintCallable)
-	void EquipItemToSlot(const FName& ItemID, const EEntryType ItemType, const EItemSlot ToSlot);
+	UFUNCTION(Server, Reliable)
+	void EquipItemToSlot(const FName& ItemID, const EEntryType ItemType, const EEquipSlot ToSlot);
 
-	UFUNCTION(BlueprintCallable)
-	void UnEquipSlot(const EItemSlot Slot);
+	UFUNCTION(Server, Reliable)
+	void UnEquipSlot(const EEquipSlot Slot);
 
 	
 	/*********************************
@@ -161,12 +136,12 @@ protected:
 	/*********************************
 	 *  Getters
 	 *********************************/
-	bool IsSlotEquipped(const EItemSlot Slot);
-	const FEquippedItemData* GetEquippedSlotData(const FName& ItemID, const EEntryType ItemType) const;
-	const FEquippedItemData* GetEquippedSlotData(const EItemSlot ItemSlot) const;
-	const FEquippableItemDefinition* GetEquipmentData(const EItemSlot ItemSlot) const;
+	bool IsSlotEquipped(const EEquipSlot Slot);
+	const FEquipSlotData* GetEquippedSlotData(const FName& ItemID, const EEntryType ItemType) const;
+	const FEquipSlotData* GetEquippedSlotData(const EEquipSlot ItemSlot) const;
+	const FEquippableItemDefinition* GetEquipmentData(const EEquipSlot ItemSlot) const;
 	const FEquippableItemDefinition* GetEquippableItemData(const FName& ItemID) const;
-	const FWeaponItemDefinition* GetEquippedWeaponData(const EItemSlot ItemSlot) const;
+	const FWeaponItemDefinition* GetEquippedWeaponData(const EEquipSlot ItemSlot) const;
 	const FWeaponItemDefinition* GetWeaponData(const FName& ItemID) const;
 
 	/*********************************
@@ -177,12 +152,13 @@ protected:
 	/*********************************
 	 *  Items manage
 	 *********************************/
-
+	bool TryAddItemToFirstFreeSlot(const FName& ItemID, const EEntryType ItemType, const int32 Quantity);
+	bool TryAddItemToStack(const FName& ItemID, const EEntryType ItemType, const int32 Quantity);
 	
 	/*********************************
 	 *  Equipping manage
 	 *********************************/
-	AActor* SpawnItemActor(const FName& ItemID, const EEntryType ItemType, const EItemSlot EItemSlot, AActor* Owner) const;
+	AActor* SpawnItemActor(const FName& ItemID, const EEntryType ItemType, const EEquipSlot EItemSlot, AActor* Owner) const;
 
 
 	/*********************************
@@ -199,9 +175,11 @@ protected:
 	 *  Broadcast to widget controller
 	 ***********************************/
 	UFUNCTION(Client, Reliable)
-	void BroadcastBagChange(const int32 BagID, const int32 BagSlots);
+	void BroadcastBagChange(const FBagData& BagData);
 	UFUNCTION(Client, Reliable)
-	void BroadcastSlotChange(const int32 BagID, const int32 BagSlot, const FInventorySlotData& ItemData);
+	void BroadcastSlotChange(const FInventorySlotData& ItemData);
+	UFUNCTION(Client, Reliable)
+	void BroadcastEquipSlotChange(const FEquipSlotData& EquipSlotData);
 
 	
 	/******************
@@ -221,7 +199,7 @@ private:
 	FEquippedItemsList EquippedSlots;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta=(AllowPrivateAccess))
-	TMap<FGameplayTag, EItemSlot> AssociatedInputTagWithSlot;
+	TMap<FGameplayTag, EEquipSlot> AssociatedInputTagWithSlot;
 	
 	UPROPERTY(EditDefaultsOnly, meta=(AllowPrivateAccess), Category="Items Data Table")
 	TArray<FName> BagsDefaultID;
@@ -239,5 +217,5 @@ private:
 	TSoftObjectPtr<UDataTable> BagDataTable;
 
 	TMap<EWeaponMode, FGrantedAbilityHandles> GrantedAbilityHandlesByMode;
-	TMap<EItemSlot, FGrantedAbilityHandles> GrantedEffectHandlesByInstance;
+	TMap<EEquipSlot, FGrantedAbilityHandles> GrantedEffectHandlesByInstance;
 };

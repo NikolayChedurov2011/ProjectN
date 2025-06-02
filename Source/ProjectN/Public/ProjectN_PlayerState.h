@@ -9,7 +9,7 @@
 #include "Interfaces/InventoryInterface.h"
 #include "ProjectN_PlayerState.generated.h"
 
-enum class EItemSlot : uint8;
+enum class EEquipSlot : uint8;
 struct FOnAttributeChangeData;
 struct FLevelUpInfo;
 class ULevelUpDataInfo;
@@ -35,7 +35,7 @@ public:
 	*  Avatar Actor Interface
 	**************************/
 	virtual int32 GetCharacterLevel_Implementation() const override { return Level; }
-	virtual FVector GetWeaponSocketLocation_Implementation(const EItemSlot ItemSlot) const override;
+	virtual FVector GetWeaponSocketLocation_Implementation(const EEquipSlot ItemSlot) const override;
 	
 	FOnGameplayValueChangedSignature OnLevelChanged;
 	FOnGameplayValueChangedSignature OnXPChanged;
@@ -72,8 +72,8 @@ public:
 	*  Inventory Interface
 	**************************/
 	//float GetWeaponMinDamageForSlot_Implementation(const EItemSlot ItemSlot) const override;
-	TMap<FGameplayTag, float> GetWeaponDamageTypes_Implementation(const EItemSlot ItemSlot) const override;
-	AProjectN_WeaponActor* GetEquippedWeaponForSlot_Implementation(const EItemSlot ItemSlot) const override;
+	TMap<FGameplayTag, float> GetWeaponDamageTypes_Implementation(const EEquipSlot ItemSlot) const override;
+	AProjectN_WeaponActor* GetEquippedWeaponForSlot_Implementation(const EEquipSlot ItemSlot) const override;
 
 protected:
 	
