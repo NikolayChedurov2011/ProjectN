@@ -111,6 +111,7 @@ public:
 
 	UFUNCTION(Server, Reliable)
 	void UnEquipSlot(const EEquipSlot Slot);
+	void UnEquipSlotAndReturnWeapon(const EEquipSlot Slot);
 
 	
 	/*********************************

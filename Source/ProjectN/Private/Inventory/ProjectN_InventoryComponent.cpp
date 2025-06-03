@@ -447,7 +447,7 @@ void UProjectN_InventoryComponent::EquipItemToSlot_Implementation(const FName& I
 		{
 			PrintMessage(TEXT("Un equip old slot"));
 			// Un equip old item
-			UnEquipSlot(ToSlot);
+			UnEquipSlotAndReturnWeapon(ToSlot);
 		}
 
 		// Special check for two-handed mode
@@ -455,12 +455,12 @@ void UProjectN_InventoryComponent::EquipItemToSlot_Implementation(const FName& I
 		{
 			PrintMessage(TEXT("Un equip slot for two-handed mode"));
 
-			UnEquipSlot(EEquipSlot::MainArm);
-			UnEquipSlot(EEquipSlot::AuxiliaryArm);
+			UnEquipSlotAndReturnWeapon(EEquipSlot::MainArm);
+			UnEquipSlotAndReturnWeapon(EEquipSlot::AuxiliaryArm);
 		}
 		else
 		{
-			UnEquipSlot(EEquipSlot::TwoHand);
+			UnEquipSlotAndReturnWeapon(EEquipSlot::TwoHand);
 		}
 		
 		
@@ -541,11 +541,6 @@ AActor* UProjectN_InventoryComponent::SpawnItemActor(const FName& ItemID, const 
 
 void UProjectN_InventoryComponent::UnEquipSlot_Implementation(const EEquipSlot Slot)
 {
-	if (!GetOwner()->HasAuthority())
-	{
-		return;
-	}
-	
 	for (int32 i = 0; i < EquippedSlots.EquippedItems.Num(); i++)
 	{
 		if (EquippedSlots.EquippedItems[i].EquipSlot == Slot)
@@ -564,6 +559,21 @@ void UProjectN_InventoryComponent::UnEquipSlot_Implementation(const EEquipSlot S
 	}
 	UpdateWeaponMode();
 }
+
+void UProjectN_InventoryComponent::UnEquipSlotAndReturnWeapon(const EEquipSlot Slot)
+{
+	for (int32 i = 0; i < EquippedSlots.EquippedItems.Num(); i++)
+	{
+		if (EquippedSlots.EquippedItems[i].EquipSlot == Slot)
+		{
+			TryAddItem(EquippedSlots.EquippedItems[i].ItemID, EquippedSlots.EquippedItems[i].ItemType, 1);
+			UnEquipSlot(Slot);
+
+			return;
+		}
+	}
+}
+
 /************************************************************************************************
  ************************************************************************************************/
 
