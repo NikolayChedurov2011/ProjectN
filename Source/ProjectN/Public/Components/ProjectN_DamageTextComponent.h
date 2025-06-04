@@ -14,5 +14,5 @@ class PROJECTN_API UProjectN_DamageTextComponent : public UWidgetComponent
 public:
 
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
-	void SetDamageText(const float Damage, const bool bBlocked, const bool bCriticalHit);
+	void SetDamageText(const float Damage, const bool bBlocked, const bool bCriticalHit, const bool bEvaded);
 };

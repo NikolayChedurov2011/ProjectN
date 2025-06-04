@@ -171,7 +171,7 @@ void AProjectN_PlayerController::Input_AltReleased(const FInputActionValue& Acti
 	SetShowMouseCursor(false);
 }
 
-void AProjectN_PlayerController::ShowDamageNumber_Implementation(const float Damage, AActor* Target, const bool bBlocked, const bool bCriticalHit)
+void AProjectN_PlayerController::ShowDamageNumber_Implementation(const float Damage, AActor* Target, const bool bBlocked, const bool bCriticalHit, const bool bEvaded)
 {
 	if (!IsValid(Target) || !DamageTextComponentClass && IsLocalController())
 	{
@@ -182,5 +182,5 @@ void AProjectN_PlayerController::ShowDamageNumber_Implementation(const float Dam
 	DamageTextComponent->RegisterComponent();
 	DamageTextComponent->AttachToComponent(Target->GetRootComponent(), FAttachmentTransformRules::KeepRelativeTransform);
 	DamageTextComponent->DetachFromComponent(FDetachmentTransformRules::KeepWorldTransform);
-	DamageTextComponent->SetDamageText(Damage, bBlocked, bCriticalHit);
+	DamageTextComponent->SetDamageText(Damage, bBlocked, bCriticalHit, bEvaded);
 }

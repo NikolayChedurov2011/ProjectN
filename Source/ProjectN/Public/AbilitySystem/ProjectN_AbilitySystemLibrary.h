@@ -6,6 +6,7 @@
 #include "Kismet/BlueprintFunctionLibrary.h"
 #include "ProjectN_AbilitySystemLibrary.generated.h"
 
+class UProjectN_AbilityBookController;
 class UProjectN_ActionBarController;
 struct FGameplayEffectContextHandle;
 class UCharacter_Save;
@@ -34,6 +35,9 @@ public:
 	UFUNCTION(BlueprintPure, Category = "AbilitySystem | Inventory Widget Controller")
 	static UProjectN_ActionBarController* GetActionBarWidgetController(const UObject* WorldContextObject);
 
+	UFUNCTION(BlueprintPure, Category = "AbilitySystem | Inventory Widget Controller")
+	static UProjectN_AbilityBookController* GetAbilityBookWidgetController(const UObject* WorldContextObject);
+
 	UFUNCTION(BlueprintCallable, Category = "AbilitySystem | Attributes")
 	static void SetPrimaryAttributesByCaller(const UObject* WorldContextObject, UAbilitySystemComponent* AbilitySystemComponent, const float Strength, const float Intelligence, const float Dexterity, const float Vitality);
 
@@ -43,8 +47,14 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "AbilitySystem | Gameplay Effects")
 	static void SetIsBlock(UPARAM(ref) FGameplayEffectContextHandle& EffectContextHandle, bool bBlocked);
 
+	UFUNCTION(BlueprintCallable, Category = "AbilitySystem | Gameplay Effects")
+	static void SetIsEvaded(UPARAM(ref) FGameplayEffectContextHandle& EffectContextHandle, bool bEvaded);
+
 	UFUNCTION(BlueprintPure, Category = "AbilitySystem | Gameplay Effects")
 	static bool IsCriticalHit(const FGameplayEffectContextHandle& EffectContextHandle);
+
+	UFUNCTION(BlueprintPure, Category = "AbilitySystem | Gameplay Effects")
+	static bool IsEvaded(const FGameplayEffectContextHandle& EffectContextHandle);
 	
 	UFUNCTION(BlueprintCallable, Category = "AbilitySystem | Gameplay Effects")
 	static void SetIsCriticalHit(UPARAM(ref) FGameplayEffectContextHandle& EffectContextHandle, bool bCritical);

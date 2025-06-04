@@ -4,7 +4,7 @@
 #include "AbilitySystem/ProjectN_AbilitySystemLibrary.h"
 
 #include "AbilitySystemComponent.h"
-#include "ProjectN_PlayerCharacter.h"
+//#include "ProjectN_PlayerCharacter.h"
 #include "ProjectN_PlayerState.h"
 #include "Kismet/GameplayStatics.h"
 #include "UI/HUD/ProjectN_HUD.h"
@@ -115,6 +115,20 @@ UProjectN_ActionBarController* UProjectN_AbilitySystemLibrary::GetActionBarWidge
 	return nullptr;
 }
 
+UProjectN_AbilityBookController* UProjectN_AbilitySystemLibrary::GetAbilityBookWidgetController(const UObject* WorldContextObject)
+{
+	APlayerController* DefaultPlayerController = UGameplayStatics::GetPlayerController(WorldContextObject, 0);
+	const APlayerController* PlayerController = Cast<APlayerController>(DefaultPlayerController);
+	if (AProjectN_HUD* HUD = Cast<AProjectN_HUD>(PlayerController->GetHUD()))
+	{
+		const FWidgetControllerParams WidgetParams;
+
+		return HUD->GetAbilityBookWidgetController(WidgetParams);
+	}
+	
+	return nullptr;
+}
+
 void UProjectN_AbilitySystemLibrary::SetPrimaryAttributesByCaller(const UObject* WorldContextObject, UAbilitySystemComponent* AbilitySystemComponent, const float Strength, const float Intelligence, const float Dexterity, const float Vitality)
 {
 	/*const AActor* AvatarActor = AbilitySystemComponent->GetAvatarActor();
@@ -150,6 +164,27 @@ void UProjectN_AbilitySystemLibrary::SetIsBlock(FGameplayEffectContextHandle& Ef
 	if (ProjectNContext)
 	{
 		ProjectNContext->SetIsBlock(bBlocked);
+	}
+}
+
+bool UProjectN_AbilitySystemLibrary::IsEvaded(const FGameplayEffectContextHandle& EffectContextHandle)
+{
+	const FProjectNGameplayEffectContext* ProjectNContext = static_cast<const FProjectNGameplayEffectContext*>(EffectContextHandle.Get());
+	
+	if (ProjectNContext)
+	{
+		return ProjectNContext->IsEvaded();
+	}
+	return false;
+}
+
+void UProjectN_AbilitySystemLibrary::SetIsEvaded(FGameplayEffectContextHandle& EffectContextHandle, bool bEvaded)
+{
+	FProjectNGameplayEffectContext* ProjectNContext = static_cast<FProjectNGameplayEffectContext*>(EffectContextHandle.Get());
+	
+	if (ProjectNContext)
+	{
+		ProjectNContext->SetIsEvaded(bEvaded);
 	}
 }
 

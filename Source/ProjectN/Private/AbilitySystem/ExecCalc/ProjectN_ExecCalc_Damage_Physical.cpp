@@ -19,7 +19,7 @@ struct ProjectNPhysicalDamageStatics
 	// Target attributes
 	DECLARE_ATTRIBUTE_CAPTUREDEF(Armor);
 	DECLARE_ATTRIBUTE_CAPTUREDEF(BlockChance)
-	//DECLARE_ATTRIBUTE_CAPTUREDEF(Evasion);
+	DECLARE_ATTRIBUTE_CAPTUREDEF(Evasion);
 	
 	ProjectNPhysicalDamageStatics()
 	{
@@ -32,7 +32,7 @@ struct ProjectNPhysicalDamageStatics
 		// Target attributes
 		DEFINE_ATTRIBUTE_CAPTUREDEF(UProjectN_AttributeSet, Armor, Target, false);
 		DEFINE_ATTRIBUTE_CAPTUREDEF(UProjectN_AttributeSet, BlockChance, Target, false);
-		//DEFINE_ATTRIBUTE_CAPTUREDEF(UProjectN_AttributeSet, Evasion, Target, false);
+		DEFINE_ATTRIBUTE_CAPTUREDEF(UProjectN_AttributeSet, Evasion, Target, false);
 	}
 };
 
@@ -51,6 +51,7 @@ UProjectN_ExecCalc_Damage_Physical::UProjectN_ExecCalc_Damage_Physical()
 	
 	RelevantAttributesToCapture.Add(PhysicalDamageStatics().ArmorDef);
 	RelevantAttributesToCapture.Add(PhysicalDamageStatics().BlockChanceDef);
+	RelevantAttributesToCapture.Add(PhysicalDamageStatics().EvasionDef);
 }
 
 void UProjectN_ExecCalc_Damage_Physical::Execute_Implementation(const FGameplayEffectCustomExecutionParameters& ExecutionParams, FGameplayEffectCustomExecutionOutput& OutExecutionOutput) const
@@ -82,7 +83,7 @@ void UProjectN_ExecCalc_Damage_Physical::Execute_Implementation(const FGameplayE
 		const float DamageTypeValue = Spec.GetSetByCallerMagnitude(Tag, false);
 		Damage += DamageTypeValue;
 
-		//TODO: Here we can apply modifiers or defence for each damage type
+		//TODO: Here we can apply modifiers or defense for each damage type
 	}
 
 	// Capture attributes
@@ -110,6 +111,9 @@ void UProjectN_ExecCalc_Damage_Physical::Execute_Implementation(const FGameplayE
 	float CapturedTargetBlockChance = 0.f;
 	GetAttributeValue(ExecutionParams, PhysicalDamageStatics().BlockChanceDef, EvaluateParameters, CapturedTargetBlockChance);
 
+	float CapturedTargetEvasionChance = 0.f;
+	GetAttributeValue(ExecutionParams, PhysicalDamageStatics().EvasionDef, EvaluateParameters, CapturedTargetEvasionChance);
+
 	/*********************
 	* Main calculations
 	*********************/
@@ -117,6 +121,17 @@ void UProjectN_ExecCalc_Damage_Physical::Execute_Implementation(const FGameplayE
 	if (bBlocked)
 	{
 		UProjectN_AbilitySystemLibrary::SetIsBlock(EffectContextHandle, bBlocked);
+		
+		// Result
+		const FGameplayModifierEvaluatedData EvaluatedData(UProjectN_AttributeSet::GetIncomingDamageAttribute(), EGameplayModOp::Override, 0);
+		OutExecutionOutput.AddOutputModifier(EvaluatedData);
+
+		return;
+	}
+	const bool bEvaded = FMath::RandRange(1, 100) < CapturedTargetEvasionChance;
+	if (bEvaded)
+	{
+		UProjectN_AbilitySystemLibrary::SetIsEvaded(EffectContextHandle, bEvaded);
 		
 		// Result
 		const FGameplayModifierEvaluatedData EvaluatedData(UProjectN_AttributeSet::GetIncomingDamageAttribute(), EGameplayModOp::Override, 0);

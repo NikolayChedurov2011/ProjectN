@@ -63,3 +63,22 @@ public:
 		return Op;
 	}
 };
+
+UCLASS()
+class PROJECTN_API UProjectN_AbilitySlotDragDropOperation : public UDragDropOperation
+{
+	GENERATED_BODY()
+
+public:
+
+	UPROPERTY(BlueprintReadWrite)
+	FAbilitySlotData MyPayload;
+
+	static UProjectN_AbilitySlotDragDropOperation* New(const FAbilitySlotData& InPayload)
+	{
+		UProjectN_AbilitySlotDragDropOperation* Op = NewObject<UProjectN_AbilitySlotDragDropOperation>();
+		Op->MyPayload = InPayload;
+		Op->Pivot  = EDragPivot::MouseDown;
+		return Op;
+	}
+};

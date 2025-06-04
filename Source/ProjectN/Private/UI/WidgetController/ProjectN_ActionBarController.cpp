@@ -34,34 +34,7 @@ void UProjectN_ActionBarController::BindCallbacksToResponce()
 void UProjectN_ActionBarController::BroadcastInitialValues()
 {
 	// TODO: Load saved action bar from save
-	FActionSlotData NewActionSlotInfo;
-	NewActionSlotInfo.EntryType = EEntryType::Ability;
-	NewActionSlotInfo.ItemID = FName("ability_001");
-	NewActionSlotInfo.ActionSlotIndex = 0;
 
-	AddSlot(NewActionSlotInfo);
-
-	FActionSlotData NewActionSlotInfo2;
-	NewActionSlotInfo2.EntryType = EEntryType::Ability;
-	NewActionSlotInfo2.ItemID = FName("ability_002");
-	NewActionSlotInfo2.ActionSlotIndex = 5;
-
-	AddSlot(NewActionSlotInfo2);
-
-	
-	/*if (InventoryComponent)
-	{
-		
-
-		// TODO: Init inventory items
-		for (int32 i = 0; i < InventoryComponent->GetBags().Num(); i++)
-		{
-			if (OnUpdateBag.IsBound())
-			{
-				OnUpdateBag.Broadcast(i, InventoryComponent->GetBags()[i].Slots.Num());
-			}
-		}
-	}*/
 }
 
 void UProjectN_ActionBarController::AddSlot(FActionSlotData ActionSlotInfo)

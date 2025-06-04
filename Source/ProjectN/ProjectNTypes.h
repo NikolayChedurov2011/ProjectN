@@ -77,6 +77,10 @@ public:
 			{
 				RepBits |= (1 << 8);
 			}
+			if (bEvade)
+			{
+				RepBits |= (1 << 9);
+			}
 		}
 
 		Ar.SerializeBits(&RepBits, 9);
@@ -129,6 +133,10 @@ public:
 		{
 			Ar << bBlock;
 		}
+		if (RepBits & (1 << 9))
+		{
+			Ar << bEvade;
+		}
 		
 		if (Ar.IsLoading())
 		{
@@ -143,6 +151,8 @@ public:
 	FORCEINLINE void SetIsCriticalHit(const bool bCritical) { bCriticalHit = bCritical; }
 	FORCEINLINE bool IsBlocked() const { return bBlock; }
 	FORCEINLINE void SetIsBlock(const bool bBlocked) { bBlock = bBlocked; }
+	FORCEINLINE void SetIsEvaded(const bool bEvaded) { bEvade = bEvaded; }
+	FORCEINLINE bool IsEvaded() const { return bEvade; }
 	
 protected:
 
@@ -151,6 +161,9 @@ protected:
 	
 	UPROPERTY()
 	bool bBlock = false;
+
+	UPROPERTY()
+	bool bEvade = false;
 };
 
 template<>
@@ -671,6 +684,22 @@ struct FEquipSlotData : public FFastArraySerializerItem
 	UPROPERTY()
 	AActor* SpawnedActor = nullptr;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	UTexture2D* ItemIcon = nullptr;
+};
+
+
+USTRUCT(BlueprintType, Blueprintable)
+struct FAbilitySlotData : public FFastArraySerializerItem
+{
+	GENERATED_BODY()
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	FName ItemID = NAME_None;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	EEntryType ItemType = EEntryType::None;
+	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	UTexture2D* ItemIcon = nullptr;
 };

@@ -22,7 +22,7 @@ public:
 	UProjectN_AbilitySystemComponent* GetAbilitySystemComponent();
 
 	UFUNCTION(Client, Reliable)
-	void ShowDamageNumber(const float Damage, AActor* Target, const bool bBlocked, const bool bCriticalHit);
+	void ShowDamageNumber(const float Damage, AActor* Target, const bool bBlocked, const bool bCriticalHit, const bool bEvaded);
 
 protected:
 	virtual void BeginPlay() override;

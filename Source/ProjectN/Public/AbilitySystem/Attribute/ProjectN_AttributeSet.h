@@ -165,9 +165,9 @@ public:
 	FGameplayAttributeData MagicalArmor;
 	ATTRIBUTE_ACCESSORS(UProjectN_AttributeSet, MagicalArmor)
 	
-	/*UPROPERTY(BlueprintReadOnly, Category = "Evasion", ReplicatedUsing = OnRep_Evasion)
+	UPROPERTY(BlueprintReadOnly, Category = "Evasion", ReplicatedUsing = OnRep_Evasion)
 	FGameplayAttributeData Evasion;
-	ATTRIBUTE_ACCESSORS(UProjectN_AttributeSet, Evasion)*/
+	ATTRIBUTE_ACCESSORS(UProjectN_AttributeSet, Evasion)
 	
 	UPROPERTY(BlueprintReadOnly, Category = "BlockChance", ReplicatedUsing = OnRep_BlockChance)
 	FGameplayAttributeData BlockChance;
@@ -251,8 +251,8 @@ protected:
     virtual void OnRep_Armor(const FGameplayAttributeData& OldArmor);
 	UFUNCTION()
     virtual void OnRep_MagicalArmor(const FGameplayAttributeData& OldMagicalArmor);
-	/*UFUNCTION()
-	virtual void OnRep_Evasion(const FGameplayAttributeData& OldEvasion);*/
+	UFUNCTION()
+	virtual void OnRep_Evasion(const FGameplayAttributeData& OldEvasion);
 	UFUNCTION()
 	virtual void OnRep_BlockChance(const FGameplayAttributeData& OldBlockChance);
 	UFUNCTION()
@@ -269,5 +269,5 @@ protected:
 private:
 
 	void SetEffectProperties(const FGameplayEffectModCallbackData& Data, FEffectProperties& Props) const;
-	void ShowFloatingText(const FEffectProperties& Props, const float Damage, bool bBlocked, bool bCriticalHit) const;
+	void ShowFloatingText(const FEffectProperties& Props, const float Damage, bool bBlocked, bool bCriticalHit, const bool bEvaded) const;
 };

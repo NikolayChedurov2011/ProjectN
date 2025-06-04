@@ -416,6 +416,7 @@ void UProjectN_InventoryComponent::EquipItemToSlot_Implementation(const FName& I
 		if (ItemType == EEntryType::Item || ItemType == EEntryType::Ability || ItemType == EEntryType::None)
 		{
 			PrintMessage(TEXT("Item is not equippable"));
+			TryAddItem(ItemID, ItemType, 1);
 			return;
 		}
 
@@ -428,6 +429,7 @@ void UProjectN_InventoryComponent::EquipItemToSlot_Implementation(const FName& I
 				if (!ItemDef->AllowedSlots.Contains(ToSlot))
 				{
 					PrintMessage(TEXT("Not allowed slot for equip"));
+					TryAddItem(ItemID, ItemType, 1);
 					return;
 				}
 			}
@@ -437,6 +439,7 @@ void UProjectN_InventoryComponent::EquipItemToSlot_Implementation(const FName& I
 				if (!ItemDef->AllowedSlots.Contains(ToSlot))
 				{
 					PrintMessage(TEXT("Not allowed slot for equip"));
+					TryAddItem(ItemID, ItemType, 1);
 					return;
 				}
 			}
