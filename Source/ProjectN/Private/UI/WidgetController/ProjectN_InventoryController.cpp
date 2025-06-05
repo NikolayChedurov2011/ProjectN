@@ -115,17 +115,17 @@ void UProjectN_InventoryController::LoadIcon(const FName& ItemID, const EEntryTy
  *********************************/
 void UProjectN_InventoryController::TryAddItem(const FName ItemID, const EEntryType ItemType, const int32 Quantity) const
 {
-	InventoryComponent->TryAddItem(ItemID, ItemType, Quantity);
+	InventoryComponent->ServerTryAddItem(ItemID, ItemType, Quantity);
 }
 
 void UProjectN_InventoryController::RemoveItem(const int32 FromBagIndex, const int32 FromSlotIndex) const
 {
-	InventoryComponent->RemoveItem(FromBagIndex, FromSlotIndex);
+	InventoryComponent->ServerRemoveItem(FromBagIndex, FromSlotIndex);
 }
 
 void UProjectN_InventoryController::ReplaceItemsInBag(const int32 FromBagIndex, const int32 ToBagIndex,	const int32 FromSlotIndex, const int32 ToSlotIndex) const
 {
-	InventoryComponent->ReplaceItemInBag(FromBagIndex, FromSlotIndex, ToBagIndex, ToSlotIndex);
+	InventoryComponent->ServerReplaceItemInBag(FromBagIndex, FromSlotIndex, ToBagIndex, ToSlotIndex);
 }
 
 
@@ -135,12 +135,12 @@ void UProjectN_InventoryController::ReplaceItemsInBag(const int32 FromBagIndex, 
 *********************************/
 void UProjectN_InventoryController::EquipItemToSlot(const FName ItemID, const EEntryType ItemType,	const EEquipSlot ToSlot) const
 {
-	InventoryComponent->EquipItemToSlot(ItemID, ItemType, ToSlot);
+	InventoryComponent->ServerEquipItemToSlot(ItemID, ItemType, ToSlot);
 }
 
 void UProjectN_InventoryController::UnEquipSlot(const EEquipSlot Slot) const
 {
-	InventoryComponent->UnEquipSlot(Slot);
+	InventoryComponent->ServerUnEquipSlot(Slot);
 }
 
 

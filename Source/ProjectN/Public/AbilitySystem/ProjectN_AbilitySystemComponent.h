@@ -12,6 +12,7 @@ struct FProjectNAttributeSaveInfo;
 DECLARE_MULTICAST_DELEGATE_OneParam(FEffectAssetTagsSignature, const FGameplayTagContainer& /* AssetTags */)
 DECLARE_MULTICAST_DELEGATE_OneParam(FAbilitiesGivenSignature, UProjectN_AbilitySystemComponent* /* ProjectN_AbilitySystemComponent */)
 DECLARE_DELEGATE_OneParam(FForEachAbilitySignature, const FGameplayAbilitySpec& /* GameplayAbilitySpec */)
+DECLARE_DELEGATE_OneParam(FInputTagTriggeredSignature, const FGameplayTag /* InputTag */)
 
 UCLASS()
 class PROJECTN_API UProjectN_AbilitySystemComponent : public UAbilitySystemComponent
@@ -24,6 +25,7 @@ public:
 
 	FEffectAssetTagsSignature EffectAssetTags;
 	FAbilitiesGivenSignature AbilitiesGiven;
+	FInputTagTriggeredSignature InputTagTriggered;
 
 	UFUNCTION(BlueprintCallable)
 	FGameplayAbilitySpecHandle AddAbility(const TSubclassOf<UGameplayAbility> DefaultAbility, const FGameplayTag& InputTag = FGameplayTag());
@@ -55,4 +57,7 @@ protected:
 	void OnEffectApply(UAbilitySystemComponent* AbilitySystemComponent, const FGameplayEffectSpec& GameplayEffectSpec, FActiveGameplayEffectHandle GameplayEffectHandle) const;
 
 	void OnRep_ActivateAbilities() override;
+
+private:
+	bool bFindAbility = false;
 };

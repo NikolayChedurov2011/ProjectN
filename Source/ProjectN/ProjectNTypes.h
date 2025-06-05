@@ -511,6 +511,9 @@ struct FItemDefinition : public FEntryDefinition
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	TSubclassOf<UGameplayAbility> UseItemAbility;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	TSubclassOf<UGameplayEffect> UseItemEffect;
 };
 
 USTRUCT(BlueprintType, Blueprintable)

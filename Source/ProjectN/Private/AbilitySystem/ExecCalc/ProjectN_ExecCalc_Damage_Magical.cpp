@@ -115,7 +115,7 @@ void UProjectN_ExecCalc_Damage_Magical::Execute_Implementation(const FGameplayEf
 		return;
 	}
 
-	// Add coefficient from Strength
+	// Add coefficient from Intelligence
 	Damage += CapturedSourceIntelligence * 1.2f;
 	const float EffectiveMagicArmor = CapturedTargetMagicalArmor *= (100 - (CapturedSourceIntelligence * 0.5f) * 0.25f) / 100.f;
 	Damage *= (100 - EffectiveMagicArmor * 2.f) / 100.f;

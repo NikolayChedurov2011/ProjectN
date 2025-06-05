@@ -107,8 +107,16 @@ void UProjectN_AbilitySystemComponent::OnActionPressed(const FGameplayTag& Input
 			{
 				InvokeReplicatedEvent(EAbilityGenericReplicatedEvent::InputPressed, AbilitySpec.Handle, AbilitySpec.ActivationInfo.GetActivationPredictionKey());
 			}
+			bFindAbility = true;
 		}
 	}
+
+	if (!bFindAbility)
+	{
+		InputTagTriggered.ExecuteIfBound(InputTag);
+	}
+
+	bFindAbility = false;
 }
 
 void UProjectN_AbilitySystemComponent::OnActionHeld(const FGameplayTag& InputTag)

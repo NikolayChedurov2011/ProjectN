@@ -1,10 +1,11 @@
-Iteration for ability book with drag drop
-Handle remove item from bag
-Returned evasion attribute and message for this event
-Set up the magic calculation class
+Now damage calculation class process the physical and magical damage.
+Separate damage value and damage event message (blocked etc) in widget
+Implement use item in action bar
 
 TODO: 
 
+COOLDOWN
+Combo
 Ability requirement
 Load Items
 Load Action slots
@@ -12,7 +13,18 @@ Warn if item was added or not
 Warn if item being destroy
 Apply modifiers or defense for each damage type
 
+Action bar and consumable items
+
 Try best modifiers for crit damage
+
+Model for save/load data:
+Character(Level/XP)
+AbilityBook(AbilityID)
+ActionBar(ActioSlotIndex/ItemID/Type)
+Bags(BagID)
+InventoryItem(ItemID/Type/Quantity/BagIndex/BagSlot)
+
+
 
 ROOTMOTION (With rootmotion we can run, walk or stop with attack or hit reaction and we no need modify movement speed I guess)
 Abilities relationship

@@ -94,23 +94,26 @@ public:
 	 *  Items manage
 	 *********************************/
 	UFUNCTION(Server, Reliable)
-	void TryAddItem(const FName& ItemID, const EEntryType ItemType, const int32 Quantity);
+	void ServerTryAddItem(const FName& ItemID, const EEntryType ItemType, const int32 Quantity);
 	
 	UFUNCTION(Server, Reliable)
-	void RemoveItem(const int32 FromBagIndex, const int32 FromSlotIndex);
+	void ServerRemoveItem(const int32 FromBagIndex, const int32 FromSlotIndex);
 	
 	UFUNCTION(Server, Reliable)
-	void ReplaceItemInBag(const int32 FromBagIndex, const int32 ToBagIndex, const int32 FromSlotIndex, const int32 ToSlotIndex);
+	void ServerReplaceItemInBag(const int32 FromBagIndex, const int32 ToBagIndex, const int32 FromSlotIndex, const int32 ToSlotIndex);
+
+	UFUNCTION(Server, Reliable)
+	void ServerTryUseItem(const FName& ItemID, const EEntryType ItemType);
 
 	
 	/*********************************
 	 *  Equipping manage
 	 *********************************/
 	UFUNCTION(Server, Reliable)
-	void EquipItemToSlot(const FName& ItemID, const EEntryType ItemType, const EEquipSlot ToSlot);
+	void ServerEquipItemToSlot(const FName& ItemID, const EEntryType ItemType, const EEquipSlot ToSlot);
 
 	UFUNCTION(Server, Reliable)
-	void UnEquipSlot(const EEquipSlot Slot);
+	void ServerUnEquipSlot(const EEquipSlot Slot);
 	void UnEquipSlotAndReturnWeapon(const EEquipSlot Slot);
 
 	
@@ -144,6 +147,7 @@ protected:
 	const FEquippableItemDefinition* GetEquippableItemData(const FName& ItemID) const;
 	const FWeaponItemDefinition* GetEquippedWeaponData(const EEquipSlot ItemSlot) const;
 	const FWeaponItemDefinition* GetWeaponData(const FName& ItemID) const;
+	const FItemDefinition* GetItemData(const FName& ItemID) const;
 
 	/*********************************
 	 *  Bag manage
@@ -154,7 +158,7 @@ protected:
 	 *  Items manage
 	 *********************************/
 	bool TryAddItemToFirstFreeSlot(const FName& ItemID, const EEntryType ItemType, const int32 Quantity);
-	bool TryAddItemToStack(const FName& ItemID, const EEntryType ItemType, const int32 Quantity);
+	void TryAddItemToStack(const FName& ItemID, const EEntryType ItemType, const int32 Quantity);
 	
 	/*********************************
 	 *  Equipping manage

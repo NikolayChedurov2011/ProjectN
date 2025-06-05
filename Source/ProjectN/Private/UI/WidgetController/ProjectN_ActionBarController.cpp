@@ -4,6 +4,8 @@
 #include "UI/WidgetController/ProjectN_ActionBarController.h"
 
 #include "AbilitySystem/ProjectN_AbilitySystemComponent.h"
+#include "GameFramework/PlayerState.h"
+#include "Inventory/ProjectN_InventoryComponent.h"
 //#include "GameFramework/PlayerState.h"
 
 void UProjectN_ActionBarController::BindCallbacksToResponce()
@@ -29,6 +31,31 @@ void UProjectN_ActionBarController::BindCallbacksToResponce()
 			}
 		});
 	}*/
+
+	UProjectN_AbilitySystemComponent* ProjectN_AbilitySystemComponent = Cast<UProjectN_AbilitySystemComponent>(AbilitySystemComponent);
+	UProjectN_InventoryComponent* InventoryComponent = PlayerState->FindComponentByClass<UProjectN_InventoryComponent>();
+
+	if (InventoryComponent && ProjectN_AbilitySystemComponent)
+	{
+		ProjectN_AbilitySystemComponent->InputTagTriggered.BindLambda([this, InventoryComponent](FGameplayTag InputTag)
+		{
+			for (TPair<int32, FGameplayTag> SlotDependency : ActionSlotsTagDependency)
+			{
+				if (SlotDependency.Value == InputTag)
+				{
+					for (const FActionSlotData Slot : ActionSlots)
+					{
+						if (Slot.ActionSlotIndex == SlotDependency.Key)
+						{
+							InventoryComponent->ServerTryUseItem(Slot.ItemID, Slot.EntryType);
+							
+							return;
+						}
+					}
+				}
+			}
+		});
+	}
 }
 
 void UProjectN_ActionBarController::BroadcastInitialValues()
@@ -91,9 +118,9 @@ void UProjectN_ActionBarController::AddAbility(const FActionSlotData& ActionSlot
 				return;
 			}
 		case EEntryType::Item :
-			if (const FItemDefinition* ItemDef = GetItemData(ActionSlotInfo.ItemID))
+		//	if (const FItemDefinition* ItemDef = GetItemData(ActionSlotInfo.ItemID))
 			{
-				ProjectN_AbilitySystemComponent->ServerAddAbility(ItemDef->UseItemAbility, *ActionSlotsTagDependency.Find(ActionSlotInfo.ActionSlotIndex));
+		//		ProjectN_AbilitySystemComponent->ServerAddAbility(ItemDef->UseItemAbility, *ActionSlotsTagDependency.Find(ActionSlotInfo.ActionSlotIndex));
 				return;
 			}
 		case EEntryType::Equipment :

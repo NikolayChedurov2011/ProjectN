@@ -12,12 +12,14 @@ struct ProjectNPhysicalDamageStatics
 {
 	// Source attributes
 	DECLARE_ATTRIBUTE_CAPTUREDEF(Strength);
+	DECLARE_ATTRIBUTE_CAPTUREDEF(Intelligence);
 	DECLARE_ATTRIBUTE_CAPTUREDEF(ArmorPenetration);
 	DECLARE_ATTRIBUTE_CAPTUREDEF(CriticalHitChance);
 	DECLARE_ATTRIBUTE_CAPTUREDEF(CriticalHitDamage);
 
 	// Target attributes
 	DECLARE_ATTRIBUTE_CAPTUREDEF(Armor);
+	DECLARE_ATTRIBUTE_CAPTUREDEF(MagicalArmor);
 	DECLARE_ATTRIBUTE_CAPTUREDEF(BlockChance)
 	DECLARE_ATTRIBUTE_CAPTUREDEF(Evasion);
 	
@@ -25,12 +27,14 @@ struct ProjectNPhysicalDamageStatics
 	{
 		// Source attributes
 		DEFINE_ATTRIBUTE_CAPTUREDEF(UProjectN_AttributeSet, Strength, Source, false);
+		DEFINE_ATTRIBUTE_CAPTUREDEF(UProjectN_AttributeSet, Intelligence, Source, false);
 		DEFINE_ATTRIBUTE_CAPTUREDEF(UProjectN_AttributeSet, ArmorPenetration, Source, false);
 		DEFINE_ATTRIBUTE_CAPTUREDEF(UProjectN_AttributeSet, CriticalHitChance, Source, false);
 		DEFINE_ATTRIBUTE_CAPTUREDEF(UProjectN_AttributeSet, CriticalHitDamage, Source, false);
 
 		// Target attributes
 		DEFINE_ATTRIBUTE_CAPTUREDEF(UProjectN_AttributeSet, Armor, Target, false);
+		DEFINE_ATTRIBUTE_CAPTUREDEF(UProjectN_AttributeSet, MagicalArmor, Target, false);
 		DEFINE_ATTRIBUTE_CAPTUREDEF(UProjectN_AttributeSet, BlockChance, Target, false);
 		DEFINE_ATTRIBUTE_CAPTUREDEF(UProjectN_AttributeSet, Evasion, Target, false);
 	}
@@ -45,11 +49,13 @@ static const ProjectNPhysicalDamageStatics& PhysicalDamageStatics()
 UProjectN_ExecCalc_Damage_Physical::UProjectN_ExecCalc_Damage_Physical()
 {
 	RelevantAttributesToCapture.Add(PhysicalDamageStatics().StrengthDef);
+	RelevantAttributesToCapture.Add(PhysicalDamageStatics().IntelligenceDef);
 	RelevantAttributesToCapture.Add(PhysicalDamageStatics().ArmorPenetrationDef);
 	RelevantAttributesToCapture.Add(PhysicalDamageStatics().CriticalHitChanceDef);
 	RelevantAttributesToCapture.Add(PhysicalDamageStatics().CriticalHitDamageDef);
 	
 	RelevantAttributesToCapture.Add(PhysicalDamageStatics().ArmorDef);
+	RelevantAttributesToCapture.Add(PhysicalDamageStatics().MagicalArmorDef);
 	RelevantAttributesToCapture.Add(PhysicalDamageStatics().BlockChanceDef);
 	RelevantAttributesToCapture.Add(PhysicalDamageStatics().EvasionDef);
 }
@@ -76,22 +82,29 @@ void UProjectN_ExecCalc_Damage_Physical::Execute_Implementation(const FGameplayE
 	/**********************************
 	 * Get damage set by caller magnitude
 	 **********************************/
-	float Damage = 0.f; /*Spec.GetSetByCallerMagnitude(ProjectNGameplayTags::Attribute_Meta_Damage, false);*/
+	float TotalPhysicalDamage = 0.f; /*Spec.GetSetByCallerMagnitude(ProjectNGameplayTags::Attribute_Meta_Damage, false);*/
+	float TotalMagicalDamage = 0.f;
+	const float PhysicalDamageTypeValue = Spec.GetSetByCallerMagnitude(ProjectNGameplayTags::DamageType_Physical, false);
+	const float MagicalDamageTypeValue = Spec.GetSetByCallerMagnitude(ProjectNGameplayTags::DamageType_Magical, false);
 
-	for(const FGameplayTag& Tag : FProjectNGameplayTagsStruct::Get().DamageTypes)
+	/*for(const FGameplayTag& Tag : FProjectNGameplayTagsStruct::Get().DamageTypes)
 	{
 		const float DamageTypeValue = Spec.GetSetByCallerMagnitude(Tag, false);
 		Damage += DamageTypeValue;
 
 		//TODO: Here we can apply modifiers or defense for each damage type
-	}
+	}*/
 
+	
 	// Capture attributes
 	/*********************
 	 * Source attributes
 	 *********************/
 	float CapturedSourceStrength = 0.f;
 	GetAttributeValue(ExecutionParams, PhysicalDamageStatics().StrengthDef, EvaluateParameters, CapturedSourceStrength);
+
+	float CapturedSourceIntelligence = 0.f;
+	GetAttributeValue(ExecutionParams, PhysicalDamageStatics().IntelligenceDef, EvaluateParameters, CapturedSourceIntelligence);
 
 	float CapturedSourceArmorPenetration = 0.f;
 	GetAttributeValue(ExecutionParams, PhysicalDamageStatics().ArmorPenetrationDef, EvaluateParameters, CapturedSourceArmorPenetration);
@@ -108,26 +121,34 @@ void UProjectN_ExecCalc_Damage_Physical::Execute_Implementation(const FGameplayE
 	float CapturedTargetArmor = 0.f;
 	GetAttributeValue(ExecutionParams, PhysicalDamageStatics().ArmorDef, EvaluateParameters, CapturedTargetArmor);
 
+	float CapturedTargetMagicalArmor = 0.f;
+	GetAttributeValue(ExecutionParams, PhysicalDamageStatics().MagicalArmorDef, EvaluateParameters, CapturedTargetMagicalArmor);
+
 	float CapturedTargetBlockChance = 0.f;
 	GetAttributeValue(ExecutionParams, PhysicalDamageStatics().BlockChanceDef, EvaluateParameters, CapturedTargetBlockChance);
 
 	float CapturedTargetEvasionChance = 0.f;
 	GetAttributeValue(ExecutionParams, PhysicalDamageStatics().EvasionDef, EvaluateParameters, CapturedTargetEvasionChance);
-
+	
 	/*********************
 	* Main calculations
 	*********************/
-	const bool bBlocked = FMath::RandRange(1, 100) < CapturedTargetBlockChance;
-	if (bBlocked)
+	
+	if (PhysicalDamageTypeValue)
 	{
-		UProjectN_AbilitySystemLibrary::SetIsBlock(EffectContextHandle, bBlocked);
-		
-		// Result
-		const FGameplayModifierEvaluatedData EvaluatedData(UProjectN_AttributeSet::GetIncomingDamageAttribute(), EGameplayModOp::Override, 0);
-		OutExecutionOutput.AddOutputModifier(EvaluatedData);
-
-		return;
+		// Add coefficient from Strength
+		TotalPhysicalDamage = PhysicalDamageTypeValue + CapturedSourceStrength * 0.07f;
+		const float EffectiveArmor = CapturedTargetArmor *= (100 - CapturedSourceArmorPenetration * 0.25f) / 100.f;
+		TotalPhysicalDamage *= (100 - EffectiveArmor * 2.f) / 100.f;
 	}
+	if (MagicalDamageTypeValue)
+	{
+		// Add coefficient from Intelligence
+		TotalMagicalDamage = MagicalDamageTypeValue + CapturedSourceIntelligence * 1.2f;
+		const float EffectiveMagicArmor = CapturedTargetMagicalArmor *= (100 - (CapturedSourceIntelligence * 0.5f) * 0.25f) / 100.f;
+		TotalMagicalDamage *= (100 - EffectiveMagicArmor * 2.f) / 100.f;
+	}
+	
 	const bool bEvaded = FMath::RandRange(1, 100) < CapturedTargetEvasionChance;
 	if (bEvaded)
 	{
@@ -139,23 +160,32 @@ void UProjectN_ExecCalc_Damage_Physical::Execute_Implementation(const FGameplayE
 
 		return;
 	}
-
-	// Add coefficient from Strength
-	Damage += CapturedSourceStrength * 0.07f;
-	const float EffectiveArmor = CapturedTargetArmor *= (100 - CapturedSourceArmorPenetration * 0.25f) / 100.f;
-	Damage *= (100 - EffectiveArmor * 2.f) / 100.f;
-
+	
+	const bool bBlocked = FMath::RandRange(1, 100) < CapturedTargetBlockChance;
+	if (bBlocked && TotalPhysicalDamage)
+	{
+		TotalPhysicalDamage = 0;
+		UProjectN_AbilitySystemLibrary::SetIsBlock(EffectContextHandle, bBlocked);
+		
+		// Result
+		//const FGameplayModifierEvaluatedData EvaluatedData(UProjectN_AttributeSet::GetIncomingDamageAttribute(), EGameplayModOp::Override, TotalMagicalDamage);
+		//OutExecutionOutput.AddOutputModifier(EvaluatedData);
+		//return;
+	}
+	
+	float ResultDamage = TotalPhysicalDamage + TotalMagicalDamage;
+	
 	// Critical hit chance
 	const bool bCritical = FMath::RandRange(1, 100) < CapturedSourceCriticalHitChance;
 	if (bCritical)
 	{
 		UProjectN_AbilitySystemLibrary::SetIsCriticalHit(EffectContextHandle, bCritical);
-		const float CriticalHitDamage = Damage * (CapturedSourceCriticalHitDamage / 100.f);
-		Damage += CriticalHitDamage;
+		const float CriticalHitDamage = ResultDamage * (CapturedSourceCriticalHitDamage / 100.f);
+		ResultDamage += CriticalHitDamage;
 	}
 	
 	// Result
-	const FGameplayModifierEvaluatedData EvaluatedData(UProjectN_AttributeSet::GetIncomingDamageAttribute(), EGameplayModOp::Override, Damage);
+	const FGameplayModifierEvaluatedData EvaluatedData(UProjectN_AttributeSet::GetIncomingDamageAttribute(), EGameplayModOp::Override, ResultDamage);
 	OutExecutionOutput.AddOutputModifier(EvaluatedData);
 }
 

@@ -9,6 +9,7 @@
 #include "AbilitySystem/ProjectN_AbilitySystemComponent.h"
 #include "Components/ProjectN_DamageTextComponent.h"
 #include "Components/Input/ProjectN_InputComponent.h"
+#include "Kismet/KismetSystemLibrary.h"
 
 AProjectN_PlayerController::AProjectN_PlayerController()
 {
