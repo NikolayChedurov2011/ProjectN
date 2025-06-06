@@ -18,7 +18,7 @@ AProjectN_NPCBase::AProjectN_NPCBase(const FObjectInitializer& ObjectInitializer
 void AProjectN_NPCBase::BeginPlay()
 {
 	Super::BeginPlay();
-	
+
 	GetAbilitySystemComponent()->InitAbilityActorInfo(this, this);
 
 	InitAbilityActorInfo();

@@ -1,6 +1,5 @@
-Now damage calculation class process the physical and magical damage.
-Separate damage value and damage event message (blocked etc) in widget
-Implement use item in action bar
+Iteration for replace mixamo skeletal to ue4
+Iteration for procedural animation
 
 TODO: 
 
