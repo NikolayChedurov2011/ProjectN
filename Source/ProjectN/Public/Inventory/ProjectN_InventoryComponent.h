@@ -79,6 +79,8 @@ public:
 		return BagList.Bags[BagID].Slots[SlotIndex];
 	}
 
+	UFUNCTION(BlueprintCallable, BlueprintPure)
+	FORCEINLINE bool IsTwoHandedEquip() { return bIsTwoHandedEquip; }
 	
 	/*********************************
 	 *  Bag manage
@@ -95,6 +97,9 @@ public:
 	 *********************************/
 	UFUNCTION(Server, Reliable)
 	void ServerTryAddItem(const FName& ItemID, const EEntryType ItemType, const int32 Quantity);
+
+	UFUNCTION(Server, Reliable)
+	void ServerAddStackToItem(const int32 FromBagIndex, const int32 ToBagIndex, const int32 FromSlotIndex, const int32 ToSlotIndex, const int32 QuantityToAdd);
 	
 	UFUNCTION(Server, Reliable)
 	void ServerRemoveItem(const int32 FromBagIndex, const int32 FromSlotIndex);
@@ -148,6 +153,8 @@ protected:
 	const FWeaponItemDefinition* GetEquippedWeaponData(const EEquipSlot ItemSlot) const;
 	const FWeaponItemDefinition* GetWeaponData(const FName& ItemID) const;
 	const FItemDefinition* GetItemData(const FName& ItemID) const;
+
+	FORCEINLINE void SetIsTwoHandedEquip(bool bIsTwoHanded) { bIsTwoHandedEquip = bIsTwoHanded; }
 
 	/*********************************
 	 *  Bag manage
@@ -223,4 +230,7 @@ private:
 
 	TMap<EWeaponMode, FGrantedAbilityHandles> GrantedAbilityHandlesByMode;
 	TMap<EEquipSlot, FGrantedAbilityHandles> GrantedEffectHandlesByInstance;
+
+	UPROPERTY(Replicated)
+	bool bIsTwoHandedEquip = false;
 };

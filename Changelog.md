@@ -1,4 +1,4 @@
-Iteration animations
+Implement drop stack items
 
 TODO: 
 

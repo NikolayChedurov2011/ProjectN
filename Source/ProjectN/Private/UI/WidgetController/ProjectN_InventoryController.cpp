@@ -118,6 +118,11 @@ void UProjectN_InventoryController::TryAddItem(const FName ItemID, const EEntryT
 	InventoryComponent->ServerTryAddItem(ItemID, ItemType, Quantity);
 }
 
+void UProjectN_InventoryController::AddStackToItem(const int32 FromBagIndex, const int32 ToBagIndex, const int32 FromSlotIndex, const int32 ToSlotIndex, const int32 QuantityToAdd)
+{
+	InventoryComponent->ServerAddStackToItem(FromBagIndex, ToBagIndex, FromSlotIndex, ToSlotIndex, QuantityToAdd);
+}
+
 void UProjectN_InventoryController::RemoveItem(const int32 FromBagIndex, const int32 FromSlotIndex) const
 {
 	InventoryComponent->ServerRemoveItem(FromBagIndex, FromSlotIndex);
@@ -125,7 +130,7 @@ void UProjectN_InventoryController::RemoveItem(const int32 FromBagIndex, const i
 
 void UProjectN_InventoryController::ReplaceItemsInBag(const int32 FromBagIndex, const int32 ToBagIndex,	const int32 FromSlotIndex, const int32 ToSlotIndex) const
 {
-	InventoryComponent->ServerReplaceItemInBag(FromBagIndex, FromSlotIndex, ToBagIndex, ToSlotIndex);
+	InventoryComponent->ServerReplaceItemInBag(FromBagIndex, ToBagIndex, FromSlotIndex, ToSlotIndex);
 }
 
 

@@ -268,6 +268,69 @@ void UProjectN_InventoryComponent::ServerTryAddItem_Implementation(const FName& 
 	}
 }
 
+void UProjectN_InventoryComponent::ServerAddStackToItem_Implementation(const int32 FromBagIndex, const int32 ToBagIndex, const int32 FromSlotIndex, const int32 ToSlotIndex, const int32 QuantityToAdd)
+{
+	for (FBagData& Bag : BagList.Bags)
+	{
+		if (Bag.BagIndex == ToBagIndex)
+		{
+			for (FInventorySlotData& BagSlot : Bag.Slots)
+			{
+				if (BagSlot.SlotIndex == ToSlotIndex)
+				{
+					const FItemDefinition* ItemDef = GetItemData(BagSlot.ItemID);
+
+					if (ItemDef->MaxStack == BagSlot.Quantity)
+					{
+						ServerReplaceItemInBag(FromBagIndex, ToBagIndex, FromSlotIndex, ToSlotIndex);
+						return;
+					}
+					
+					if (ItemDef->MaxStack >= BagSlot.Quantity + QuantityToAdd)
+					{
+						BagSlot.Quantity += QuantityToAdd;
+						BagList.MarkItemDirty(Bag);
+
+						BroadcastSlotChange(BagSlot);
+
+						ServerRemoveItem(FromBagIndex, FromSlotIndex);
+						
+						return;
+					}
+					else
+					{
+						const int32 Remaining = QuantityToAdd - (ItemDef->MaxStack - BagSlot.Quantity);
+						BagSlot.Quantity = ItemDef->MaxStack;
+						BagList.MarkItemDirty(Bag);
+
+						BroadcastSlotChange(BagSlot);
+
+						// Set remaining back from slot we got drop
+						for (FBagData& FromBag : BagList.Bags)
+						{
+							if (FromBag.BagIndex == FromBagIndex)
+							{
+								for (FInventorySlotData& FromBagSlot : FromBag.Slots)
+								{
+									if (FromBagSlot.SlotIndex == FromSlotIndex)
+									{
+										FromBagSlot.Quantity = Remaining;
+										BagList.MarkItemDirty(FromBag);
+
+										BroadcastSlotChange(FromBagSlot);
+
+										return;
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+}
+
 bool UProjectN_InventoryComponent::TryAddItemToFirstFreeSlot(const FName& ItemID, const EEntryType ItemType, const int32 Quantity)
 {
 	for (FBagData& Bag : BagList.Bags)
@@ -316,6 +379,7 @@ void UProjectN_InventoryComponent::TryAddItemToStack(const FName& ItemID, const 
 						if (TotalQuantity <= ItemMaxStack)
 						{
 							Bag.Slots[i].Quantity = TotalQuantity;
+							BagList.MarkItemDirty(Bag);
 							
 							BroadcastSlotChange(Bag.Slots[i]);
 							
@@ -325,6 +389,7 @@ void UProjectN_InventoryComponent::TryAddItemToStack(const FName& ItemID, const 
 						{
 							Bag.Slots[i].Quantity = ItemMaxStack;
 							const int32 Remaining = ItemMaxStack - TotalQuantity;
+							BagList.MarkItemDirty(Bag);
 							
 							BroadcastSlotChange(Bag.Slots[i]);
 							
@@ -556,10 +621,12 @@ void UProjectN_InventoryComponent::ServerEquipItemToSlot_Implementation(const FN
 
 			UnEquipSlotAndReturnWeapon(EEquipSlot::MainArm);
 			UnEquipSlotAndReturnWeapon(EEquipSlot::AuxiliaryArm);
+			SetIsTwoHandedEquip(true);
 		}
 		else
 		{
 			UnEquipSlotAndReturnWeapon(EEquipSlot::TwoHand);
+			SetIsTwoHandedEquip(false);
 		}
 		
 		

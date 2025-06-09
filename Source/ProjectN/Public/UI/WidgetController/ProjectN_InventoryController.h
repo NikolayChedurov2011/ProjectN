@@ -36,6 +36,9 @@ public:
 	 *********************************/
 	UFUNCTION(BlueprintCallable)
 	void TryAddItem(const FName ItemID, const EEntryType ItemType, const int32 Quantity) const;
+
+	UFUNCTION(BlueprintCallable)
+	void AddStackToItem(const int32 FromBagIndex, const int32 ToBagIndex, const int32 FromSlotIndex, const int32 ToSlotIndex, const int32 QuantityToAdd);
 	
 	UFUNCTION(BlueprintCallable)
 	void RemoveItem(const int32 FromBagIndex, const int32 FromSlotIndex) const;
