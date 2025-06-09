@@ -1,5 +1,4 @@
-Iteration for replace mixamo skeletal to ue4
-Iteration for procedural animation
+Iteration animations
 
 TODO: 
 
