@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "ProjectN/ProjectNTypes.h"
 #include "UObject/Interface.h"
 #include "AvatarInfoInterface.generated.h"
 
@@ -29,4 +30,10 @@ public:
 
 	UFUNCTION(BlueprintNativeEvent)
 	FVector GetAvatarSocketLocation(const FName SocketName) const;
+
+	UFUNCTION(BlueprintNativeEvent)
+	FMovementData GetAvatarMovementData();
+
+	UFUNCTION(BlueprintNativeEvent)
+	void UpdateMovementSpeedMultiplier(const float NewMultiplier);
 };

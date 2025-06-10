@@ -44,7 +44,7 @@ public:
 protected:
 	virtual void InitAbilityActorInfo();
 	virtual void GiveStartupAbilitiesAndEffects();
-	void OnMaxMovementSpeedChanged(const FOnAttributeChangeData& Data) const;
+	void OnMovementSpeedChanged(const FOnAttributeChangeData& Data) const;
 
 	UPROPERTY(Transient)
 	TObjectPtr<UAttributeSet> ProjectN_AttributeSet = nullptr;

@@ -6,14 +6,24 @@
 #include "AbilitySystemBlueprintLibrary.h"
 #include "EnhancedInputSubsystems.h"
 #include "ProjectN_GameplayTags.h"
+#include "ProjectN_PlayerState.h"
 #include "AbilitySystem/ProjectN_AbilitySystemComponent.h"
+#include "AbilitySystem/Attribute/ProjectN_AttributeSet.h"
 #include "Components/ProjectN_DamageTextComponent.h"
 #include "Components/Input/ProjectN_InputComponent.h"
-#include "Kismet/KismetSystemLibrary.h"
+#include "GameFramework/Character.h"
+#include "GameFramework/CharacterMovementComponent.h"
+#include "Net/UnrealNetwork.h"
 
 AProjectN_PlayerController::AProjectN_PlayerController()
 {
 	bReplicates = true;
+}
+
+void AProjectN_PlayerController::GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+	DOREPLIFETIME(AProjectN_PlayerController, CurrentMovementMode);
 }
 
 void AProjectN_PlayerController::BeginPlay()
@@ -27,6 +37,13 @@ void AProjectN_PlayerController::BeginPlay()
 	//InputModeData.SetLockMouseToViewportBehavior(EMouseLockMode::DoNotLock);
 	//InputModeData.SetHideCursorDuringCapture(false);
 	//SetInputMode(InputModeData);
+}
+
+void AProjectN_PlayerController::OnPossess(APawn* aPawn)
+{
+	Super::OnPossess(aPawn);
+	
+	ClientInitMovementMode();
 }
 
 UProjectN_AbilitySystemComponent* AProjectN_PlayerController::GetAbilitySystemComponent()
@@ -58,6 +75,7 @@ void AProjectN_PlayerController::SetupInputComponent()
 	ProjectNInputComponent->BindNativeInputAction(InputConfig, ProjectNGameplayTags::Input_Look, ETriggerEvent::Triggered, this, &ThisClass::Input_Look);
 	ProjectNInputComponent->BindNativeInputAction(InputConfig, ProjectNGameplayTags::Input_Alt, ETriggerEvent::Started, this, &ThisClass::Input_AltPressed);
 	ProjectNInputComponent->BindNativeInputAction(InputConfig, ProjectNGameplayTags::Input_Alt, ETriggerEvent::Completed, this, &ThisClass::Input_AltReleased);
+	ProjectNInputComponent->BindNativeInputAction(InputConfig, ProjectNGameplayTags::Input_MovementMode, ETriggerEvent::Started, this, &ThisClass::Input_MovementMode);
 	ProjectNInputComponent->BindAbilityActions(InputConfig, this, &ThisClass::OnActionPressed, &ThisClass::OnActionReleased, &ThisClass::OnActionHeld);
 }
 
@@ -172,6 +190,45 @@ void AProjectN_PlayerController::Input_AltReleased(const FInputActionValue& Acti
 	SetShowMouseCursor(false);
 }
 
+void AProjectN_PlayerController::Input_MovementMode(const FInputActionValue& ActionValue)
+{
+	if (CurrentMovementMode == EMovementState::Run)
+	{
+		SetMovementData(EMovementState::Crouch);
+		ServerSetMovementData(EMovementState::Crouch);
+		return;
+	}
+	
+	SetMovementData(EMovementState::Run);
+	ServerSetMovementData(EMovementState::Run);
+}
+
+void AProjectN_PlayerController::ClientInitMovementMode_Implementation()
+{
+	SetMovementData(CurrentMovementMode);
+}
+
+void AProjectN_PlayerController::ServerSetMovementData_Implementation(const EMovementState NewMovementState)
+{
+	SetMovementData(NewMovementState);
+}
+
+void AProjectN_PlayerController::SetMovementData(const EMovementState NewMovementState)
+{
+	CurrentMovementMode = NewMovementState;
+
+	ACharacter* OwningCharacter = Cast<ACharacter>(GetPawn());
+	if (OwningCharacter && MovementDataMap.Find(CurrentMovementMode))
+	{
+		OwningCharacter->GetCharacterMovement()->MaxWalkSpeed = MovementDataMap.Find(CurrentMovementMode)->MaxWalkSpeed * CurrentMovementSpeedMultiplier;
+		OwningCharacter->GetCharacterMovement()->MaxAcceleration = MovementDataMap.Find(CurrentMovementMode)->MaxAcceleration;
+		OwningCharacter->GetCharacterMovement()->BrakingDecelerationWalking = MovementDataMap.Find(CurrentMovementMode)->BrakingDeceleration;
+		OwningCharacter->GetCharacterMovement()->BrakingFrictionFactor = MovementDataMap.Find(CurrentMovementMode)->BrakingFrictionFactor;
+		OwningCharacter->GetCharacterMovement()->BrakingFriction = MovementDataMap.Find(CurrentMovementMode)->BrakingFriction;
+		OwningCharacter->GetCharacterMovement()->bUseSeparateBrakingFriction = MovementDataMap.Find(CurrentMovementMode)->bUseSeparateBrakingFriction;
+	}
+}
+
 void AProjectN_PlayerController::ShowDamageNumber_Implementation(const float Damage, AActor* Target, const bool bBlocked, const bool bCriticalHit, const bool bEvaded)
 {
 	if (!IsValid(Target) || !DamageTextComponentClass && IsLocalController())
@@ -184,4 +241,17 @@ void AProjectN_PlayerController::ShowDamageNumber_Implementation(const float Dam
 	DamageTextComponent->AttachToComponent(Target->GetRootComponent(), FAttachmentTransformRules::KeepRelativeTransform);
 	DamageTextComponent->DetachFromComponent(FDetachmentTransformRules::KeepWorldTransform);
 	DamageTextComponent->SetDamageText(Damage, bBlocked, bCriticalHit, bEvaded);
+}
+
+/*************************
+*  Avatar Actor Interface
+**************************/
+FMovementData AProjectN_PlayerController::GetAvatarMovementData_Implementation()
+{
+	return *MovementDataMap.Find(CurrentMovementMode);
+}
+
+void AProjectN_PlayerController::UpdateMovementSpeedMultiplier_Implementation(const float NewMultiplier)
+{
+	CurrentMovementSpeedMultiplier = NewMultiplier;
 }

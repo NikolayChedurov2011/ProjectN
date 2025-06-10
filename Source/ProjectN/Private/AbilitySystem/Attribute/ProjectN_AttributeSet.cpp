@@ -13,7 +13,6 @@
 #include "Interfaces/CombatInterface.h"
 #include "Interfaces/NPCInterface.h"
 #include "Interfaces/PlayerInterface.h"
-#include "Kismet/GameplayStatics.h"
 #include "Net/UnrealNetwork.h"
 
 UProjectN_AttributeSet::UProjectN_AttributeSet()
@@ -34,7 +33,7 @@ UProjectN_AttributeSet::UProjectN_AttributeSet()
 	//TagsToAttribute.Add(ProjectNGameplayTags::Attribute_Main_Poise, GetPoiseAttribute());
 	//TagsToAttribute.Add(ProjectNGameplayTags::Attribute_Main_MaxPoise, GetMaxPoiseAttribute());
 	
-	TagsToAttribute.Add(ProjectNGameplayTags::Attribute_Main_MovementSpeed, GetMovementSpeedAttribute());
+	TagsToAttribute.Add(ProjectNGameplayTags::Attribute_Main_MovementSpeed, GetMovementSpeedMultiplierAttribute());
 	//TagsToAttribute.Add(ProjectNGameplayTags::Attribute_Main_MaxMovementSpeed, GetMaxMovementSpeedAttribute());
 	TagsToAttribute.Add(ProjectNGameplayTags::Attribute_Main_EquipmentWeight, GetEquipmentWeightAttribute());
 	TagsToAttribute.Add(ProjectNGameplayTags::Attribute_Main_MaxCarryingCapacity, GetMaxCarryingCapacityAttribute());
@@ -99,8 +98,8 @@ void UProjectN_AttributeSet::GetLifetimeReplicatedProps(TArray<class FLifetimePr
 	//DOREPLIFETIME_CONDITION_NOTIFY(UProjectN_AttributeSet, MaxStamina, COND_None, REPNOTIFY_Always);
 	//DOREPLIFETIME_CONDITION_NOTIFY(UProjectN_AttributeSet, Poise, COND_None, REPNOTIFY_Always);
 	//DOREPLIFETIME_CONDITION_NOTIFY(UProjectN_AttributeSet, MaxPoise, COND_None, REPNOTIFY_Always);
-	DOREPLIFETIME_CONDITION_NOTIFY(UProjectN_AttributeSet, MovementSpeed, COND_None, REPNOTIFY_Always);
-	DOREPLIFETIME_CONDITION_NOTIFY(UProjectN_AttributeSet, MaxMovementSpeed, COND_None, REPNOTIFY_Always);
+	DOREPLIFETIME_CONDITION_NOTIFY(UProjectN_AttributeSet, MovementSpeedMultiplier, COND_None, REPNOTIFY_Always);
+	//DOREPLIFETIME_CONDITION_NOTIFY(UProjectN_AttributeSet, MaxMovementSpeed, COND_None, REPNOTIFY_Always);
 	DOREPLIFETIME_CONDITION_NOTIFY(UProjectN_AttributeSet, EquipmentWeight, COND_None, REPNOTIFY_Always);
 	DOREPLIFETIME_CONDITION_NOTIFY(UProjectN_AttributeSet, MaxCarryingCapacity, COND_None, REPNOTIFY_Always);
 
@@ -132,9 +131,9 @@ void UProjectN_AttributeSet::PostGameplayEffectExecute(const struct FGameplayEff
 	{
 		SetMana(FMath::Clamp(GetMana(), 0.f, GetMaxMana()));
 	}
-	if (Data.EvaluatedData.Attribute == GetMovementSpeedAttribute())
+	if (Data.EvaluatedData.Attribute == GetMovementSpeedMultiplierAttribute())
 	{
-		SetMovementSpeed(FMath::Clamp(GetMovementSpeed(), 0.f, GetMaxMovementSpeed()));
+		SetMovementSpeedMultiplier(FMath::Max(GetMovementSpeedMultiplier(), 0.f));
 	}
 	if (Data.EvaluatedData.Attribute == GetEquipmentWeightAttribute())
 	{
@@ -364,13 +363,9 @@ void UProjectN_AttributeSet::OnRep_MaxPoise(const FGameplayAttributeData& OldMax
 	GAMEPLAYATTRIBUTE_REPNOTIFY(UProjectN_AttributeSet, MaxPoise, OldMaxPoise);
 }*/
 
-void UProjectN_AttributeSet::OnRep_MovementSpeed(const FGameplayAttributeData& OldMovementSpeed)
+void UProjectN_AttributeSet::OnRep_MovementSpeedMultiplier(const FGameplayAttributeData& OldMovementSpeedMultiplier)
 {
-	GAMEPLAYATTRIBUTE_REPNOTIFY(UProjectN_AttributeSet, MovementSpeed, OldMovementSpeed);
-}
-void UProjectN_AttributeSet::OnRep_MaxMovementSpeed(const FGameplayAttributeData& OldMaxMovementSpeed)
-{
-	GAMEPLAYATTRIBUTE_REPNOTIFY(UProjectN_AttributeSet, MaxMovementSpeed, OldMaxMovementSpeed);
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UProjectN_AttributeSet, MovementSpeedMultiplier, OldMovementSpeedMultiplier);
 }
 
 void UProjectN_AttributeSet::OnRep_EquipmentWeight(const FGameplayAttributeData& OldEquipmentWeight)

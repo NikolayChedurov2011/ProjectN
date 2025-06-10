@@ -6,9 +6,6 @@
 #include "Animation/AnimInstance.h"
 #include "ProjectN_AnimInstance.generated.h"
 
-/**
- * 
- */
 UCLASS()
 class PROJECTN_API UProjectN_AnimInstance : public UAnimInstance
 {

@@ -40,6 +40,7 @@ void UProjectN_InventoryComponent::InitializeComponent()
 		InitBags();
 		// TODO: Load Items
 	}
+	ClientResetAnimInstance();
 }
 /************************************************************************************************
  ************************************************************************************************/
@@ -622,11 +623,15 @@ void UProjectN_InventoryComponent::ServerEquipItemToSlot_Implementation(const FN
 			UnEquipSlotAndReturnWeapon(EEquipSlot::MainArm);
 			UnEquipSlotAndReturnWeapon(EEquipSlot::AuxiliaryArm);
 			SetIsTwoHandedEquip(true);
+
+			ClientUseNewAnimInstance(ItemID);
 		}
 		else
 		{
 			UnEquipSlotAndReturnWeapon(EEquipSlot::TwoHand);
 			SetIsTwoHandedEquip(false);
+
+			ClientResetAnimInstance();
 		}
 		
 		
@@ -703,6 +708,27 @@ AActor* UProjectN_InventoryComponent::SpawnItemActor(const FName& ItemID, const 
 		}
 	}
 	return nullptr;
+}
+
+void UProjectN_InventoryComponent::ClientUseNewAnimInstance_Implementation(const FName& ItemID)
+{
+	if (const FWeaponItemDefinition* WeaponItemDef = GetWeaponData(ItemID))
+	{
+		SetAnimInstance(WeaponItemDef->TwoHandedAnimInstance);
+	}
+}
+
+void UProjectN_InventoryComponent::ClientResetAnimInstance_Implementation()
+{
+	SetAnimInstance(DefaultAnimInstance);
+}
+
+void UProjectN_InventoryComponent::SetAnimInstance(const TSubclassOf<UAnimInstance>& AnimInstance) const
+{
+	if (const AProjectN_CharacterBase* BaseCharacter = Cast<AProjectN_CharacterBase>(Cast<APlayerState>(GetOwner())->GetPawn()))
+	{
+		BaseCharacter->GetMesh()->LinkAnimClassLayers(AnimInstance);
+	}
 }
 
 void UProjectN_InventoryComponent::ServerUnEquipSlot_Implementation(const EEquipSlot Slot)

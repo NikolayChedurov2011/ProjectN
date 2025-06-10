@@ -510,10 +510,10 @@ struct FItemDefinition : public FEntryDefinition
 	bool bShouldDestroyAfterUse = false;
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	TSubclassOf<UGameplayAbility> UseItemAbility;
+	TSubclassOf<UGameplayAbility> UseItemAbility = nullptr;;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	TSubclassOf<UGameplayEffect> UseItemEffect;
+	TSubclassOf<UGameplayEffect> UseItemEffect = nullptr;;
 };
 
 USTRUCT(BlueprintType, Blueprintable)
@@ -539,7 +539,7 @@ struct FEquippableItemDefinition : public FItemDefinition
 	TMap<FGameplayTag, float> ItemBonusAttributes;
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	TSubclassOf<AProjectN_ItemActor_Base> ItemActorClass;
+	TSubclassOf<AProjectN_ItemActor_Base> ItemActorClass = nullptr;;
 };
 
 USTRUCT(BlueprintType, Blueprintable)
@@ -563,6 +563,9 @@ struct FWeaponItemDefinition : public FEquippableItemDefinition
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	TMap<FGameplayTag, float> WeaponDamageTypes;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	TSubclassOf<UAnimInstance> TwoHandedAnimInstance = nullptr;
 };
 
 
@@ -705,4 +708,37 @@ struct FAbilitySlotData : public FFastArraySerializerItem
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	UTexture2D* ItemIcon = nullptr;
+};
+
+UENUM(BlueprintType)
+enum class EMovementState : uint8
+{
+	None		UMETA(DisplayName = "None"),
+	Run			UMETA(DisplayName = "Run"),
+	Walk		UMETA(DisplayName = "Walk"),
+	Crouch		UMETA(DisplayName = "Crouch"),
+};
+
+USTRUCT(BlueprintType, Blueprintable)
+struct FMovementData
+{
+	GENERATED_BODY()
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	float MaxWalkSpeed = 0.f;
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	float MaxAcceleration = 0.f;
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	float BrakingDeceleration = 0.f;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	float BrakingFrictionFactor = 0.f;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	float BrakingFriction = 0.f;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	bool bUseSeparateBrakingFriction = false;
 };

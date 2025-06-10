@@ -140,13 +140,9 @@ public:
 	FGameplayAttributeData MaxPoise;
 	ATTRIBUTE_ACCESSORS(UProjectN_AttributeSet, MaxPoise)*/
 	
-	UPROPERTY(BlueprintReadOnly, Category = "MovementSpeed", ReplicatedUsing = OnRep_MovementSpeed)
-	FGameplayAttributeData MovementSpeed;
-	ATTRIBUTE_ACCESSORS(UProjectN_AttributeSet, MovementSpeed)
-
-	UPROPERTY(BlueprintReadOnly, Category = "MovementSpeed", ReplicatedUsing = OnRep_MaxMovementSpeed)
-	FGameplayAttributeData MaxMovementSpeed;
-	ATTRIBUTE_ACCESSORS(UProjectN_AttributeSet, MaxMovementSpeed)
+	UPROPERTY(BlueprintReadOnly, Category = "MovementSpeed", ReplicatedUsing = OnRep_MovementSpeedMultiplier)
+	FGameplayAttributeData MovementSpeedMultiplier;
+	ATTRIBUTE_ACCESSORS(UProjectN_AttributeSet, MovementSpeedMultiplier)
 
 	UPROPERTY(BlueprintReadOnly, Category = "EquipmentWeight", ReplicatedUsing = OnRep_EquipmentWeight)
 	FGameplayAttributeData EquipmentWeight;
@@ -236,10 +232,10 @@ protected:
 	virtual void OnRep_Poise(const FGameplayAttributeData& OldPoise);
 	UFUNCTION()
 	virtual void OnRep_MaxPoise(const FGameplayAttributeData& OldMaxPoise);*/
+	//UFUNCTION()
+	//virtual void OnRep_MaxMovementSpeed(const FGameplayAttributeData& OldMaxMovementSpeed);
 	UFUNCTION()
-	virtual void OnRep_MaxMovementSpeed(const FGameplayAttributeData& OldMaxMovementSpeed);
-	UFUNCTION()
-	virtual void OnRep_MovementSpeed(const FGameplayAttributeData& OldMovementSpeed);
+	virtual void OnRep_MovementSpeedMultiplier(const FGameplayAttributeData& OldMovementSpeedMultiplier);
 
 	UFUNCTION()
 	virtual void OnRep_EquipmentWeight(const FGameplayAttributeData& OldEquipmentWeight);

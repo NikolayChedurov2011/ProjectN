@@ -1,6 +1,6 @@
 {
 	"FileVersion": 3,
-	"EngineAssociation": "{5DF23219-4513-D2E5-4C4B-F9A8B58FE9CB}",
+	"EngineAssociation": "{56E8F963-4066-0FA4-48B7-36B73C3BCA6F}",
 	"Category": "",
 	"Description": "",
 	"Modules": [
@@ -37,6 +37,18 @@
 		},
 		{
 			"Name": "NiagaraFluids",
+			"Enabled": true
+		},
+		{
+			"Name": "AnimationWarping",
+			"Enabled": true
+		},
+		{
+			"Name": "MotionWarping",
+			"Enabled": true
+		},
+		{
+			"Name": "AnimationLocomotionLibrary",
 			"Enabled": true
 		}
 	]

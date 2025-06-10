@@ -1,4 +1,11 @@
-Implement drop stack items
+Remove MaxMovementSpeedAttribure.
+Rename MovementSpeedAttribure to MovementSpeedMultiplier.
+Implement data for movement mode with params for movement component.
+Changed math for MMC MovementSpeedMultiplier.
+Changed calculation in base character for MovementSpeed when MovementSpeedMultiplier changed
+Update movement data(walk, run) in controller with MovementSpeedMultiplier
+
+Implement run and walk animation for unarmed and twohanded abp
 
 TODO: 
 

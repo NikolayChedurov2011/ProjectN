@@ -16,6 +16,7 @@ namespace ProjectNGameplayTags
 	UE_DEFINE_GAMEPLAY_TAG(Input_LMB,						"Input.LMB")
 	UE_DEFINE_GAMEPLAY_TAG(Input_Sprint,					"Input.Sprint")
 	UE_DEFINE_GAMEPLAY_TAG(Input_Alt,						"Input.Alt")
+	UE_DEFINE_GAMEPLAY_TAG(Input_MovementMode,				"Input.MovementMode")
 	UE_DEFINE_GAMEPLAY_TAG(Input_Crouch,					"Input.Crouch")
 	UE_DEFINE_GAMEPLAY_TAG(Input_Jump,						"Input.Jump")
 	UE_DEFINE_GAMEPLAY_TAG(Input_Map,						"Input.Map")

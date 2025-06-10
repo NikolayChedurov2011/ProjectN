@@ -172,6 +172,12 @@ protected:
 	 *********************************/
 	AActor* SpawnItemActor(const FName& ItemID, const EEntryType ItemType, const EEquipSlot EItemSlot, AActor* Owner) const;
 
+	UFUNCTION(Client, Reliable)
+	void ClientUseNewAnimInstance(const FName& ItemID);
+
+	UFUNCTION(Client, Reliable)
+	void ClientResetAnimInstance();
+	void SetAnimInstance(const TSubclassOf<UAnimInstance>& AnimInstance) const;
 
 	/*********************************
 	 *  Abilities and stats managing
@@ -227,6 +233,9 @@ private:
 	
 	UPROPERTY(EditDefaultsOnly, meta=(AllowPrivateAccess), Category="Items Data Table")
 	TSoftObjectPtr<UDataTable> BagDataTable;
+
+	UPROPERTY(EditDefaultsOnly, meta=(AllowPrivateAccess), Category="Animation Data")
+	TSubclassOf<UAnimInstance> DefaultAnimInstance = nullptr;
 
 	TMap<EWeaponMode, FGrantedAbilityHandles> GrantedAbilityHandlesByMode;
 	TMap<EEquipSlot, FGrantedAbilityHandles> GrantedEffectHandlesByInstance;
