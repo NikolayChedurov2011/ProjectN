@@ -8,11 +8,13 @@
 
 class UProjectN_AbilitySystemComponent;
 struct FProjectNAttributeSaveInfo;
+struct FTagValueData;
 
 DECLARE_MULTICAST_DELEGATE_OneParam(FEffectAssetTagsSignature, const FGameplayTagContainer& /* AssetTags */)
 DECLARE_MULTICAST_DELEGATE_OneParam(FAbilitiesGivenSignature, UProjectN_AbilitySystemComponent* /* ProjectN_AbilitySystemComponent */)
 DECLARE_DELEGATE_OneParam(FForEachAbilitySignature, const FGameplayAbilitySpec& /* GameplayAbilitySpec */)
 DECLARE_DELEGATE_OneParam(FInputTagTriggeredSignature, const FGameplayTag /* InputTag */)
+DECLARE_DELEGATE_TwoParams(FOnNewCooldownSignature, const FGameplayTag /* CooldownTag */, const float /* RemainingValue */)
 
 UCLASS()
 class PROJECTN_API UProjectN_AbilitySystemComponent : public UAbilitySystemComponent
@@ -26,13 +28,20 @@ public:
 	FEffectAssetTagsSignature EffectAssetTags;
 	FAbilitiesGivenSignature AbilitiesGiven;
 	FInputTagTriggeredSignature InputTagTriggered;
+	FOnNewCooldownSignature OnNewCooldown;
 
 	UFUNCTION(BlueprintCallable)
 	FGameplayAbilitySpecHandle AddAbility(const TSubclassOf<UGameplayAbility> DefaultAbility, const FGameplayTag& InputTag = FGameplayTag());
 	UFUNCTION(Server, Reliable)
-	void ServerAddAbility(TSubclassOf<UGameplayAbility> DefaultAbility, const FGameplayTag& InputTag = FGameplayTag());
+	void ServerAddAbility(TSubclassOf<UGameplayAbility> DefaultAbility, const FGameplayTag& InputTag = FGameplayTag(), const FGameplayTag& CooldownTag = FGameplayTag());
+	UFUNCTION(Client, Reliable)
+	void ClientAddCooldownTag(const FGameplayTag& InputTag = FGameplayTag(), const FGameplayTag& CooldownTag = FGameplayTag());
+	UFUNCTION(Client, Reliable)
+	void ClientRemoveCooldownTag(const FGameplayTag& InputTag = FGameplayTag());
 	UFUNCTION(Server, Reliable)
 	void ServerRemoveAbility(const FGameplayTag& InputTag = FGameplayTag());
+	UFUNCTION(Server, Reliable)
+	void ServerBroadcastCooldown(const FGameplayTag& CooldownTag = FGameplayTag());
 	FActiveGameplayEffectHandle ApplyGamePlayEffectToSelf_Internal(const TSubclassOf<UGameplayEffect> Effect, const FGameplayEffectContextHandle& InEffectContext, const float Level);
 	FGameplayAbilitySpecHandle AddPassiveAbility(const TSubclassOf<UGameplayAbility> DefaultAbility, const FGameplayTag& InputTag = FGameplayTag());
 
@@ -41,14 +50,17 @@ public:
 	void OnActionReleased(const FGameplayTag& InputTag);
 
 	UFUNCTION(Server, Reliable)
+	void ServerTryActivateActionBarAbility(TSubclassOf<UGameplayAbility> UseItemAbility, const FGameplayTag& CooldownTag);
+	bool TryActivateActionBarAbility(TSubclassOf<UGameplayAbility> UseItemAbility, const FGameplayTag& CooldownTag);
+
+	UFUNCTION(Server, Reliable)
 	void ServerAddToAttributeByTag(const FGameplayTag& AttributeTag, const float Value);
-	void SendGameplayEventForAttributeWithTag(const FGameplayTag& AttributeTag, const float Value = 0.f) const;
-	
-	void ForEachAbility(const FForEachAbilitySignature& Delegate);
-	static FGameplayTag GetAbilityTagFromSpec(const FGameplayAbilitySpec& AbilitySpec);
-	static FGameplayTag GetInputTagFromSpec(const FGameplayAbilitySpec& AbilitySpec);
 
 	bool bIsAbilityAdded = false;
+
+	UFUNCTION(Client, Reliable)
+	void ClientBroadcastCooldown(const FGameplayTag CooldownTag, const float CooldownRemaining);
+	float FindCooldownRemaining(const FGameplayTag CooldownTag) const;
 	
 protected:
 
@@ -60,4 +72,6 @@ protected:
 
 private:
 	bool bFindAbility = false;
+
+	TMap<FGameplayTag, FGameplayTag> CooldownTags;
 };

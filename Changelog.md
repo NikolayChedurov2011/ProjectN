@@ -1,24 +1,19 @@
-Remove MaxMovementSpeedAttribure.
-Rename MovementSpeedAttribure to MovementSpeedMultiplier.
-Implement data for movement mode with params for movement component.
-Changed math for MMC MovementSpeedMultiplier.
-Changed calculation in base character for MovementSpeed when MovementSpeedMultiplier changed
-Update movement data(walk, run) in controller with MovementSpeedMultiplier
-
-Implement run and walk animation for unarmed and twohanded abp
+Refactor all items concept
+Now we can set up ability cost and cooldown in data asset, this will work and we can see it in action bar slot
 
 TODO: 
 
-COOLDOWN
+make ability book more beautiful
+
+maybe concept not "item weight" but the item that slowdown the player's movement" to remove weight?
+
 Combo
 Ability requirement
 Load Items
 Load Action slots
 Warn if item was added or not
-Warn if item being destroy
-Apply modifiers or defense for each damage type
 
-Action bar and consumable items
+Левая рука - защитные способности, правая - атакующие
 
 Try best modifiers for crit damage
 
@@ -38,9 +33,6 @@ Abilities relationship
 
 Setup tags to block other abilities
 Stop movement when attack
-Calc damage type defense and multiply
-Setup physical calculation and MAGIC
-UI for inventory and equipping
 Target lock system and spawn projectiles to this direction
 Animation system
 

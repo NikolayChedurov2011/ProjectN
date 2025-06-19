@@ -4,7 +4,6 @@
 #include "AbilitySystem/ProjectN_AbilitySystemComponent.h"
 
 #include "AbilitySystemBlueprintLibrary.h"
-#include "ProjectN_GameplayTags.h"
 #include "AbilitySystem/Ability/ProjectN_GameplayAbilityBase.h"
 #include "AbilitySystem/Attribute/ProjectN_AttributeSet.h"
 
@@ -25,16 +24,12 @@ FGameplayAbilitySpecHandle UProjectN_AbilitySystemComponent::AddAbility(const TS
 {
 	if (IsValid(DefaultAbility))
 	{
-		//bIsAbilityAdded = true;
-		
 		FGameplayAbilitySpec AbilitySpec = FGameplayAbilitySpec(DefaultAbility, 1.f);
 		if (const UProjectN_GameplayAbilityBase* ProjectN_Ability = Cast<UProjectN_GameplayAbilityBase>(AbilitySpec.Ability))
 		{
 			AbilitySpec.DynamicAbilityTags.AddTag(InputTag.IsValid()? InputTag : ProjectN_Ability->GetStartupTag());
-			//AbilitiesGiven.Broadcast(this);
 			return GiveAbility(AbilitySpec);
 		}
-		//AbilitiesGiven.Broadcast(this);
 		return GiveAbility(AbilitySpec);
 		
 	}
@@ -42,9 +37,10 @@ FGameplayAbilitySpecHandle UProjectN_AbilitySystemComponent::AddAbility(const TS
 	return EmptyGameplayAbilitySpecHandle;
 }
 
-void UProjectN_AbilitySystemComponent::ServerAddAbility_Implementation(TSubclassOf<UGameplayAbility> DefaultAbility, const FGameplayTag& InputTag)
+void UProjectN_AbilitySystemComponent::ServerAddAbility_Implementation(TSubclassOf<UGameplayAbility> DefaultAbility, const FGameplayTag& InputTag, const FGameplayTag& CooldownTag)
 {
 	AddAbility(DefaultAbility, InputTag);
+	ClientAddCooldownTag(InputTag, CooldownTag);
 }
 
 void UProjectN_AbilitySystemComponent::ServerRemoveAbility_Implementation(const FGameplayTag& InputTag)
@@ -56,6 +52,7 @@ void UProjectN_AbilitySystemComponent::ServerRemoveAbility_Implementation(const 
 		if (AbilitySpec.DynamicAbilityTags.HasTagExact(InputTag))
 		{
 			ClearAbility(AbilitySpec.Handle);
+			ClientRemoveCooldownTag(InputTag);			
 		}
 	}
 }
@@ -110,12 +107,10 @@ void UProjectN_AbilitySystemComponent::OnActionPressed(const FGameplayTag& Input
 			bFindAbility = true;
 		}
 	}
-
 	if (!bFindAbility)
 	{
 		InputTagTriggered.ExecuteIfBound(InputTag);
 	}
-
 	bFindAbility = false;
 }
 
@@ -133,10 +128,25 @@ void UProjectN_AbilitySystemComponent::OnActionHeld(const FGameplayTag& InputTag
 			AbilitySpecInputPressed(AbilitySpec);
 			if (!AbilitySpec.IsActive())
 			{
-				TryActivateAbility(AbilitySpec.Handle);
+				if (TryActivateAbility(AbilitySpec.Handle))
+				{
+					for (TTuple<FGameplayTag, FGameplayTag>& Tag : CooldownTags)
+					{
+						if (Tag.Key == InputTag)
+						{
+							ServerBroadcastCooldown(*CooldownTags.Find(InputTag));
+						}
+					}
+				}
 			}
 		}
 	}
+}
+
+void UProjectN_AbilitySystemComponent::ServerBroadcastCooldown_Implementation(const FGameplayTag& CooldownTag)
+{
+	const float CooldownRemaining = FindCooldownRemaining(CooldownTag);
+	ClientBroadcastCooldown(CooldownTag, CooldownRemaining);
 }
 
 void UProjectN_AbilitySystemComponent::OnActionReleased(const FGameplayTag& InputTag)
@@ -156,12 +166,52 @@ void UProjectN_AbilitySystemComponent::OnActionReleased(const FGameplayTag& Inpu
 	}
 }
 
-// Use to ADD value to attribute
-void UProjectN_AbilitySystemComponent::SendGameplayEventForAttributeWithTag(const FGameplayTag& AttributeTag, const float Value) const
+bool UProjectN_AbilitySystemComponent::TryActivateActionBarAbility(TSubclassOf<UGameplayAbility> UseItemAbility, const FGameplayTag& CooldownTag)
 {
+	FGameplayAbilitySpec AbilitySpec = FGameplayAbilitySpec(UseItemAbility, 1.f);
 	
+	if (GiveAbilityAndActivateOnce(AbilitySpec).IsValid())
+	{		
+		const float CooldownRemaining = FindCooldownRemaining(CooldownTag);
+		ClientBroadcastCooldown(CooldownTag, CooldownRemaining);
+
+		return true;
+	}
+
+	return false;
 }
 
+void UProjectN_AbilitySystemComponent::ServerTryActivateActionBarAbility_Implementation(TSubclassOf<UGameplayAbility> UseItemAbility, const FGameplayTag& CooldownTag)
+{
+	TryActivateActionBarAbility(UseItemAbility, CooldownTag);
+}
+
+void UProjectN_AbilitySystemComponent::ClientBroadcastCooldown_Implementation(const FGameplayTag CooldownTag, const float CooldownRemaining)
+{
+	OnNewCooldown.ExecuteIfBound(CooldownTag, CooldownRemaining);
+}
+
+float UProjectN_AbilitySystemComponent::FindCooldownRemaining(const FGameplayTag CooldownTag) const
+{
+	const FGameplayEffectQuery ActiveGameplayEffectQuery = FGameplayEffectQuery::MakeQuery_MatchAnyOwningTags(CooldownTag.GetSingleTagContainer());
+	TArray<float> TimesRemaining = GetActiveEffectsTimeRemaining(ActiveGameplayEffectQuery);
+	if (TimesRemaining.Num())
+	{
+		float TimeRemaining = TimesRemaining[0];
+
+		for (int32 i = 0; i < TimesRemaining.Num(); i++)
+		{
+			if (TimesRemaining[i] > TimeRemaining)
+			{
+				TimeRemaining = TimesRemaining[i];
+			}
+		}
+		return TimeRemaining;
+	}
+	return 0.f;
+}
+
+// Use to ADD value to attribute
 void UProjectN_AbilitySystemComponent::ServerAddToAttributeByTag_Implementation(const FGameplayTag& AttributeTag, const float Value)
 {
 	//SendGameplayEventForAttributeWithTag(AttributeTag, Value);
@@ -174,53 +224,20 @@ void UProjectN_AbilitySystemComponent::ServerAddToAttributeByTag_Implementation(
 	//ProjectNPlayerState->AddToAttributePoints(-Value);
 }
 
-void UProjectN_AbilitySystemComponent::ForEachAbility(const FForEachAbilitySignature& Delegate)
-{
-	FScopedAbilityListLock ActiveScopeLock(*this);
-	
-	for (const FGameplayAbilitySpec& AbilitySpec : GetActivatableAbilities())
-	{
-		if (!Delegate.ExecuteIfBound(AbilitySpec))
-		{
-			//TODO: Log failed execute delegate %hs __FUNCTION__
-		}
-	}
-}
-
-FGameplayTag UProjectN_AbilitySystemComponent::GetAbilityTagFromSpec(const FGameplayAbilitySpec& AbilitySpec)
-{
-	if (AbilitySpec.Ability)
-	{
-		for (FGameplayTag Tag : AbilitySpec.Ability.Get()->AbilityTags)
-		{
-			if (Tag.MatchesTag(ProjectNGameplayTags::Ability))
-			{
-				return Tag;
-			}
-		}
-	}
-	return FGameplayTag();
-}
-
-FGameplayTag UProjectN_AbilitySystemComponent::GetInputTagFromSpec(const FGameplayAbilitySpec& AbilitySpec)
-{
-	if (AbilitySpec.Ability)
-	{
-		for (FGameplayTag Tag : AbilitySpec.DynamicAbilityTags)
-		{
-			if (Tag.MatchesTag(ProjectNGameplayTags::Input))
-			{
-				return Tag;
-			}
-		}
-	}
-	return FGameplayTag();
-}
-
 void UProjectN_AbilitySystemComponent::OnRep_ActivateAbilities()
 {
 	Super::OnRep_ActivateAbilities();
 
 	bIsAbilityAdded = true;
 	AbilitiesGiven.Broadcast(this);
+}
+
+void UProjectN_AbilitySystemComponent::ClientAddCooldownTag_Implementation(const FGameplayTag& InputTag, const FGameplayTag& CooldownTag)
+{
+	CooldownTags.Add(InputTag, CooldownTag);
+}
+
+void UProjectN_AbilitySystemComponent::ClientRemoveCooldownTag_Implementation(const FGameplayTag& InputTag)
+{
+	CooldownTags.FindAndRemoveChecked(InputTag);
 }

@@ -6,9 +6,6 @@
 #include "Blueprint/UserWidget.h"
 #include "ProjectN_WidgetBase.generated.h"
 
-/**
- * 
- */
 UCLASS()
 class PROJECTN_API UProjectN_WidgetBase : public UUserWidget
 {

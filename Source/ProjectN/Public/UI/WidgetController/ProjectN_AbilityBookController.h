@@ -7,9 +7,8 @@
 #include "UI/WidgetController/ProjectN_WidgetControllerBase.h"
 #include "ProjectN_AbilityBookController.generated.h"
 
-struct FGameplayTag;
-
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnUpdateAbilitySlotSignature, const FAbilitySlotData, AbilitySlotInfo);
+class UProjectN_AbilityBookWidget;
+class UProjectN_ActionBartWidget;
 
 UCLASS(Blueprintable, BlueprintType)
 class PROJECTN_API UProjectN_AbilityBookController : public UProjectN_WidgetControllerBase
@@ -17,25 +16,26 @@ class PROJECTN_API UProjectN_AbilityBookController : public UProjectN_WidgetCont
 	GENERATED_BODY()
 
 public:
-
-	UPROPERTY(BlueprintAssignable, Category="Ability Slot Info")
-	FOnUpdateAbilitySlotSignature OnUpdateAbilitySlot;
 	
 	virtual void BroadcastInitialValues() override;
 	virtual void BindCallbacksToResponce() override;
 
 	UFUNCTION(BlueprintCallable)
-	void AddAbility(const FName& AbilityID);
-	
-protected:
+	void AddAbility(const FName& AbilityID) const;
 
-	void LoadAbilityIcon(FAbilitySlotData& ActionSlotInfo) const;
+	UFUNCTION(BlueprintCallable)
+	void SetAbilityBookWidgetRef(UProjectN_AbilityBookWidget* NewAbilityBookWidget);
 	
-	const FAbilityDefinition* GetAbilityData(const FName& ItemID) const;
+/*******************
+*   Getters
+********************/
+	FEntriesDefinition* GetEntryManifest(const FName& ItemID) const;
 	
 	UPROPERTY(EditDefaultsOnly, Category="Items Data Table")
-	TSoftObjectPtr<UDataTable> AbilityDataTable;
+	TSoftObjectPtr<UDataTable> Entries;
 
 private:
-	TArray<FAbilitySlotData> Abilities;
+
+	UPROPERTY()
+	TObjectPtr<UProjectN_AbilityBookWidget> AbilityBookWidget;
 };

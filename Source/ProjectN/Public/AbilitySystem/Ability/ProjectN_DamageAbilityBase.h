@@ -21,4 +21,13 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Ability Defaults")
 	TMap<FGameplayTag, float> DamageTypes;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Ability Defaults")
+	bool bUseWeaponDamageTypes = false;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Ability Defaults")
+	bool bHaveCooldown = false;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Ability Defaults")
+	float PhysicalDamageMultiplier = 1.f;
 };

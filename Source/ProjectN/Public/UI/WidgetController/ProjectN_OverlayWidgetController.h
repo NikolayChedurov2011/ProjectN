@@ -36,7 +36,7 @@ public:
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnAttributeChangedSignature, float, NewValue, float, OldValue);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnMessageRowSignature, FUIWidgetRow, WidgetRow);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnAbilityInfoSignature, const FActionSlotData&, AbilityInfo);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FCooldownChangeSignature, const FGameplayTag, CooldownTag, const float, RemainingValue);
 
 UCLASS(BlueprintType, Blueprintable)
 class PROJECTN_API UProjectN_OverlayWidgetController : public UProjectN_WidgetControllerBase
@@ -67,7 +67,7 @@ public:
 	FOnMessageRowSignature			OnMessageRowSignature;
 
 	UPROPERTY(BlueprintAssignable)
-	FOnAbilityInfoSignature			OnAbilityInfo;
+	FCooldownChangeSignature		CooldownChange;
 	
 	UPROPERTY(BlueprintAssignable, Category="Gameplay Values")
 	FOnCharacterStatChangedSignature OnXPChanged;
@@ -77,6 +77,9 @@ public:
 
 	virtual void BroadcastInitialValues() override;
 	virtual void BindCallbacksToResponce() override;
+
+	UFUNCTION(BlueprintCallable)
+	float CheckCooldownRemainig(const FGameplayTag& CooldownTag) const;
 
 protected:
 

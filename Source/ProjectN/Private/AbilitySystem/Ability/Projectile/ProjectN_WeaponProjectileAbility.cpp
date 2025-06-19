@@ -43,7 +43,7 @@ void UProjectN_WeaponProjectileAbility::SpawnProjectile() const
 			ContextHandle.SetAbility(this);
 			
 			const FGameplayEffectSpecHandle SpecHandle = SourceASC->MakeOutgoingSpec(DamageEffect, GetAbilityLevel(), ContextHandle);
-			
+
 			AssignDamageTypes(SpecHandle, IInventoryInterface::Execute_GetWeaponDamageTypes(GetOwningActorFromActorInfo(), RequiredSlot));
 			
 			SpawnedProjectile->SetDamageEffectHandle(SpecHandle);
@@ -52,26 +52,3 @@ void UProjectN_WeaponProjectileAbility::SpawnProjectile() const
 		SpawnedProjectile->FinishSpawning(SpawnTransform);
 	}
 }
-
-/*
-void UProjectN_ProjectileAbility::ServerSpawnProjectile_Implementation(const FVector& TargetLocation)
-{
-	SpawnProjectile_Internal(TargetLocation);
-}
-
-void UProjectN_ProjectileAbility::SpawnProjectile_Internal(const FVector& TargetLocation) const
-{
-	if (GetOwningActorFromActorInfo()->Implements<UAvatarInfoInterface>())
-	{
-		FTransform SpawnTransform;
-		const FVector SocketLocation = IAvatarInfoInterface::Execute_GetWeaponSocketLocation(GetOwningActorFromActorInfo(), RequiredSlot);
-		const FRotator Rotation = (TargetLocation - SocketLocation).Rotation();
-
-		SpawnTransform.SetLocation(SocketLocation);
-		SpawnTransform.SetRotation(Rotation.Quaternion());
-	
-		AProjectN_ProjectileBase* SpawnedProjectile = GetWorld()->SpawnActorDeferred<AProjectN_ProjectileBase>(ProjectileToSpawn, SpawnTransform, GetOwningActorFromActorInfo(), Cast<APawn>(GetAvatarActorFromActorInfo()),  ESpawnActorCollisionHandlingMethod::AlwaysSpawn);
-		SpawnedProjectile->FinishSpawning(SpawnTransform);
-	}
-}
-*/

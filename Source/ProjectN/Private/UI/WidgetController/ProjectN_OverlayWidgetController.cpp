@@ -68,6 +68,22 @@ void UProjectN_OverlayWidgetController::BindCallbacksToResponce()
 				}
 			}
 		});
+
+		ProjectN_AbilitySystemComponent->OnNewCooldown.BindLambda([this] (const FGameplayTag& CooldownTag, const float CooldownRemaining)
+		{
+			if (CooldownChange.IsBound())
+			{
+				CooldownChange.Broadcast(CooldownTag, CooldownRemaining);
+			}
+		});
+
+		/*FForEachAbilitySignature ForEachAbility;
+		ForEachAbility.BindLambda([this](const FGameplayAbilitySpec& GameplayAbilitySpec)
+		{
+			FActionSlotData Data;
+			OnAbilityInfo.Broadcast(Data);
+		});
+		ProjectN_AbilitySystemComponent->ForEachAbility(ForEachAbility);*/
 	}
 
 	AProjectN_PlayerState* ProjectNPlayerState = CastChecked<AProjectN_PlayerState>(PlayerState);
@@ -95,6 +111,15 @@ void UProjectN_OverlayWidgetController::ProcessXP(const int32 Value) const
 
 		OnXPChanged.Broadcast(Percent);
 	}
+}
+
+float UProjectN_OverlayWidgetController::CheckCooldownRemainig(const FGameplayTag& CooldownTag) const
+{
+	if (const UProjectN_AbilitySystemComponent* ProjectN_AbilitySystemComponent = Cast<UProjectN_AbilitySystemComponent>(AbilitySystemComponent))
+	{
+		return ProjectN_AbilitySystemComponent->FindCooldownRemaining(CooldownTag);
+	}
+	return 0.f;
 }
 
 void UProjectN_OverlayWidgetController::BindGameplayAttributeValueChange(const FGameplayAttribute& AttributeData, const FOnAttributeChangedSignature& OnAttributeChangedDelegate) const

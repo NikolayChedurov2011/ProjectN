@@ -135,11 +135,33 @@ namespace ProjectNGameplayTags
 	/**** Ability cooldown Tags ****/
 	UE_DEFINE_GAMEPLAY_TAG(Cooldown,										"Cooldown")
 	UE_DEFINE_GAMEPLAY_TAG(Cooldown_Summon,									"Cooldown.Summon")
+	UE_DEFINE_GAMEPLAY_TAG(Cooldown_Consumable,								"Cooldown.Consumable")
+	UE_DEFINE_GAMEPLAY_TAG(Cooldown_Consumable_Potion,						"Cooldown.Consumable.Potion")
+	UE_DEFINE_GAMEPLAY_TAG(Cooldown_Consumable_Potion_Heal,					"Cooldown.Consumable.Potion.Heal")
+	UE_DEFINE_GAMEPLAY_TAG(Cooldown_Consumable_Potion_Mana,					"Cooldown.Consumable.Potion.Mana")
 	UE_DEFINE_GAMEPLAY_TAG(Cooldown_Weapon,									"Cooldown.Weapon")
 	UE_DEFINE_GAMEPLAY_TAG(Cooldown_Weapon_ChargeSlash,						"Cooldown.Weapon.ChargeSlash")
 	UE_DEFINE_GAMEPLAY_TAG(Cooldown_Magic,									"Cooldown.Magic")
 	UE_DEFINE_GAMEPLAY_TAG(Cooldown_Magic_Fire,								"Cooldown.Magic.Fire")
 	UE_DEFINE_GAMEPLAY_TAG(Cooldown_Magic_Fire_EyeFire,						"Cooldown.Magic.Fire.EyeFire")
+	
+	/**** Ability cost Tags ****/
+	UE_DEFINE_GAMEPLAY_TAG(Cost,											"Cost")
+	UE_DEFINE_GAMEPLAY_TAG(Cost_Mana,										"Cost.Mana")
+	UE_DEFINE_GAMEPLAY_TAG(Cost_Health,										"Cost.Health")
+
+	
+	/**** Fragment Tags ****/
+	UE_DEFINE_GAMEPLAY_TAG(Fragment,										"Fragment")
+	UE_DEFINE_GAMEPLAY_TAG(Fragment_Bag,									"Fragment.Bag")
+	UE_DEFINE_GAMEPLAY_TAG(Fragment_Type,									"Fragment.Type")
+	UE_DEFINE_GAMEPLAY_TAG(Fragment_Description,							"Fragment.Description")
+	UE_DEFINE_GAMEPLAY_TAG(Fragment_Icon,									"Fragment.Icon")
+	UE_DEFINE_GAMEPLAY_TAG(Fragment_Stack,									"Fragment.Stack")
+	UE_DEFINE_GAMEPLAY_TAG(Fragment_Consumable,								"Fragment.Consumable")
+	UE_DEFINE_GAMEPLAY_TAG(Fragment_Ability,								"Fragment.Ability")
+	UE_DEFINE_GAMEPLAY_TAG(Fragment_Equipment,								"Fragment.Equip")
+	UE_DEFINE_GAMEPLAY_TAG(Fragment_Weapon,									"Fragment.Weapon")
 }
 
 FProjectNGameplayTagsStruct FProjectNGameplayTagsStruct::ProjectNGameplayTagsInstance;

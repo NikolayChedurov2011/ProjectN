@@ -11,7 +11,7 @@
 class UAbilitySystemComponent;
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FCooldownSignature, float, TimeRemaining);
 
-UCLASS()
+UCLASS(BlueprintType, meta=(ExposedAsyncProxy="AsyncTask"))
 class PROJECTN_API UProjectN_Cooldown : public UBlueprintAsyncActionBase
 {
 	GENERATED_BODY()

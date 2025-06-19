@@ -3,6 +3,10 @@
 
 #include "UI/WidgetController/ProjectN_AbilityBookController.h"
 
+#include "ProjectN_GameplayTags.h"
+#include "UI/Widgets/Inventory/ProjectN_AbilityBookWidget.h"
+#include "UI/Widgets/Slots/AbilityBookSlot/ProjectN_AbilityBookSlot.h"
+
 void UProjectN_AbilityBookController::BindCallbacksToResponce()
 {
 	// TODO: bind to get new ability
@@ -11,46 +15,51 @@ void UProjectN_AbilityBookController::BindCallbacksToResponce()
 void UProjectN_AbilityBookController::BroadcastInitialValues()
 {
 	// TODO: Load saved abilities from save
-	AddAbility(FName("ability_001"));
+	AddAbility(FName("id_ability_eye_fire"));
 }
 
-void UProjectN_AbilityBookController::AddAbility(const FName& AbilityID)
+void UProjectN_AbilityBookController::SetAbilityBookWidgetRef(UProjectN_AbilityBookWidget* NewAbilityBookWidget)
 {
-	FAbilitySlotData NewActionSlotInfo;
-	NewActionSlotInfo.ItemType = EEntryType::Ability;
-	NewActionSlotInfo.ItemID = AbilityID;
-	
-	if (NewActionSlotInfo.ItemIcon == nullptr)
-	{
-		LoadAbilityIcon(NewActionSlotInfo);
-	}
-	
-	Abilities.Add(MoveTemp(NewActionSlotInfo));
-	
-	if (OnUpdateAbilitySlot.IsBound())
-	{
-		OnUpdateAbilitySlot.Broadcast(NewActionSlotInfo);
-	}
+	AbilityBookWidget = NewAbilityBookWidget;
 }
 
-void UProjectN_AbilityBookController::LoadAbilityIcon(FAbilitySlotData& ActionSlotInfo) const
+void UProjectN_AbilityBookController::AddAbility(const FName& AbilityID) const
 {
-	if (const FAbilityDefinition* ItemDef = GetAbilityData(ActionSlotInfo.ItemID))
+	const FEntriesDefinition* AbilityEntriesDefinition = GetEntryManifest(AbilityID);
+			
+	if (!AbilityEntriesDefinition)
 	{
-		ActionSlotInfo.ItemIcon = ItemDef->ItemIcon;
+		return;
 	}
+			
+	const FTypeFragment* TypeFragment = GetFragment<FTypeFragment>(*AbilityEntriesDefinition->FragmentManifest, ProjectNGameplayTags::Fragment_Type);
+
+	if (TypeFragment->GetEntryType() != EEntryType::Ability)
+	{
+		return;
+	}
+	
+	UProjectN_AbilityBookSlot* NewAbility = AbilityBookWidget->AddNewAbility();
+	const FIconFragment* IconFragment = GetFragment<FIconFragment>(*AbilityEntriesDefinition->FragmentManifest, ProjectNGameplayTags::Fragment_Icon);
+			
+	FSlateBrush NewBrush;
+	NewBrush.SetResourceObject(IconFragment->GetIcon());
+	NewAbility->SetAbilityIcon(NewBrush);
+	NewAbility->SetItemID(AbilityID);
 }
 
 /*******************
 *   Getters
 ********************/
-const FAbilityDefinition* UProjectN_AbilityBookController::GetAbilityData(const FName& ItemID) const
+FEntriesDefinition* UProjectN_AbilityBookController::GetEntryManifest(const FName& ItemID) const
 {
-	static const FString Context = FString(TEXT("UProjectN_InventoryComponent::FindAbilityDefFromDataTable"));
+	if (!Entries) return nullptr;
 	
-	if (const FAbilityDefinition* AbilityDef = AbilityDataTable.LoadSynchronous()->FindRow<FAbilityDefinition>(ItemID, Context, false))
+	const FString Context = FString(TEXT("UProjectN_AbilityBookController::FindEntryFromDataTable"));
+	
+	if (FEntriesDefinition* EntriesDefinition = Entries.LoadSynchronous()->FindRow<FEntriesDefinition>(ItemID, Context, false))
 	{
-		return AbilityDef;
+		return EntriesDefinition;
 	}
 	return nullptr;
 }

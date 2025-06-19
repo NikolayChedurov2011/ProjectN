@@ -14,16 +14,10 @@ class PROJECTN_API UProjectN_WeaponAbilityBase : public UProjectN_DamageAbilityB
 	GENERATED_BODY()
 	
 protected:
-
-	//virtual void ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData) override;
-
+	
 	UFUNCTION(BlueprintCallable)
 	virtual void StartWeaponHit(const EEquipSlot InSlot) const;
 
 	UFUNCTION(BlueprintCallable)
 	virtual void StopWeaponHit(const EEquipSlot InSlot) const;
-
-private:
-	
-	//TObjectPtr<AProjectN_WeaponActor> Weapon = nullptr;
 };

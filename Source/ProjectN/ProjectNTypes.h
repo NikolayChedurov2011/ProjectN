@@ -4,6 +4,7 @@
 #include "GameplayEffectTypes.h"
 #include "GameplayTagContainer.h"
 #include "Net/Serialization/FastArraySerializer.h"
+#include "InstancedStruct.h"
 #include "ProjectNTypes.generated.h"
 
 class UGameplayEffect;
@@ -457,6 +458,7 @@ enum class EEntryType : uint8
 {
 	None			UMETA(DisplayName = "None"),
 	Item			UMETA(DisplayName = "Item"),
+	ConsumableItem	UMETA(DisplayName = "ConsumableItem"),
 	Equipment		UMETA(DisplayName = "Equipment"),
 	Weapon			UMETA(DisplayName = "Weapon"),
 	Ability			UMETA(DisplayName = "Ability"),
@@ -505,15 +507,41 @@ struct FItemDefinition : public FEntryDefinition
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	int32 MaxStack = 1;
+};
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	bool bShouldDestroyAfterUse = false;
+USTRUCT(BlueprintType, Blueprintable)
+struct FTagValueData
+{
+	GENERATED_BODY()
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	TSubclassOf<UGameplayAbility> UseItemAbility = nullptr;;
+	FGameplayTag Tag;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	TSubclassOf<UGameplayEffect> UseItemEffect = nullptr;;
+	float Value;
+};
+
+USTRUCT(BlueprintType, Blueprintable)
+struct FConsumableItemDefinition : public FItemDefinition
+{
+	GENERATED_BODY()
+
+	FConsumableItemDefinition()
+	{
+		ItemType = EEntryType::ConsumableItem;
+	}
+	
+	UPROPERTY(EditDefaultsOnly)
+	bool bShouldDestroyAfterUse = false;
+	
+	UPROPERTY(EditDefaultsOnly)
+	TSubclassOf<UGameplayAbility> UseItemAbility = nullptr;
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	FTagValueData CooldownData;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	FTagValueData CostData;
 };
 
 USTRUCT(BlueprintType, Blueprintable)
@@ -526,20 +554,20 @@ struct FEquippableItemDefinition : public FItemDefinition
 		ItemType = EEntryType::Equipment;
 	}
 	
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	UPROPERTY(EditDefaultsOnly)
 	TMap<EEquipSlot, FName> SocketToAttach;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	TArray<EEquipSlot> AllowedSlots;
 	
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	UPROPERTY(EditDefaultsOnly)
 	TArray<TSubclassOf<UGameplayEffect>> ItemPassiveEffects;
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	TMap<FGameplayTag, float> ItemBonusAttributes;
 	
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	TSubclassOf<AProjectN_ItemActor_Base> ItemActorClass = nullptr;;
+	UPROPERTY(EditDefaultsOnly)
+	TSubclassOf<AProjectN_ItemActor_Base> ItemActorClass = nullptr;
 };
 
 USTRUCT(BlueprintType, Blueprintable)
@@ -555,7 +583,7 @@ struct FWeaponItemDefinition : public FEquippableItemDefinition
 	UPROPERTY(EditDefaultsOnly, Category="Sockets")
 	FName TwoHandOffHandSocketName = TEXT("hand_ik_target");
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	UPROPERTY(EditDefaultsOnly)
 	TMap<EWeaponMode, FWeaponAbilitiesInfo> WeaponAbilitiesInfo;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
@@ -565,9 +593,8 @@ struct FWeaponItemDefinition : public FEquippableItemDefinition
 	TMap<FGameplayTag, float> WeaponDamageTypes;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	TSubclassOf<UAnimInstance> TwoHandedAnimInstance = nullptr;
+	TObjectPtr<UAnimSequence> TwoHandedPosture = nullptr;
 };
-
 
 USTRUCT(BlueprintType, Blueprintable)
 struct FAbilityDefinition : public FEntryDefinition
@@ -579,8 +606,14 @@ struct FAbilityDefinition : public FEntryDefinition
 		ItemType = EEntryType::Ability;
 	}
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	UPROPERTY(EditDefaultsOnly)
 	TSubclassOf<UGameplayAbility> Ability = nullptr;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	FTagValueData CooldownData;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	FTagValueData CostData;
 };
 
 USTRUCT(BlueprintType, Blueprintable)
@@ -592,6 +625,10 @@ struct FBagDefinition : public FItemDefinition
 	int32 NumSlots = 16;
 };
 
+
+/*******************
+*   Slots Data
+********************/
 USTRUCT(BlueprintType, Blueprintable)
 struct FInventorySlotData
 {
@@ -605,12 +642,6 @@ struct FInventorySlotData
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	FName ItemID = NAME_None;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	EEntryType ItemType = EEntryType::None;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	UTexture2D* ItemIcon = nullptr;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	int32 Quantity = 1;
@@ -664,10 +695,7 @@ struct FActionSlotData
 	FName ItemID = NAME_None;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	EEntryType EntryType = EEntryType::None;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	UTexture2D* ItemIcon = nullptr;
+	int32 Quantity = 1;
 };
 
 USTRUCT(BlueprintType, Blueprintable)
@@ -676,22 +704,16 @@ struct FEquipSlotData : public FFastArraySerializerItem
 	GENERATED_BODY()
 	
 	FEquipSlotData(){}
-	FEquipSlotData(const FName NewItemID, const EEntryType NewItemType, const EEquipSlot NewSlot) : ItemID(NewItemID), ItemType(NewItemType), EquipSlot(NewSlot) {}
+	FEquipSlotData(const FName NewItemID, const EEquipSlot NewSlot) : ItemID(NewItemID) {}
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	FName ItemID = NAME_None;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	EEntryType ItemType = EEntryType::None;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	EEquipSlot EquipSlot = EEquipSlot::None;
 
 	UPROPERTY()
 	AActor* SpawnedActor = nullptr;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	UTexture2D* ItemIcon = nullptr;
 };
 
 
@@ -702,12 +724,6 @@ struct FAbilitySlotData : public FFastArraySerializerItem
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	FName ItemID = NAME_None;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	EEntryType ItemType = EEntryType::None;
-	
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	UTexture2D* ItemIcon = nullptr;
 };
 
 UENUM(BlueprintType)
@@ -742,3 +758,255 @@ struct FMovementData
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	bool bUseSeparateBrakingFriction = false;
 };
+
+
+/*******************
+*   Fragments
+********************/
+USTRUCT(BlueprintType, Blueprintable)
+struct FFragmentData
+{
+	GENERATED_BODY()
+
+	FFragmentData() {}
+	FFragmentData(const FFragmentData&) = default;
+	FFragmentData& operator = (const FFragmentData&) = default;
+	FFragmentData(FFragmentData&) = default;
+	FFragmentData& operator = (FFragmentData&) = default;
+	virtual ~FFragmentData() {}
+
+	FORCEINLINE FGameplayTag GetFragmentTag() const  { return  FragmentTag; }
+	FORCEINLINE void SetFragmentTag(const FGameplayTag Tag) { FragmentTag = Tag; }
+
+private:
+
+	UPROPERTY(EditDefaultsOnly)
+	FGameplayTag FragmentTag = FGameplayTag();
+};
+
+USTRUCT(BlueprintType, Blueprintable)
+struct FBagFragment : public FFragmentData
+{
+	GENERATED_BODY()
+
+	FORCEINLINE int32 GetNumSlots() const { return NumSlots; }
+	
+private:
+
+	UPROPERTY(EditDefaultsOnly)
+	int32 NumSlots = 16;
+};
+
+USTRUCT(BlueprintType, Blueprintable)
+struct FTypeFragment : public FFragmentData
+{
+	GENERATED_BODY()
+
+	FORCEINLINE EEntryType GetEntryType() const { return EntryType; }
+	
+private:
+	
+	UPROPERTY(EditDefaultsOnly)
+	EEntryType EntryType = EEntryType::None;
+};
+
+USTRUCT(BlueprintType, Blueprintable)
+struct FDescriptionFragment : public FFragmentData
+{
+	GENERATED_BODY()
+
+	FORCEINLINE FName GetItemName() const { return ItemName; }
+	FORCEINLINE void SetItemName(const FName& Name) { ItemName = Name; }
+	FORCEINLINE FString GetItemDescription() const { return ItemDescription; }
+	FORCEINLINE void SetItemDescription(const FString& Description) { ItemDescription = Description; }
+	
+private:
+
+	UPROPERTY(EditDefaultsOnly)
+	FName ItemName = NAME_None;
+
+	UPROPERTY(EditDefaultsOnly)
+	FString ItemDescription = FString();
+};
+
+USTRUCT(BlueprintType, Blueprintable)
+struct FIconFragment : public FFragmentData
+{
+	GENERATED_BODY()
+
+	FORCEINLINE UTexture2D* GetIcon() const { return ItemIcon; }
+	FORCEINLINE void SetIcon(const TObjectPtr<UTexture2D>& Icon) { ItemIcon = Icon; }
+	
+private:
+
+	UPROPERTY(EditDefaultsOnly)
+	TObjectPtr<UTexture2D> ItemIcon = nullptr;
+};
+
+USTRUCT(BlueprintType, Blueprintable)
+struct FStackFragment : public FFragmentData
+{
+	GENERATED_BODY()
+
+	FORCEINLINE int32 GetMaxStack() const { return MaxStack; }
+	FORCEINLINE void SetMaxStack(const int32 NewMaxStack) { MaxStack = NewMaxStack; }
+	FORCEINLINE int32 GetStackCount() const { return StackCount; }
+	FORCEINLINE void SetStackCount(const int32 NewStackCount) { StackCount = NewStackCount; }
+	
+private:
+
+	UPROPERTY(EditDefaultsOnly)
+	int32 MaxStack = 1;
+
+	UPROPERTY(EditDefaultsOnly)
+	int32 StackCount = 1;
+};
+
+USTRUCT(BlueprintType, Blueprintable)
+struct FConsumableFragment : public FFragmentData
+{
+	GENERATED_BODY()
+
+	FORCEINLINE bool IsShouldDestroyAfterUse() const { return bShouldDestroyAfterUse; }
+	FORCEINLINE void SetIsShouldDestroyAfterUse(const bool bShouldDestroy) { bShouldDestroyAfterUse = bShouldDestroy; }
+	
+private:
+
+	UPROPERTY(EditDefaultsOnly)
+	bool bShouldDestroyAfterUse = false;
+};
+
+USTRUCT(BlueprintType, Blueprintable)
+struct FAbilityFragment : public FFragmentData
+{
+	GENERATED_BODY()
+
+	FORCEINLINE TSubclassOf<UGameplayAbility> GetAbilityClass() const { return Ability; }
+	FORCEINLINE void SetAbilityClass(const TSubclassOf<UGameplayAbility>& AbilityClass) { Ability = AbilityClass; }
+	FORCEINLINE FGameplayTag GetCooldownTag() const { return CooldownTag; }
+	FORCEINLINE void SetCooldownTag(const FGameplayTag& Tag) { CooldownTag = Tag; }
+	FORCEINLINE float GetCooldownValue() const { return CooldownValue; }
+	FORCEINLINE void SetCooldownValue(const float Value) { CooldownValue = Value; }
+	FORCEINLINE float GetCostValue() const { return CostValue; }
+	FORCEINLINE void SetCostValue(const float Value) { CostValue = Value; }
+
+private:
+
+	UPROPERTY(EditDefaultsOnly)
+	TSubclassOf<UGameplayAbility> Ability = nullptr;
+
+	UPROPERTY(EditDefaultsOnly)
+	FGameplayTag CooldownTag = FGameplayTag();
+
+	UPROPERTY(EditDefaultsOnly)
+	float CooldownValue = 0.f;
+
+	UPROPERTY(EditDefaultsOnly)
+	float CostValue = 0.f;
+};
+
+USTRUCT(BlueprintType, Blueprintable)
+struct FEquippingFragment : public FFragmentData
+{
+	GENERATED_BODY()
+
+	FORCEINLINE TMap<EEquipSlot, FName> GetSocketToAttach() const { return SocketToAttach; }
+	FORCEINLINE void SetSocketToAttach(const TMap<EEquipSlot, FName>& NewSocketToAttach) { SocketToAttach = NewSocketToAttach; }
+	FORCEINLINE TArray<EEquipSlot> GetAllowedSlots() const { return AllowedSlots; }
+	FORCEINLINE void SetAllowedSlots(const TArray<EEquipSlot>& NewAllowedSlots) { AllowedSlots = NewAllowedSlots; }
+	FORCEINLINE TMap<FGameplayTag, float> GetItemBonusAttributes() const { return ItemBonusAttributes; }
+	FORCEINLINE void SetItemBonusAttributes(const TMap<FGameplayTag, float>& NewItemBonusAttributes) { ItemBonusAttributes = NewItemBonusAttributes; }
+	FORCEINLINE TSubclassOf<AProjectN_ItemActor_Base> GetItemActorClass() const { return ItemActorClass; }
+	FORCEINLINE void SetItemActorClass(const TSubclassOf<AProjectN_ItemActor_Base>& NewItemActorClass) { ItemActorClass = NewItemActorClass; }
+
+private:
+
+	UPROPERTY(EditDefaultsOnly)
+	TMap<EEquipSlot, FName> SocketToAttach;
+
+	UPROPERTY(EditDefaultsOnly)
+	TArray<EEquipSlot> AllowedSlots;
+	
+	UPROPERTY(EditDefaultsOnly)
+	TMap<FGameplayTag, float> ItemBonusAttributes;
+	
+	UPROPERTY(EditDefaultsOnly)
+	TSubclassOf<AProjectN_ItemActor_Base> ItemActorClass = nullptr;
+};
+
+USTRUCT(BlueprintType, Blueprintable)
+struct FWeaponFragment : public FFragmentData
+{
+	GENERATED_BODY()
+	
+	FORCEINLINE TMap<EWeaponMode, FWeaponAbilitiesInfo> GetWeaponAbilitiesInfo() const { return WeaponAbilitiesInfo; }
+	FORCEINLINE void SetWeaponAbilitiesInfo(const TMap<EWeaponMode, FWeaponAbilitiesInfo>& NewWeaponAbilitiesInfo) { WeaponAbilitiesInfo = NewWeaponAbilitiesInfo; }
+	FORCEINLINE FGameplayTag GetWeaponTypeTag() const { return WeaponTypeTag; }
+	FORCEINLINE void SetWeaponTypeTag(const FGameplayTag& NewWeaponTypeTag) { WeaponTypeTag = NewWeaponTypeTag; }
+	FORCEINLINE TMap<FGameplayTag, float> GetWeaponDamageTypes() const { return WeaponDamageTypes; }
+	FORCEINLINE void SetWeaponDamageTypes(const TMap<FGameplayTag, float>& NewWeaponDamageTypes) { WeaponDamageTypes = NewWeaponDamageTypes; }
+	FORCEINLINE TObjectPtr<UAnimSequence> GetTwoHandedPosture() const { return TwoHandedPosture; }
+	FORCEINLINE void SetTwoHandedPosture(const TObjectPtr<UAnimSequence>& NewTwoHandedPosture) { TwoHandedPosture = NewTwoHandedPosture; }
+
+private:
+
+	UPROPERTY(EditDefaultsOnly)
+	TMap<EWeaponMode, FWeaponAbilitiesInfo> WeaponAbilitiesInfo;
+
+	UPROPERTY(EditDefaultsOnly)
+	FGameplayTag WeaponTypeTag;
+
+	UPROPERTY(EditDefaultsOnly)
+	TMap<FGameplayTag, float> WeaponDamageTypes;
+
+	UPROPERTY(EditDefaultsOnly)
+	TObjectPtr<UAnimSequence> TwoHandedPosture = nullptr;
+};
+
+
+/*******************************
+*   Manifest and Data Table
+********************************/
+UCLASS(BlueprintType, Blueprintable)
+class PROJECTN_API UItemManifest : public UDataAsset
+{
+	GENERATED_BODY()
+
+public:
+
+	template <typename T> requires std::derived_from<T, FFragmentData>
+	const T* GetFragmentByTag(const FGameplayTag& Tag) const
+	{
+		for (const TInstancedStruct<FFragmentData>& Fragment : Fragments)
+		{
+			if (const T* FragmentPtr = Fragment.GetPtr<T>())
+			{
+				if (!FragmentPtr->GetFragmentTag().MatchesTagExact(Tag))
+				{
+					continue;
+				}
+				return FragmentPtr;
+			}
+		}
+		return nullptr;
+	}
+
+protected:
+	UPROPERTY(EditDefaultsOnly, meta=(ExcludeBaseStruct))
+	TArray<TInstancedStruct<FFragmentData>> Fragments;
+};
+
+USTRUCT(BlueprintType, Blueprintable)
+struct FEntriesDefinition : public FTableRowBase
+{
+	GENERATED_BODY()
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	TObjectPtr<UItemManifest> FragmentManifest = nullptr;
+};
+
+template <typename FragmentType>
+const FragmentType* GetFragment(const UItemManifest& Manifest, const FGameplayTag& Tag)
+{
+	return Manifest.GetFragmentByTag<FragmentType>(Tag);
+}

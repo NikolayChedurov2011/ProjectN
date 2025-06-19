@@ -7,11 +7,11 @@
 #include "UI/WidgetController/ProjectN_WidgetControllerBase.h"
 #include "ProjectN_ActionBarController.generated.h"
 
+class UProjectN_ActionSlot;
+class UProjectN_ActionBartWidget;
 struct FGameplayTag;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnUpdateActionSlotSignature, const FActionSlotData, ActionSlotInfo);
-//DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnUpdateBagSignature, const int32, BagID, const int32, BagSlots);
-//DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FOnUpdateSlotSignature, const int32, BagID, const int32, BagSlots, FInventorySlotData, ItemData);
 
 UCLASS(Blueprintable, BlueprintType)
 class PROJECTN_API UProjectN_ActionBarController : public UProjectN_WidgetControllerBase
@@ -20,52 +20,52 @@ class PROJECTN_API UProjectN_ActionBarController : public UProjectN_WidgetContro
 
 public:
 
-//	UPROPERTY(BlueprintAssignable, Category="Bag Info")
-//	FOnUpdateBagSignature OnUpdateBag;
-//	UPROPERTY(BlueprintAssignable, Category="Bag Info")
-//	FOnUpdateSlotSignature OnUpdateSlot;
-
 	UPROPERTY(BlueprintAssignable, Category="Action Slot Info")
 	FOnUpdateActionSlotSignature OnUpdateActionSlot;
 	
 	virtual void BroadcastInitialValues() override;
 	virtual void BindCallbacksToResponce() override;
 
-	UFUNCTION(BlueprintCallable)
+	void SwapActionSlots(const int32 ToSlotIndex, const int32 FromSlotIndex, const FName& IncomingItemID) const;
+	void UpdateActionSlot(const int32 ActionSlotIndex, const FName& IncomingItemID) const;
+	void ClearActionSlot(const int32 ActionSlotIndex) const;
+	
+	/*UFUNCTION(BlueprintCallable)
 	void ClearSlot(const int32 SlotIndex);
 	
 	UFUNCTION(BlueprintCallable)
-	void AddSlot(FActionSlotData ActionSlotInfo);
+	void AddSlot(FActionSlotData ActionSlotInfo);*/
+
+	UFUNCTION(BlueprintCallable)
+	void SetActionBarWidgetRef(UProjectN_ActionBartWidget* NewActionBarWidget);
 	
 protected:
 
-	void LoadItemIcon(FActionSlotData& ActionSlotInfo) const;
+	/*void LoadItemIcon(FActionSlotData& ActionSlotInfo) const;
 	void AddAbility(const FActionSlotData& ActionSlotInfo) const;
 	void RemoveAbility(const FGameplayTag InputActionTag) const;
 	
 	const FAbilityDefinition* GetAbilityData(const FName& ItemID) const;
 	const FItemDefinition* GetItemData(const FName& ItemID) const;
+	const FConsumableItemDefinition* GetConsumableItemData(const FName& ItemID) const;
 	const FEquippableItemDefinition* GetEquippableItemData(const FName& ItemID) const;
 	const FWeaponItemDefinition* GetWeaponData(const FName& ItemID) const;
 	const FBagDefinition* GetBagData(const FName& ItemID) const;
+
+	void FindCooldownTagFromStruct(FActionSlotData& InventorySlotData) const;
 	
-	TArray<FActionSlotData> ActionSlots;
-
-	UPROPERTY(EditDefaultsOnly, Category="Action Slots Tag Dependency")
-	TMap<int32, FGameplayTag> ActionSlotsTagDependency;
+	TArray<FActionSlotData> ActionSlots;*/
+	
+/*******************
+*   Getters
+********************/
+	FEntriesDefinition* GetEntryManifest(const FName& ItemID) const;
 	
 	UPROPERTY(EditDefaultsOnly, Category="Items Data Table")
-	TSoftObjectPtr<UDataTable> ItemsDataTable;
+	TSoftObjectPtr<UDataTable> Entries;
 
-	UPROPERTY(EditDefaultsOnly, Category="Items Data Table")
-	TSoftObjectPtr<UDataTable> EquippableItemDataTable;
+private:
 
-	UPROPERTY(EditDefaultsOnly, Category="Items Data Table")
-	TSoftObjectPtr<UDataTable> WeaponItemsDataTable;
-
-	UPROPERTY(EditDefaultsOnly, Category="Items Data Table")
-	TSoftObjectPtr<UDataTable> AbilityDataTable;
-
-	UPROPERTY(EditDefaultsOnly, Category="Items Data Table")
-	TSoftObjectPtr<UDataTable> BagDataTable;
+	UPROPERTY()
+	TObjectPtr<UProjectN_ActionBartWidget> ActionBarWidget;
 };

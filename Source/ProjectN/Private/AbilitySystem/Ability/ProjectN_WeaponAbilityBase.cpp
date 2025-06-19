@@ -8,18 +8,6 @@
 #include "Interfaces/InventoryInterface.h"
 #include "Inventory/ProjectN_WeaponActor.h"
 
-/*void UProjectN_WeaponAbilityBase::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData)
-{
-	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
-	
-	if (!GetOwningActorFromActorInfo()->HasAuthority())
-	{
-		return;
-	}
-
-
-}*/
-
 void UProjectN_WeaponAbilityBase::StartWeaponHit(const EEquipSlot InSlot) const
 {
 	if (!GetOwningActorFromActorInfo()->HasAuthority())
@@ -42,7 +30,7 @@ void UProjectN_WeaponAbilityBase::StartWeaponHit(const EEquipSlot InSlot) const
 		ContextHandle.SetAbility(this);
 		
 		const FGameplayEffectSpecHandle SpecHandle = SourceASC->MakeOutgoingSpec(DamageEffect, GetAbilityLevel(), ContextHandle);
-		
+
 		AssignDamageTypes(SpecHandle, IInventoryInterface::Execute_GetWeaponDamageTypes(GetOwningActorFromActorInfo(), InSlot));
 
 		Weapon->SetDamageEffectHandle(SpecHandle);

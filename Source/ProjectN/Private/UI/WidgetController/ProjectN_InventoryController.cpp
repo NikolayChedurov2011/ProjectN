@@ -3,49 +3,91 @@
 
 #include "UI/WidgetController/ProjectN_InventoryController.h"
 
+#include "ProjectN_GameplayTags.h"
+#include "AbilitySystem/ProjectN_AbilitySystemComponent.h"
 #include "GameFramework/PlayerState.h"
 #include "Inventory/ProjectN_InventoryComponent.h"
+#include "UI/Widgets/Inventory/ProjectN_EquipmentWidget.h"
+#include "UI/Widgets/Inventory/ProjectN_InventoryWidget.h"
+#include "UI/Widgets/Slots/EquipSlot/ProjectN_EquipSlot.h"
+#include "UI/Widgets/Slots/InventorySlot/ProjectN_InventorySlot.h"
 
 void UProjectN_InventoryController::BindCallbacksToResponce()
 {
 	InventoryComponent = PlayerState->FindComponentByClass<UProjectN_InventoryComponent>();
+	UProjectN_AbilitySystemComponent* ProjectN_AbilitySystemComponent = Cast<UProjectN_AbilitySystemComponent>(AbilitySystemComponent);
 
 	if (InventoryComponent)
 	{
 		InventoryComponent->OnBagChanged.BindLambda([this](const FBagData& BagData)
 		{
-			if (OnUpdateBag.IsBound())
-			{
-				OnUpdateBag.Broadcast(BagData);
-			}
+			InventoryWidget->InitNewBag(BagData);
+		});
+
+		InventoryComponent->OnBagRemoved.BindLambda([this](const FBagData& BagData)
+		{
+			InventoryWidget->RemoveBag(BagData);
 		});
 
 		InventoryComponent->OnEquipSlotChange.BindLambda([this](const FEquipSlotData& ItemData)
 		{
-			FEquipSlotData NewItemData = ItemData;
-			
-			if (NewItemData.ItemIcon == nullptr)
+			if (UProjectN_EquipSlot* EquipmentSlot = EquipmentWidget->FindEquipmentSlot(ItemData.EquipSlot))
 			{
-				LoadItemIconFromStruct(NewItemData);
-			}
-			if (OnUpdateEquipSlot.IsBound())
-			{
-				OnUpdateEquipSlot.Broadcast(NewItemData);
+				const FEntriesDefinition* EntriesDefinition = GetEntryManifest(ItemData.ItemID);
+				if (!EntriesDefinition)
+				{
+					return;
+				}
+				
+				const FIconFragment* IconFragment = GetFragment<FIconFragment>(*EntriesDefinition->FragmentManifest, ProjectNGameplayTags::Fragment_Icon);
+				
+				FSlateBrush NewBrush;
+				NewBrush.SetResourceObject(IconFragment->GetIcon());
+				EquipmentSlot->SetItemIcon(NewBrush);
+				EquipmentSlot->SetItemID(ItemData.ItemID);
 			}
 		});
 
-		InventoryComponent->OnInventorySlotChange.BindLambda([this](const FInventorySlotData& ItemData)
+		InventoryComponent->OnEquipSlotRemoved.BindLambda([this](const FEquipSlotData& ItemData)
 		{
-			FInventorySlotData NewItemData = ItemData;
-			
-			if (NewItemData.ItemIcon == nullptr)
+			EquipmentWidget->ClearEquipmentSlot(ItemData.EquipSlot);
+		});
+
+		InventoryComponent->OnInventorySlotChange.BindLambda([this, ProjectN_AbilitySystemComponent](const int32 BagIndex, const int32 SlotIndex, const FInventorySlotData& ItemData)
+		{
+			if (UProjectN_InventorySlot* InventorySlot = InventoryWidget->FindInventorySlot(BagIndex, SlotIndex))
 			{
-				LoadItemIconFromStruct(NewItemData);
+				const FEntriesDefinition* EntriesDefinition = GetEntryManifest(ItemData.ItemID);
+				if (!EntriesDefinition)
+				{
+					return;
+				}
+				
+				const FIconFragment* IconFragment = GetFragment<FIconFragment>(*EntriesDefinition->FragmentManifest, ProjectNGameplayTags::Fragment_Icon);
+				const FAbilityFragment* AbilityFragment = GetFragment<FAbilityFragment>(*EntriesDefinition->FragmentManifest, ProjectNGameplayTags::Fragment_Ability);
+				
+				FSlateBrush NewBrush;
+				NewBrush.SetResourceObject(IconFragment->GetIcon());
+				InventorySlot->SetItemIcon(NewBrush);
+				InventorySlot->SetStackCount(ItemData.Quantity);
+				InventorySlot->SetItemID(ItemData.ItemID);
+
+				FTimerHandle TimerHandle;
+				GetWorld()->GetTimerManager().SetTimer(TimerHandle, FTimerDelegate::CreateLambda([this, AbilityFragment, InventorySlot, ProjectN_AbilitySystemComponent]()
+				{
+					if (AbilityFragment)
+					{
+						InventorySlot->SetCooldownTag(AbilityFragment->GetCooldownTag());
+						InventorySlot->SetCooldownBaseValue(AbilityFragment->GetCooldownValue());
+						InventorySlot->SetCooldownValueRemaining(ProjectN_AbilitySystemComponent->FindCooldownRemaining(AbilityFragment->GetCooldownTag()));
+					}
+				}), 0.3f,false);
 			}
-			if (OnUpdateInventorySlot.IsBound())
-			{
-				OnUpdateInventorySlot.Broadcast(NewItemData);
-			}
+		});
+		
+		InventoryComponent->OnInventorySlotRemoved.BindLambda([this](const int32 BagIndex, const int32 SlotIndex, const FInventorySlotData& ItemData)
+		{
+			InventoryWidget->ClearInventorySlot(BagIndex, SlotIndex);
 		});
 	}
 }
@@ -59,73 +101,40 @@ void UProjectN_InventoryController::BroadcastInitialValues()
 		// TODO: Init inventory items
 		for (int32 i = 0; i < InventoryComponent->GetBags().Num(); i++)
 		{
-			if (OnUpdateBag.IsBound())
-			{
-				OnUpdateBag.Broadcast(InventoryComponent->GetBags()[i]);
-			}
+			InventoryWidget->InitNewBag(InventoryComponent->GetBags()[i]);
 		}
 	}
 }
 
-void UProjectN_InventoryController::LoadItemIconFromStruct(FInventorySlotData& InventorySlotData) const
+void UProjectN_InventoryController::SetInventoryWidgetRef(UProjectN_InventoryWidget* NewInventoryWidget)
 {
-	LoadIcon(InventorySlotData.ItemID, InventorySlotData.ItemType, InventorySlotData.ItemIcon);
+	InventoryWidget = NewInventoryWidget;
 }
 
-void UProjectN_InventoryController::LoadItemIconFromStruct(FEquipSlotData& EquippedSlotData) const
+void UProjectN_InventoryController::SetEquipmentWidgetRef(UProjectN_EquipmentWidget* NewEquipmentWidget)
 {
-	LoadIcon(EquippedSlotData.ItemID, EquippedSlotData.ItemType, EquippedSlotData.ItemIcon);
+	EquipmentWidget = NewEquipmentWidget;
 }
-
-void UProjectN_InventoryController::LoadIcon(const FName& ItemID, const EEntryType ItemType, UTexture2D*& ItemIcon) const
-{
-	switch (ItemType)
-	{
-	case EEntryType::Item :
-		if (const FItemDefinition* ItemDef = GetItemData(ItemID))
-		{
-			ItemIcon = ItemDef->ItemIcon;
-			return;
-		}
-	case EEntryType::Equipment :
-		if (const FEquippableItemDefinition* ItemDef = GetEquippableItemData(ItemID))
-		{
-			ItemIcon = ItemDef->ItemIcon;
-			return;
-		}
-	case EEntryType::Weapon :
-		if (const FWeaponItemDefinition* ItemDef = GetWeaponData(ItemID))
-		{
-			ItemIcon = ItemDef->ItemIcon;
-			return;
-		}
-	case EEntryType::Bag :
-		if (const FBagDefinition* ItemDef = GetBagData(ItemID))
-		{
-			ItemIcon = ItemDef->ItemIcon;
-			return;
-		}
-	default: ;
-	}
-}
-
 
 /*********************************
  *  Items manage
  *********************************/
-void UProjectN_InventoryController::TryAddItem(const FName ItemID, const EEntryType ItemType, const int32 Quantity) const
+void UProjectN_InventoryController::TryAddItem(const FName ItemID, const int32 Quantity) const
 {
-	InventoryComponent->ServerTryAddItem(ItemID, ItemType, Quantity);
+	InventoryComponent->ServerTryAddItem(ItemID, Quantity);
 }
 
-void UProjectN_InventoryController::AddStackToItem(const int32 FromBagIndex, const int32 ToBagIndex, const int32 FromSlotIndex, const int32 ToSlotIndex, const int32 QuantityToAdd)
+void UProjectN_InventoryController::TryAddItemToSlot(const int32 BagIndex, const int32 SlotIndex, const FName& ItemID, const int32 Quantity) const
 {
-	InventoryComponent->ServerAddStackToItem(FromBagIndex, ToBagIndex, FromSlotIndex, ToSlotIndex, QuantityToAdd);
+	InventoryComponent->ServerTryAddItemToSlot(BagIndex, SlotIndex, ItemID, Quantity);
 }
 
-void UProjectN_InventoryController::RemoveItem(const int32 FromBagIndex, const int32 FromSlotIndex) const
+void UProjectN_InventoryController::StackItems(const FName ItemID, const int32 FromBagIndex, const int32 ToBagIndex, const int32 FromSlotIndex, const int32 ToSlotIndex, const int32 QuantityToAdd)
 {
-	InventoryComponent->ServerRemoveItem(FromBagIndex, FromSlotIndex);
+	const FEntriesDefinition* EntriesDefinition = GetEntryManifest(ItemID);
+	const FStackFragment* StackFragment = GetFragment<FStackFragment>(*EntriesDefinition->FragmentManifest, ProjectNGameplayTags::Fragment_Stack);
+
+	InventoryComponent->ServerStackItems(FromBagIndex, ToBagIndex, FromSlotIndex, ToSlotIndex, QuantityToAdd, StackFragment->GetMaxStack());
 }
 
 void UProjectN_InventoryController::ReplaceItemsInBag(const int32 FromBagIndex, const int32 ToBagIndex,	const int32 FromSlotIndex, const int32 ToSlotIndex) const
@@ -133,14 +142,17 @@ void UProjectN_InventoryController::ReplaceItemsInBag(const int32 FromBagIndex, 
 	InventoryComponent->ServerReplaceItemInBag(FromBagIndex, ToBagIndex, FromSlotIndex, ToSlotIndex);
 }
 
-
+void UProjectN_InventoryController::RemoveItem(const int32 FromBagIndex, const int32 FromSlotIndex) const
+{
+	InventoryComponent->ServerRemoveItem(FromBagIndex, FromSlotIndex);
+}
 
 /*********************************
 *  Equipping manage
 *********************************/
-void UProjectN_InventoryController::EquipItemToSlot(const FName ItemID, const EEntryType ItemType,	const EEquipSlot ToSlot) const
+void UProjectN_InventoryController::EquipItemToSlot(const FName ItemID,	const EEquipSlot ToSlot, const int32 ItemStack) const
 {
-	InventoryComponent->ServerEquipItemToSlot(ItemID, ItemType, ToSlot);
+	InventoryComponent->ServerEquipItemToSlot(ItemID, ToSlot, ItemStack);
 }
 
 void UProjectN_InventoryController::UnEquipSlot(const EEquipSlot Slot) const
@@ -148,51 +160,18 @@ void UProjectN_InventoryController::UnEquipSlot(const EEquipSlot Slot) const
 	InventoryComponent->ServerUnEquipSlot(Slot);
 }
 
-
-
 /*******************
 *   Getters
 ********************/
-const FItemDefinition* UProjectN_InventoryController::GetItemData(const FName& ItemID) const
+FEntriesDefinition* UProjectN_InventoryController::GetEntryManifest(const FName& ItemID) const
 {
-	static const FString Context = FString(TEXT("UProjectN_InventoryComponent::FindItemFromDataTable"));
+	if (!Entries) return nullptr;
 	
-	if (const FItemDefinition* ItemDef = ItemsDataTable.LoadSynchronous()->FindRow<FItemDefinition>(ItemID, Context, false))
-	{
-		return ItemDef;
-	}
-	return nullptr;
-}
-
-const FEquippableItemDefinition* UProjectN_InventoryController::GetEquippableItemData(const FName& ItemID) const
-{
-	static const FString Context = FString(TEXT("UProjectN_InventoryComponent::FindEquippableItemFromDataTable"));
+	const FString Context = FString(TEXT("UProjectN_InventoryController::FindEntryFromDataTable"));
 	
-	if (const FEquippableItemDefinition* WeaponItemDef = EquipmentItemsDataTable.LoadSynchronous()->FindRow<FEquippableItemDefinition>(ItemID, Context, false))
+	if (FEntriesDefinition* EntriesDefinition = Entries.LoadSynchronous()->FindRow<FEntriesDefinition>(ItemID, Context, false))
 	{
-		return WeaponItemDef;
-	}
-	return nullptr;
-}
-
-const FWeaponItemDefinition* UProjectN_InventoryController::GetWeaponData(const FName& ItemID) const
-{
-	static const FString Context = FString(TEXT("UProjectN_InventoryComponent::FindWeaponFromDataTable"));
-	
-	if (const FWeaponItemDefinition* WeaponItemDef = WeaponItemsDataTable.LoadSynchronous()->FindRow<FWeaponItemDefinition>(ItemID, Context, false))
-	{
-		return WeaponItemDef;
-	}
-	return nullptr;
-}
-
-const FBagDefinition* UProjectN_InventoryController::GetBagData(const FName& ItemID) const
-{
-	static const FString Context = FString(TEXT("UProjectN_InventoryComponent::FindBagFromDataTable"));
-	
-	if (const FBagDefinition* BagDef = BagDataTable.LoadSynchronous()->FindRow<FBagDefinition>(ItemID, Context, false))
-	{
-		return BagDef;
+		return EntriesDefinition;
 	}
 	return nullptr;
 }
