@@ -35,6 +35,8 @@ void UProjectN_AbilityBookSlot::NativeOnDragDetected(const FGeometry& InGeometry
 	AbilitySlotDragOperation->Pivot = EDragPivot::MouseDown;
 
 	OutOperation = AbilitySlotDragOperation;
+
+	OnSlotUnhovered.Broadcast();
 }
 
 void UProjectN_AbilityBookSlot::SetAbilityIcon(const FSlateBrush& IconBrush) const

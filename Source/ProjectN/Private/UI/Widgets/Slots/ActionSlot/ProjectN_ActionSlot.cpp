@@ -43,6 +43,8 @@ void UProjectN_ActionSlot::NativeOnDragDetected(const FGeometry& InGeometry, con
 
 	OutOperation = InventorySlotDragOperation;
 
+	OnSlotUnhovered.Broadcast();
+
 	ClearSlot();
 }
 
@@ -98,9 +100,6 @@ bool UProjectN_ActionSlot::NativeOnDrop(const FGeometry& InGeometry, const FDrag
 
 			Cast<UProjectN_ActionBarController>(WidgetController)->ClearActionSlot(SlotIndex);
 			Cast<UProjectN_ActionBarController>(WidgetController)->UpdateActionSlot(SlotIndex, ActionSlotDragOperation->MyPayload.ItemID);
-
-			
-			//Cast<UProjectN_ActionBarController>(WidgetController)->SwapActionSlots(SlotIndex, ActionSlotDragOperation->MyPayload.ActionSlotIndex, ActionSlotDragOperation->MyPayload.ItemID);
 		}
 		else
 		{

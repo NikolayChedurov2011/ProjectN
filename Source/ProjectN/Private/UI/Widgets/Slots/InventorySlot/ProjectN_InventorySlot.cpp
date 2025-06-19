@@ -47,6 +47,8 @@ void UProjectN_InventorySlot::NativeOnDragDetected(const FGeometry& InGeometry, 
 	InventorySlotDragOperation->Pivot = EDragPivot::MouseDown;
 
 	OutOperation = InventorySlotDragOperation;
+
+	OnSlotUnhovered.Broadcast();
 }
 
 bool UProjectN_InventorySlot::NativeOnDrop(const FGeometry& InGeometry, const FDragDropEvent& InDragDropEvent, UDragDropOperation* InOperation)
@@ -69,9 +71,6 @@ bool UProjectN_InventorySlot::NativeOnDrop(const FGeometry& InGeometry, const FD
 
         		Cast<UProjectN_InventoryController>(WidgetController)->RemoveItem(BagIndex, BagSlotIndex);
         		Cast<UProjectN_InventoryController>(WidgetController)->TryAddItemToSlot(BagIndex, BagSlotIndex, InventorySlotDropOperation->MyPayload.ItemID, InventorySlotDropOperation->MyPayload.Quantity);
-        
-
-        		//Cast<UProjectN_InventoryController>(WidgetController)->ReplaceItemsInBag(InventorySlotDropOperation->MyPayload.BagIndex, BagIndex, InventorySlotDropOperation->MyPayload.SlotIndex, BagSlotIndex);
         	}
         	else
         	{

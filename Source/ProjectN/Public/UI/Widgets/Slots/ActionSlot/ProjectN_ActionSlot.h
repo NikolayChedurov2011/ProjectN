@@ -5,7 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameplayTagContainer.h"
 #include "Components/Image.h"
-#include "UI/Widgets/ProjectN_WidgetBase.h"
+#include "UI/Widgets/Slots/ProjectN_EntrySlotBase.h"
 #include "ProjectN_ActionSlot.generated.h"
 
 class UProgressBar;
@@ -14,7 +14,7 @@ class UProjectN_DragDropItem;
 class UProjectN_ActionSlot;
 
 UCLASS()
-class PROJECTN_API UProjectN_ActionSlot : public UProjectN_WidgetBase
+class PROJECTN_API UProjectN_ActionSlot : public UProjectN_EntrySlotBase
 {
 	GENERATED_BODY()
 	
@@ -80,6 +80,4 @@ private:
 
 	UPROPERTY(BlueprintReadWrite, meta=(AllowPrivateAccess=true))
 	float CooldownValueRemaining = 0.f;
-	
-	FName ItemID = NAME_None;
 };

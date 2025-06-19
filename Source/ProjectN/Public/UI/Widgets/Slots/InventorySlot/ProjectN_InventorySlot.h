@@ -5,7 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameplayTagContainer.h"
 #include "Components/Image.h"
-#include "UI/Widgets/ProjectN_WidgetBase.h"
+#include "UI/Widgets/Slots/ProjectN_EntrySlotBase.h"
 #include "ProjectN_InventorySlot.generated.h"
 
 class UProgressBar;
@@ -13,7 +13,7 @@ class UProjectN_DragDropItem;
 class UTextBlock;
 
 UCLASS()
-class PROJECTN_API UProjectN_InventorySlot : public UProjectN_WidgetBase
+class PROJECTN_API UProjectN_InventorySlot : public UProjectN_EntrySlotBase
 {
 	GENERATED_BODY()
 
@@ -81,6 +81,5 @@ private:
 	
 	int32 BagIndex = INDEX_NONE;
 	int32 BagSlotIndex = INDEX_NONE;
-	FName ItemID = NAME_None;
 	int32 Stack = 0;
 };

@@ -1,9 +1,6 @@
-Refactor all items concept
-Now we can set up ability cost and cooldown in data asset, this will work and we can see it in action bar slot
+Iteration for description
 
 TODO: 
-
-make ability book more beautiful
 
 maybe concept not "item weight" but the item that slowdown the player's movement" to remove weight?
 

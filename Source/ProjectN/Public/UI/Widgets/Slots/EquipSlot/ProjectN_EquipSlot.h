@@ -5,14 +5,14 @@
 #include "CoreMinimal.h"
 #include "Components/Image.h"
 #include "ProjectN/ProjectNTypes.h"
-#include "UI/Widgets/ProjectN_WidgetBase.h"
+#include "UI/Widgets/Slots/ProjectN_EntrySlotBase.h"
 #include "ProjectN_EquipSlot.generated.h"
 
 class UProjectN_DragDropItem;
 class UTextBlock;
 
 UCLASS()
-class PROJECTN_API UProjectN_EquipSlot : public UProjectN_WidgetBase
+class PROJECTN_API UProjectN_EquipSlot : public UProjectN_EntrySlotBase
 {
 	GENERATED_BODY()
 
@@ -47,6 +47,4 @@ private:
 	
 	UPROPERTY(EditDefaultsOnly, Category="Drag Drop")
 	TSubclassOf<UProjectN_DragDropItem> DragDropWidgetClass = nullptr;
-	
-	FName ItemID = NAME_None;
 };
