@@ -1,4 +1,4 @@
-#include "UI/Widgets/Inventory/DragDropItem/ProjectN_DragDropItem.h"
+#include "UI/Widgets/DragDropItem/ProjectN_DragDropItem.h"
 
 #include "Components/Image.h"
 #include "Components/TextBlock.h"

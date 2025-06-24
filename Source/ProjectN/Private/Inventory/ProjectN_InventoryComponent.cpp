@@ -30,7 +30,8 @@ void UProjectN_InventoryComponent::GetLifetimeReplicatedProps(TArray<class FLife
 	DOREPLIFETIME(UProjectN_InventoryComponent, EquippedSlots);
 	DOREPLIFETIME(UProjectN_InventoryComponent, BagList);
 	DOREPLIFETIME(UProjectN_InventoryComponent, CurrentTwoHandedPosture);
-}//TDOD: Replicate two handed
+	DOREPLIFETIME(UProjectN_InventoryComponent, bIsTwoHandedEquip);
+}
 
 void UProjectN_InventoryComponent::InitializeComponent()
 {
@@ -38,9 +39,10 @@ void UProjectN_InventoryComponent::InitializeComponent()
 
 	if (GetOwner()->HasAuthority())
 	{
-		InitBags();
-		// TODO: Load Items
+		
 	}
+
+	BagList.InventoryComponent = this;
 }
 /************************************************************************************************
  ************************************************************************************************/
@@ -64,19 +66,13 @@ void UProjectN_InventoryComponent::PrintMessage(const FString& InText) const
 /*********************************
  *  Getters
  *********************************/
-FInventorySlotData* UProjectN_InventoryComponent::GetBagSlot(const int32 BagIndex, const int32 SlotIndex)
+FInventorySlotData* UProjectN_InventoryComponent::GetBagSlot(const FGuid BagIndex, const int32 SlotIndex)
 {
-	for (FBagData& Bag : BagList.Bags)
+	for (FInventorySlotData& BagSlot : BagList.Slots)
 	{
-		if (Bag.BagIndex == BagIndex)
+		if (BagSlot.BagIndex == BagIndex && BagSlot.SlotIndex == SlotIndex)
 		{
-			for (FInventorySlotData& BagSlot : Bag.Slots)
-			{
-				if (BagSlot.SlotIndex == SlotIndex)
-				{
-					return &BagSlot;
-				}
-			}
+			return &BagSlot;
 		}
 	}
 	return nullptr;
@@ -84,26 +80,11 @@ FInventorySlotData* UProjectN_InventoryComponent::GetBagSlot(const int32 BagInde
 
 FInventorySlotData* UProjectN_InventoryComponent::FindItemInBag(const FName ItemID)
 {
-	for (FBagData& Bag : BagList.Bags)
+	for (FInventorySlotData& BagSlot : BagList.Slots)
 	{
-		for (FInventorySlotData& BagSlot : Bag.Slots)
+		if (BagSlot.ItemID == ItemID)
 		{
-			if (BagSlot.ItemID == ItemID)
-			{
-				return &BagSlot;
-			}
-		}
-	}
-	return nullptr;
-}
-
-FBagData* UProjectN_InventoryComponent::FindBagForSlot(const int32 BagIndexToFind)
-{
-	for (FBagData& Bag : BagList.Bags)
-	{
-		if (Bag.BagIndex == BagIndexToFind)
-		{
-			return &Bag;
+			return &BagSlot;
 		}
 	}
 	return nullptr;
@@ -202,7 +183,7 @@ FEntriesDefinition* UProjectN_InventoryComponent::GetEntryManifest(const FName& 
 /*********************************
  *  Bag manage
  *********************************/
-void UProjectN_InventoryComponent::InitBags()
+void UProjectN_InventoryComponent::ServerInitBags_Implementation()
 {
 	for (int32 i = 0; i < BagsDefaultID.Num(); i++)
 	{
@@ -218,7 +199,7 @@ void UProjectN_InventoryComponent::AddBag(const FName InBagItemID)
 	}
 
 	const FEntriesDefinition* EntriesDefinition = GetEntryManifest(InBagItemID);
-
+	
 	if (!EntriesDefinition)
 	{
 		return;
@@ -228,43 +209,20 @@ void UProjectN_InventoryComponent::AddBag(const FName InBagItemID)
 	
 	if (BagFragment)
 	{
-		FBagData& NewBag = BagList.Bags.AddDefaulted_GetRef();
-		NewBag.BagIndex = BagList.Bags.Num();
-		NewBag.BagItemID = InBagItemID;
-		NewBag.Slots.SetNum(BagFragment->GetNumSlots());
+		const FGuid NewBagIndex = FGuid::NewGuid();
 
 		// Init slots
-		for (int32 i = 0; i < NewBag.Slots.Num(); i++)
+		for (int32 i = 0; i < BagFragment->GetNumSlots(); i++)
 		{
-			NewBag.Slots[i].BagIndex = NewBag.BagIndex;
-			NewBag.Slots[i].SlotIndex = i;
+			FInventorySlotData Slot;
+			Slot.BagIndex = NewBagIndex;
+			Slot.SlotIndex = i;
+
+			BagList.Slots.Add(MoveTemp(Slot));
 		}
-
-		BagList.MarkItemDirty(NewBag);
-		BroadcastBagChange(NewBag);
-	}
-}
-
-void UProjectN_InventoryComponent::RemoveBag(const int32 BagIndex)
-{
-	if (!GetOwner()->HasAuthority())
-	{
-		return;
-	}
-	
-	for (int32 i = 0; i < BagList.Bags.Num(); i++)
-	{
-		if (BagList.Bags[i].BagIndex == BagIndex)
-		{
-			BagList.Bags.RemoveAt(i);
-
-			FBagData EmptyBag;
-			EmptyBag.BagIndex = BagIndex;
-			
-			BroadcastBagChange(EmptyBag);
-			BagList.MarkArrayDirty();
-			return;
-		}
+		BagList.MarkArrayDirty();
+		
+		BroadcastBagChange(BagList.Slots[BagList.Slots.Num() - 1].BagIndex, BagFragment->GetNumSlots());
 	}
 }
 /************************************************************************************************
@@ -317,51 +275,35 @@ void UProjectN_InventoryComponent::ServerTryAddItem_Implementation(const FName& 
 
 bool UProjectN_InventoryComponent::TryAddItemToFirstFreeSlot(const FName& ItemID, const int32 Quantity)
 {
-	for (FBagData& Bag : BagList.Bags)
+	for (FInventorySlotData& Slot : BagList.Slots)
 	{
-		for (int32 i = 0; i < Bag.Slots.Num(); i++)
+		if (Slot.ItemID.IsNone())
 		{
-			if (Bag.Slots[i].ItemID.IsNone())
-			{
-				FInventorySlotData NewSlotData;
-				NewSlotData.BagIndex = Bag.BagIndex;
-				NewSlotData.SlotIndex = i;
-				NewSlotData.ItemID = ItemID;
-				NewSlotData.Quantity = Quantity;
-				
-				Bag.Slots[i] = MoveTemp(NewSlotData);
-				BagList.MarkItemDirty(Bag);
-				
-				BroadcastSlotChange(Bag.Slots[i].BagIndex, Bag.Slots[i].SlotIndex, Bag.Slots[i]);
-				
-				return true;
-			}
+			Slot.ItemID = ItemID;
+			Slot.Quantity = Quantity;
+			
+			BagList.MarkItemDirty(Slot);
+			
+			return true;
 		}
 	}
+	
 	return false;
 }
 
-void UProjectN_InventoryComponent::ServerTryAddItemToSlot_Implementation(const int32 BagIndex, const int32 SlotIndex, const FName& ItemID, const int32 Quantity)
+void UProjectN_InventoryComponent::ServerTryAddItemToSlot_Implementation(const FGuid BagIndex, const int32 SlotIndex, const FName& ItemID, const int32 Quantity)
 {
-	if (!FindBagForSlot(BagIndex))
-	{
-		return;
-	}
-
 	if (!GetBagSlot(BagIndex, SlotIndex))
 	{
 		return;
 	}
 	
-	FBagData& ToBag = *FindBagForSlot(BagIndex);
 	FInventorySlotData& ToSlot = *GetBagSlot(BagIndex, SlotIndex);
 
 	ToSlot.ItemID = ItemID;
 	ToSlot.Quantity = Quantity;
 
-	BagList.MarkItemDirty(ToBag);
-				
-	BroadcastSlotChange(BagIndex, SlotIndex, ToSlot);
+	BagList.MarkItemDirty(ToSlot);
 }
 
 void UProjectN_InventoryComponent::TryAddItemToStack(const FName& ItemID, const int32 Quantity, const int32 MaxStack)
@@ -375,18 +317,15 @@ void UProjectN_InventoryComponent::TryAddItemToStack(const FName& ItemID, const 
 			{
 				Item->Quantity = TotalQuantity;
 			
-				BagList.MarkItemDirty(*FindBagForSlot(Item->BagIndex));
-			
-				BroadcastSlotChange(Item->BagIndex, Item->SlotIndex, *Item);
+				BagList.MarkItemDirty(*GetBagSlot(Item->BagIndex, Item->SlotIndex));
 				return;
 			}
 			else
 			{
 				Item->Quantity = MaxStack;
-				BagList.MarkItemDirty(*FindBagForSlot(Item->BagIndex));
+				BagList.MarkItemDirty(*GetBagSlot(Item->BagIndex, Item->SlotIndex));
 			
 				const int32 Remaining = TotalQuantity - MaxStack;
-				BroadcastSlotChange(Item->BagIndex, Item->SlotIndex, *Item);
 			
 				TryAddItemToFirstFreeSlot(ItemID, Remaining);
 				return;
@@ -414,19 +353,13 @@ void UProjectN_InventoryComponent::TryAddItemToStack(const FName& ItemID, const 
 	}
 }
 
-void UProjectN_InventoryComponent::ServerStackItems_Implementation(const int32 FromBagIndex, const int32 ToBagIndex, const int32 FromSlotIndex, const int32 ToSlotIndex, const int32 QuantityToAdd, const int32 MaxStack)
+void UProjectN_InventoryComponent::ServerStackItems_Implementation(const FGuid FromBagIndex, const FGuid ToBagIndex, const int32 FromSlotIndex, const int32 ToSlotIndex, const int32 QuantityToAdd, const int32 MaxStack)
 {
-	if (!FindBagForSlot(ToBagIndex) || !FindBagForSlot(FromBagIndex))
-	{
-		return;
-	}
-
 	if (!GetBagSlot(ToBagIndex, ToSlotIndex) || !GetBagSlot(FromBagIndex, FromSlotIndex))
 	{
 		return;
 	}
 	
-	FBagData& ToBag = *FindBagForSlot(ToBagIndex);
 	FInventorySlotData& ToSlot = *GetBagSlot(ToBagIndex, ToSlotIndex);
 	
 	if (MaxStack == ToSlot.Quantity || MaxStack == QuantityToAdd)
@@ -435,40 +368,29 @@ void UProjectN_InventoryComponent::ServerStackItems_Implementation(const int32 F
 		
 		ToSlot.Quantity = QuantityToAdd;
 
-		BagList.MarkItemDirty(ToBag);
-		BroadcastSlotChange(ToBagIndex, ToSlotIndex, ToSlot);
-		
+		BagList.MarkItemDirty(ToSlot);		
 		return;
 	}
 	if (MaxStack >= ToSlot.Quantity + QuantityToAdd)
 	{
 		ToSlot.Quantity += QuantityToAdd;
-		BagList.MarkItemDirty(ToBag);
-
-		BroadcastSlotChange(ToBagIndex, ToSlotIndex, ToSlot);
+		BagList.MarkItemDirty(ToSlot);
 		return;
 	}
 	else
 	{
 		const int32 Remaining = QuantityToAdd - (MaxStack - ToSlot.Quantity);
 		ToSlot.Quantity = MaxStack;
-		BagList.MarkItemDirty(ToBag);
-
-		BroadcastSlotChange(ToBagIndex, ToSlotIndex, ToSlot);
+		BagList.MarkItemDirty(ToSlot);
 
 		ServerTryAddItemToSlot(FromBagIndex, FromSlotIndex, ToSlot.ItemID, Remaining);
 	}
 }
 
 
-void UProjectN_InventoryComponent::ServerRemoveItem_Implementation(const int32 FromBagIndex, const int32 FromSlotIndex)
+void UProjectN_InventoryComponent::ServerRemoveItem_Implementation(const FGuid FromBagIndex, const int32 FromSlotIndex)
 {
 	if (!GetOwner()->HasAuthority())
-	{
-		return;
-	}
-
-	if (!FindBagForSlot(FromBagIndex))
 	{
 		return;
 	}
@@ -477,32 +399,22 @@ void UProjectN_InventoryComponent::ServerRemoveItem_Implementation(const int32 F
 	{
 		return;
 	}
-
-	FBagData& FromBag = *FindBagForSlot(FromBagIndex);
+	
 	FInventorySlotData& FromSlot = *GetBagSlot(FromBagIndex, FromSlotIndex);
 	
 	FromSlot.ItemID = NAME_None;
 	FromSlot.Quantity = 0;
 	
-	BagList.MarkItemDirty(FromBag);
-					
-	BroadcastSlotRemove(FromBagIndex, FromSlotIndex, FromSlot);
+	BagList.MarkItemDirty(FromSlot);
 }
 
-void UProjectN_InventoryComponent::ServerReplaceItemInBag_Implementation(const int32 FromBagIndex, const int32 ToBagIndex, const int32 FromSlotIndex, const int32 ToSlotIndex)
+void UProjectN_InventoryComponent::ServerReplaceItemInBag_Implementation(const FGuid FromBagIndex, const FGuid ToBagIndex, const int32 FromSlotIndex, const int32 ToSlotIndex)
 {
-	if (!FindBagForSlot(ToBagIndex) || !FindBagForSlot(FromBagIndex))
-	{
-		return;
-	}
-
 	if (!GetBagSlot(ToBagIndex, ToSlotIndex) || !GetBagSlot(FromBagIndex, FromSlotIndex))
 	{
 		return;
 	}
 	
-	FBagData& ToBag = *FindBagForSlot(ToBagIndex);
-	FBagData& FromBag = *FindBagForSlot(FromBagIndex);
 	FInventorySlotData& ToSlotData = *GetBagSlot(ToBagIndex, ToSlotIndex);
 	FInventorySlotData& FromSlotData = *GetBagSlot(FromBagIndex, FromSlotIndex);
 	const FInventorySlotData ToSlotDataCopy = *GetBagSlot(ToBagIndex, ToSlotIndex);
@@ -514,11 +426,8 @@ void UProjectN_InventoryComponent::ServerReplaceItemInBag_Implementation(const i
 	FromSlotData.ItemID = ToSlotDataCopy.ItemID;
 	FromSlotData.Quantity = ToSlotDataCopy.Quantity;
 	
-	BagList.MarkItemDirty(ToBag);
-	BagList.MarkItemDirty(FromBag);
-
-	ToSlotDataCopy.ItemID.IsNone()? BroadcastSlotRemove(ToBagIndex, ToSlotIndex, ToSlotData) : BroadcastSlotChange(ToBagIndex, ToSlotIndex, ToSlotData);
-	FromSlotData.ItemID.IsNone()? BroadcastSlotRemove(FromBagIndex, FromSlotIndex, FromSlotData) : BroadcastSlotChange(FromBagIndex, FromSlotIndex, FromSlotData);
+	BagList.MarkItemDirty(ToSlotData);
+	BagList.MarkItemDirty(FromSlotData);
 }
 
 void UProjectN_InventoryComponent::ServerTryUseItem_Implementation(const FName& ItemID)
@@ -553,10 +462,6 @@ void UProjectN_InventoryComponent::ServerTryUseItem_Implementation(const FName& 
 		if (!InventorySlot->Quantity)
 		{
 			ServerRemoveItem(InventorySlot->BagIndex, InventorySlot->SlotIndex);
-		}
-		else
-		{
-			BroadcastSlotChange(InventorySlot->BagIndex, InventorySlot->SlotIndex, *InventorySlot);
 		}
 	}
 	
@@ -884,35 +789,11 @@ void UProjectN_InventoryComponent::UpdateWeaponMode()
 /***********************************
  *  Broadcast to widget controller
  ***********************************/
-void UProjectN_InventoryComponent::BroadcastBagChange_Implementation(const FBagData& BagData)
+void UProjectN_InventoryComponent::BroadcastBagChange_Implementation(const FGuid BagIndex, const int32 SlotsNum)
 {
 	if (OnBagChanged.IsBound())
 	{
-		OnBagChanged.Execute(BagData);
-	}
-}
-
-void UProjectN_InventoryComponent::BroadcastBagRemoved_Implementation(const FBagData& BagData)
-{
-	if (OnBagRemoved.IsBound())
-	{
-		OnBagRemoved.Execute(BagData);
-	}
-}
-
-void UProjectN_InventoryComponent::BroadcastSlotChange_Implementation(const int32 BagIndex, const int32 SlotIndex, const FInventorySlotData& ItemData)
-{
-	if (OnInventorySlotChange.IsBound())
-	{
-		OnInventorySlotChange.Execute(BagIndex, SlotIndex, ItemData);
-	}
-}
-
-void UProjectN_InventoryComponent::BroadcastSlotRemove_Implementation(const int32 BagIndex, const int32 SlotIndex, const FInventorySlotData& ItemData)
-{
-	if (OnInventorySlotRemoved.IsBound())
-	{
-		OnInventorySlotRemoved.Execute(BagIndex, SlotIndex, ItemData);
+		OnBagChanged.Execute(BagIndex, SlotsNum);
 	}
 }
 

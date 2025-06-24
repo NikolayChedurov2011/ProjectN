@@ -28,8 +28,8 @@ public:
 	FORCEINLINE FSlateBrush GetIconBrush() const { return ItemIcon->GetBrush(); }
 	FORCEINLINE void SetItemIcon(const FSlateBrush& IconBrush) const;
 
-	FORCEINLINE int32 GetBagIndex() const { return BagIndex; }
-	FORCEINLINE void SetBagIndex(const int32 InBagID) { BagIndex = InBagID; }
+	FORCEINLINE FGuid GetBagIndex() const { return BagIndex; }
+	FORCEINLINE void SetBagIndex(const FGuid InBagID) { BagIndex = InBagID; }
 	
 	FORCEINLINE int32 GetBagSlotIndex() const { return BagSlotIndex; }
 	FORCEINLINE void SetBagSlotIndex(const int32 InBagSlotIndex) { BagSlotIndex = InBagSlotIndex; }
@@ -79,7 +79,7 @@ private:
 	UPROPERTY(BlueprintReadWrite, meta=(AllowPrivateAccess=true))
 	float CooldownValueRemaining = 0.f;
 	
-	int32 BagIndex = INDEX_NONE;
+	FGuid BagIndex = FGuid();
 	int32 BagSlotIndex = INDEX_NONE;
 	int32 Stack = 0;
 };

@@ -14,7 +14,7 @@
 
 UProjectN_OverlayWidgetController* UProjectN_AbilitySystemLibrary::GetOverlayWidgetController(const UObject* WorldContextObject)
 {
-	if (APlayerController* PlayerController = UGameplayStatics::GetPlayerController(WorldContextObject, 0))
+	/*if (APlayerController* PlayerController = UGameplayStatics::GetPlayerController(WorldContextObject, 0))
 	{
 		if (AProjectN_HUD* HUD = Cast<AProjectN_HUD>(PlayerController->GetHUD()))
 		{
@@ -28,6 +28,17 @@ UProjectN_OverlayWidgetController* UProjectN_AbilitySystemLibrary::GetOverlayWid
 			}
 		}
 	}
+	return nullptr;*/
+
+	APlayerController* DefaultPlayerController = UGameplayStatics::GetPlayerController(WorldContextObject, 0);
+	const APlayerController* PlayerController = Cast<APlayerController>(DefaultPlayerController);
+	if (AProjectN_HUD* HUD = Cast<AProjectN_HUD>(PlayerController->GetHUD()))
+	{
+		const FWidgetControllerParams WidgetParams;
+
+		return HUD->GetOverlayWidgetController(WidgetParams);
+	}
+	
 	return nullptr;
 }
 

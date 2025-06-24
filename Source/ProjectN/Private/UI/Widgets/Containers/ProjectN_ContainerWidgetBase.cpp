@@ -1,42 +1,15 @@
-// N Chedurov All Rights Reserved
+﻿// N Chedurov All Rights Reserved
 
-#include "UI/Widgets/Inventory/ProjectN_AbilityBookWidget.h"
+
+#include "UI/Widgets/Containers/ProjectN_ContainerWidgetBase.h"
 
 #include "Blueprint/SlateBlueprintLibrary.h"
 #include "Blueprint/WidgetLayoutLibrary.h"
 #include "Components/CanvasPanel.h"
 #include "Components/CanvasPanelSlot.h"
-#include "Components/GridPanel.h"
 #include "UI/Widgets/Description/ProjectN_EntryDescription.h"
-#include "UI/Widgets/Slots/ProjectN_EntrySlotBase.h"
-#include "UI/Widgets/Slots/AbilityBookSlot/ProjectN_AbilityBookSlot.h"
 
-UProjectN_AbilityBookSlot* UProjectN_AbilityBookWidget::FindAbility(const FName& AbilityID)
-{
-	for (const TObjectPtr<UProjectN_AbilityBookSlot>& Ability : AbilitySlots)
-	{
-		if (Ability->GetItemID() == AbilityID)
-		{
-			return Ability;
-		}
-	}
-
-	return nullptr;
-}
-
-UProjectN_AbilityBookSlot* UProjectN_AbilityBookWidget::AddNewAbility()
-{
-	UProjectN_AbilityBookSlot* NewAbility = CreateWidget<UProjectN_AbilityBookSlot>(GetOwningPlayer(), AbilitySlotClass);
-	
-	AbilitySlots.Add(NewAbility);
-	AbilityBookGrid->AddChildToGrid(NewAbility, (AbilitySlots.Num() - 1) / Columns, (AbilitySlots.Num() - 1) % Columns);
-	
-	NewAbility->OnSlotHovered.AddDynamic(this, &UProjectN_AbilityBookWidget::OnSlotHovered);
-	NewAbility->OnSlotUnhovered.AddDynamic(this, &UProjectN_AbilityBookWidget::OnSlotUnhovered);
-	return NewAbility;
-}
-
-void UProjectN_AbilityBookWidget::OnSlotHovered(UProjectN_EntrySlotBase* HoveredWidget)
+void UProjectN_ContainerWidgetBase::OnSlotHovered(UProjectN_EntrySlotBase* HoveredWidget)
 {
 	GetItemDescription()->SetVisibility(ESlateVisibility::Collapsed);
 
@@ -52,14 +25,13 @@ void UProjectN_AbilityBookWidget::OnSlotHovered(UProjectN_EntrySlotBase* Hovered
 	GetOwningPlayer()->GetWorldTimerManager().SetTimer(DescriptionTimerHandle, TimerDelegate, DescriptionTimerShowAt, false);
 }
 
-void UProjectN_AbilityBookWidget::OnSlotUnhovered()
+void UProjectN_ContainerWidgetBase::OnSlotUnhovered()
 {
 	GetOwningPlayer()->GetWorldTimerManager().ClearTimer(DescriptionTimerHandle);
 	GetItemDescription()->SetVisibility(ESlateVisibility::Collapsed);
 }
 
-
-UProjectN_EntryDescription* UProjectN_AbilityBookWidget::GetItemDescription()
+UProjectN_EntryDescription* UProjectN_ContainerWidgetBase::GetItemDescription()
 {
 	if (!IsValid(DescriptionWidget))
 	{
@@ -69,7 +41,7 @@ UProjectN_EntryDescription* UProjectN_AbilityBookWidget::GetItemDescription()
 	return DescriptionWidget;
 }
 
-void UProjectN_AbilityBookWidget::SetDescriptionSizeAndPosition(UProjectN_EntrySlotBase* HoveredWidget)
+void UProjectN_ContainerWidgetBase::SetDescriptionSizeAndPosition(UProjectN_EntrySlotBase* HoveredWidget)
 {
 	UCanvasPanelSlot* CanvasPanelSlot = UWidgetLayoutLibrary::SlotAsCanvasSlot(DescriptionWidget);
 	const FVector2D DescriptionSize = DescriptionWidget->GetBoxSize();
@@ -79,7 +51,7 @@ void UProjectN_AbilityBookWidget::SetDescriptionSizeAndPosition(UProjectN_EntryS
 	CanvasPanelSlot->SetPosition(GetClampedWidgetPosition(GetWidgetSize(CanvasPanel), DescriptionSize, HoveredWidget));
 }
 
-FVector2D UProjectN_AbilityBookWidget::GetClampedWidgetPosition(const FVector2D& Boundary, const FVector2D& WidgetSize, UProjectN_EntrySlotBase* HoveredWidget)
+FVector2D UProjectN_ContainerWidgetBase::GetClampedWidgetPosition(const FVector2D& Boundary, const FVector2D& WidgetSize, UProjectN_EntrySlotBase* HoveredWidget)
 {
 	FVector2D MousePos = UWidgetLayoutLibrary::GetMousePositionOnViewport(GetOwningPlayer());
 	MousePos.Y -= WidgetSize.Y;
@@ -97,7 +69,7 @@ FVector2D UProjectN_AbilityBookWidget::GetClampedWidgetPosition(const FVector2D&
 	return ClampedPos;
 }
 
-FVector2D UProjectN_AbilityBookWidget::GetWidgetPosition(UWidget* UserWidget)
+FVector2D UProjectN_ContainerWidgetBase::GetWidgetPosition(UWidget* UserWidget)
 {
 	const FGeometry Geometry = UserWidget->GetCachedGeometry();
 	
@@ -108,7 +80,7 @@ FVector2D UProjectN_AbilityBookWidget::GetWidgetPosition(UWidget* UserWidget)
 	return ViewportPos;
 }
 
-FVector2D UProjectN_AbilityBookWidget::GetWidgetSize(UWidget* UserWidget)
+FVector2D UProjectN_ContainerWidgetBase::GetWidgetSize(UWidget* UserWidget)
 {
 	const FGeometry Geometry = UserWidget->GetCachedGeometry();
 

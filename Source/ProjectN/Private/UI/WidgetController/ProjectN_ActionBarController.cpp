@@ -7,7 +7,7 @@
 #include "AbilitySystem/ProjectN_AbilitySystemComponent.h"
 #include "GameFramework/PlayerState.h"
 #include "Inventory/ProjectN_InventoryComponent.h"
-#include "UI/Widgets/Inventory/ProjectN_ActionBartWidget.h"
+#include "UI/Widgets/Containers/ProjectN_ActionBartWidget.h"
 #include "UI/Widgets/Slots/ActionSlot/ProjectN_ActionSlot.h"
 
 void UProjectN_ActionBarController::BindCallbacksToResponce()

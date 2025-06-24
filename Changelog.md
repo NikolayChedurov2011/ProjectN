@@ -1,4 +1,6 @@
-Iteration for description
+Iteration for composite pattern.
+Iteration for bag slots. Refactor item slots structure.
+Remove broadcasts from inventory component, use PostReplicatedChange of Fast Array Serializer function. 
 
 TODO: 
 

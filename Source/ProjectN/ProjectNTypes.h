@@ -7,6 +7,8 @@
 #include "InstancedStruct.h"
 #include "ProjectNTypes.generated.h"
 
+class UProjectN_CompositeBase;
+class UProjectN_InventoryComponent;
 class UGameplayEffect;
 class UGameplayAbility;
 class UBlendSpace;
@@ -232,227 +234,6 @@ enum class EWeaponType : uint8
 	MagicStaff		UMETA(DisplayName = "MagicStaff"),
 };
 
-/*
-UCLASS(BlueprintType, Blueprintable)
-class UItemStaticClass : public UObject
-{
-	GENERATED_BODY()
-
-public:
-	UFUNCTION(BlueprintCallable, BlueprintPure)
-	FORCEINLINE UTexture2D* GetItemIcon() const { return ItemIcon; }
-
-	UFUNCTION(BlueprintCallable, BlueprintPure)
-	FORCEINLINE FName GetItemName() const { return ItemName; }
-
-	UFUNCTION(BlueprintCallable, BlueprintPure)
-	FORCEINLINE FString GetItemDescription() const { return ItemDescription; }
-
-	UFUNCTION(BlueprintCallable, BlueprintPure)
-	FORCEINLINE bool CanBeEquipped() const { return bCanBeEquipped; }
-
-	UFUNCTION(BlueprintCallable, BlueprintPure)
-	FORCEINLINE bool CanStack() const { return bCanStack; }
-
-	UFUNCTION(BlueprintCallable, BlueprintPure)
-	FORCEINLINE bool CanBeUsed() const { return bCanBeUsed; }
-
-	UFUNCTION(BlueprintCallable, BlueprintPure)
-	FORCEINLINE bool ShouldDestroyAfterUse() const { return bShouldDestroyAfterUse; }
-	
-	UFUNCTION(BlueprintCallable, BlueprintPure)
-	FORCEINLINE TSubclassOf<AProjectN_ItemActor_Base> GetItemActorClass() const { return ItemActorClass; }
-
-	UFUNCTION(BlueprintCallable, BlueprintPure)
-	FORCEINLINE TSubclassOf<UGameplayAbility> GetUseItemAbility() const { return UseItemAbility; }
-	
-	virtual UProjectN_ItemInstance* CreateInstance(UObject* Outer) const
-	{
-		return NewObject<UProjectN_ItemInstance>(Outer, ItemInstanceClass);
-	}
-	
-protected:
-
-	UPROPERTY(EditDefaultsOnly, Category="Instance")
-	TSubclassOf<UProjectN_ItemInstance> ItemInstanceClass = UProjectN_ItemInstance::StaticClass();
-	
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	UTexture2D* ItemIcon = nullptr;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	FName ItemName = NAME_None;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	FString ItemDescription = FString();
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	bool bCanBeEquipped = false;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	bool bCanBeUsed = false;
-	
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	bool bShouldDestroyAfterUse = false;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	bool bCanStack = false;
-	
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	TSubclassOf<AProjectN_ItemActor_Base> ItemActorClass;
-	
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	TSubclassOf<UGameplayAbility> UseItemAbility;
-};
-
-UCLASS(BlueprintType, Blueprintable)
-class UEquippableItemStaticClass : public UItemStaticClass
-{
-	GENERATED_BODY()
-
-public:
-
-	UEquippableItemStaticClass()
-	{
-		bCanBeEquipped = true;
-		ItemInstanceClass = UProjectN_EquippableItemInstance::StaticClass();
-	}
-	
-	UFUNCTION(BlueprintCallable, BlueprintPure)
-	FORCEINLINE FName GetSocketsToAttach(const EItemSlot InSlot) const
-	{
-		for (const TTuple<EItemSlot, FName>& SocketMap : SocketToAttach)
-		{
-			if (SocketMap.Key == InSlot)
-			{
-				return SocketMap.Value;
-			}
-		}
-
-		return NAME_None;
-	}
-
-	UFUNCTION(BlueprintCallable, BlueprintPure)
-	FORCEINLINE bool IsAllowedSlot(const EItemSlot InSlot) const
-	{
-		for (const EItemSlot& Slot : AllowedSlots)
-		{
-			if (Slot == InSlot)
-			{
-				return true;
-			}
-		}
-
-		return false;
-	}
-	
-	UFUNCTION(BlueprintCallable, BlueprintPure)
-	FORCEINLINE TArray<TSubclassOf<UGameplayEffect>> GetItemPassiveEffects() const { return ItemPassiveEffects; }
-
-	UFUNCTION(BlueprintCallable, BlueprintPure)
-	FORCEINLINE TMap<FGameplayTag, float> GetItemBonusAttributes() const { return ItemBonusAttributes; }
-
-protected:
-	
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	TMap<EItemSlot, FName> SocketToAttach;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	TArray<EItemSlot> AllowedSlots;
-	
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	TArray<TSubclassOf<UGameplayEffect>> ItemPassiveEffects;
-	
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	TMap<FGameplayTag, float> ItemBonusAttributes;
-};
-
-
-
-UCLASS(BlueprintType, Blueprintable)
-class UWeaponItemStaticClass : public UEquippableItemStaticClass
-{
-	GENERATED_BODY()
-
-public:
-
-	/*
-	UFUNCTION(BlueprintCallable, BlueprintPure)
-	FORCEINLINE TSubclassOf<UGameplayAbility> GetMainWeaponAbility() const { return MainWeaponAbility; }
-
-	UFUNCTION(BlueprintCallable, BlueprintPure)
-	FORCEINLINE TSubclassOf<UGameplayAbility> GetAuxiliaryWeaponAbility() const { return AuxiliaryWeaponAbility; }
-
-	UFUNCTION(BlueprintCallable, BlueprintPure)
-	FORCEINLINE TSubclassOf<UGameplayAbility> GetMainDualWeaponAbility() const { return MainDualWeaponAbility; }
-
-	UFUNCTION(BlueprintCallable, BlueprintPure)
-	FORCEINLINE TSubclassOf<UGameplayAbility> GetAuxiliaryDualWeaponAbility() const { return AuxiliaryDualWeaponAbility; }
-
-	UFUNCTION(BlueprintCallable, BlueprintPure)
-	FORCEINLINE TSubclassOf<UGameplayAbility> GetMainTwoHandWeaponAbility() const { return MainTwoHandWeaponAbility; }
-
-	UFUNCTION(BlueprintCallable, BlueprintPure)
-	FORCEINLINE TSubclassOf<UGameplayAbility> GetAuxiliaryTwoHandWeaponAbility() const { return AuxiliaryTwoHandWeaponAbility; }
-	#1#
-
-	UFUNCTION(BlueprintCallable, BlueprintPure)
-	FORCEINLINE FName GetTwoHandOffHandSocketName() const { return TwoHandOffHandSocketName; }
-	
-	UFUNCTION(BlueprintCallable)
-	FORCEINLINE bool GetWeaponAbilitiesInfo(const EWeaponMode WeaponMode, FWeaponAbilitiesInfo& WeaponAbilitiesInfoOut)
-	{
-		const FWeaponAbilitiesInfo* Found = WeaponAbilitiesInfo.Find(WeaponMode);
-
-		if (Found)
-		{
-			WeaponAbilitiesInfoOut = *Found;
-			return true;
-		}
-
-		return false;
-	}
-
-	UFUNCTION(BlueprintCallable, BlueprintPure)
-	FORCEINLINE FGameplayTag GetWeaponTypeTag() const { return WeaponTypeTag; }
-
-	UFUNCTION(BlueprintCallable, BlueprintPure)
-	FORCEINLINE TMap<FGameplayTag, float> GetWeaponDamageTypes() const { return WeaponDamageTypes; }
-	
-protected:
-
-	UPROPERTY(EditDefaultsOnly, Category="Sockets")
-	FName TwoHandOffHandSocketName = TEXT("hand_ik_target");
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	TMap<EWeaponMode, FWeaponAbilitiesInfo> WeaponAbilitiesInfo;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	FGameplayTag WeaponTypeTag;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	TMap<FGameplayTag, float> WeaponDamageTypes;
-
-	/*UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	TSubclassOf<UGameplayAbility> MainWeaponAbility;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	TSubclassOf<UGameplayAbility> AuxiliaryWeaponAbility;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	TSubclassOf<UGameplayAbility> MainDualWeaponAbility;
-	
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	TSubclassOf<UGameplayAbility> AuxiliaryDualWeaponAbility;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	TSubclassOf<UGameplayAbility> MainTwoHandWeaponAbility;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	TSubclassOf<UGameplayAbility> AuxiliaryTwoHandWeaponAbility;#1#
-};
-*/
-
-
 UENUM(BlueprintType, Blueprintable)
 enum class EEntryType : uint8
 {
@@ -630,12 +411,12 @@ struct FBagDefinition : public FItemDefinition
 *   Slots Data
 ********************/
 USTRUCT(BlueprintType, Blueprintable)
-struct FInventorySlotData
+struct FInventorySlotData : public FFastArraySerializerItem
 {
 	GENERATED_BODY()
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	int32 BagIndex = INDEX_NONE;
+	FGuid BagIndex = FGuid();
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	int32 SlotIndex = INDEX_NONE;
@@ -654,9 +435,6 @@ struct FBagData : public FFastArraySerializerItem
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	int32 BagIndex = INDEX_NONE;
-	
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	FName BagItemID = NAME_None;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	TArray<FInventorySlotData> Slots;
@@ -669,12 +447,19 @@ struct FBagList : public FFastArraySerializer
 	GENERATED_BODY()
 	
 	UPROPERTY()
-	TArray<FBagData> Bags;
+	TArray<FInventorySlotData> Slots;
+
+	UPROPERTY()
+	TObjectPtr<UProjectN_InventoryComponent> InventoryComponent;
 	
 	bool NetDeltaSerialize(FNetDeltaSerializeInfo& DeltaParams)
 	{
-		return FFastArraySerializer::FastArrayDeltaSerialize<FBagData, FBagList>(Bags, DeltaParams, *this);
+		return FFastArraySerializer::FastArrayDeltaSerialize<FInventorySlotData, FBagList>(Slots, DeltaParams, *this);
 	}
+
+	void PreReplicatedRemove(const TArrayView<int32>& RemovedIndices, int32 FinalSize);
+	void PostReplicatedAdd(const TArrayView<int32>& AddedIndices, int32 FinalSize);
+	void PostReplicatedChange(const TArrayView<int32>& ChangedIndices, int32 FinalSize);
 };
 
 template<>
@@ -715,7 +500,6 @@ struct FEquipSlotData : public FFastArraySerializerItem
 	UPROPERTY()
 	AActor* SpawnedActor = nullptr;
 };
-
 
 USTRUCT(BlueprintType, Blueprintable)
 struct FAbilitySlotData : public FFastArraySerializerItem
@@ -963,6 +747,17 @@ private:
 	TObjectPtr<UAnimSequence> TwoHandedPosture = nullptr;
 };
 
+USTRUCT(BlueprintType, Blueprintable)
+struct FInventoryFragment : public FFragmentData
+{
+	GENERATED_BODY()
+
+	virtual void Assimilate(UProjectN_CompositeBase* Composite) const;
+
+protected:
+	bool MatchesWidgetTag(const UProjectN_CompositeBase* Composite) const;
+};
+
 
 /*******************************
 *   Manifest and Data Table
@@ -990,6 +785,22 @@ public:
 		}
 		return nullptr;
 	}
+
+	template <typename T> requires std::derived_from<T, FFragmentData>
+	TArray<const T*> GetAllFragmentsOfType() const
+	{
+		TArray<const T*> Result;
+		for (const TInstancedStruct<FFragmentData>& Fragment : Fragments)
+		{
+			if (const T* FragmentPtr = Fragment.GetPtr<T>())
+			{
+				Result.Add(FragmentPtr);
+			}
+		}
+		return Result;
+	}
+
+	void AssimilateInventoryFragments(UProjectN_CompositeBase* Composite) const;
 
 protected:
 	UPROPERTY(EditDefaultsOnly, meta=(ExcludeBaseStruct))

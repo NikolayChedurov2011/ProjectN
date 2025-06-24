@@ -4,7 +4,7 @@
 #include "UI/WidgetController/ProjectN_AbilityBookController.h"
 
 #include "ProjectN_GameplayTags.h"
-#include "UI/Widgets/Inventory/ProjectN_AbilityBookWidget.h"
+#include "UI/Widgets/Containers/ProjectN_AbilityBookWidget.h"
 #include "UI/Widgets/Slots/AbilityBookSlot/ProjectN_AbilityBookSlot.h"
 
 void UProjectN_AbilityBookController::BindCallbacksToResponce()

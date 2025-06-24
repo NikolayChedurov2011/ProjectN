@@ -48,16 +48,16 @@ public:
 	void TryAddItem(const FName ItemID, const int32 Quantity) const;
 
 	UFUNCTION(BlueprintCallable)
-	void TryAddItemToSlot(const int32 BagIndex, const int32 SlotIndex, const FName& ItemID, const int32 Quantity) const;
+	void TryAddItemToSlot(const FGuid BagIndex, const int32 SlotIndex, const FName& ItemID, const int32 Quantity) const;
 
 	UFUNCTION(BlueprintCallable)
-	void StackItems(const FName ItemID, const int32 FromBagIndex, const int32 ToBagIndex, const int32 FromSlotIndex, const int32 ToSlotIndex, const int32 QuantityToAdd);
+	void StackItems(const FName ItemID, const FGuid FromBagIndex, const FGuid ToBagIndex, const int32 FromSlotIndex, const int32 ToSlotIndex, const int32 QuantityToAdd);
 	
 	UFUNCTION(BlueprintCallable)
-	void RemoveItem(const int32 FromBagIndex, const int32 FromSlotIndex) const;
+	void RemoveItem(const FGuid FromBagIndex, const int32 FromSlotIndex) const;
 	
 	UFUNCTION(BlueprintCallable)
-	void ReplaceItemsInBag(const int32 FromBagIndex, const int32 ToBagIndex, const int32 FromSlotIndex, const int32 ToSlotIndex) const;
+	void ReplaceItemsInBag(const FGuid FromBagIndex, const FGuid ToBagIndex, const int32 FromSlotIndex, const int32 ToSlotIndex) const;
 	
 	/*********************************
 	*  Equipping manage

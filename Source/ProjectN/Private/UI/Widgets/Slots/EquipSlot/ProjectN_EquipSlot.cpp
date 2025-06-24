@@ -8,7 +8,7 @@
 #include "Components/TextBlock.h"
 #include "UI/ProjectN_DragDropOperation.h"
 #include "UI/WidgetController/ProjectN_InventoryController.h"
-#include "UI/Widgets/Inventory/DragDropItem/ProjectN_DragDropItem.h"
+#include "UI/Widgets/DragDropItem/ProjectN_DragDropItem.h"
 
 void UProjectN_EquipSlot::NativePreConstruct()
 {

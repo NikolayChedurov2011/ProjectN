@@ -7,8 +7,8 @@
 #include "AbilitySystem/ProjectN_AbilitySystemComponent.h"
 #include "GameFramework/PlayerState.h"
 #include "Inventory/ProjectN_InventoryComponent.h"
-#include "UI/Widgets/Inventory/ProjectN_EquipmentWidget.h"
-#include "UI/Widgets/Inventory/ProjectN_InventoryWidget.h"
+#include "UI/Widgets/Containers/ProjectN_EquipmentWidget.h"
+#include "UI/Widgets/Containers/ProjectN_InventoryWidget.h"
 #include "UI/Widgets/Slots/EquipSlot/ProjectN_EquipSlot.h"
 #include "UI/Widgets/Slots/InventorySlot/ProjectN_InventorySlot.h"
 
@@ -19,14 +19,9 @@ void UProjectN_InventoryController::BindCallbacksToResponce()
 
 	if (InventoryComponent)
 	{
-		InventoryComponent->OnBagChanged.BindLambda([this](const FBagData& BagData)
+		InventoryComponent->OnBagChanged.BindLambda([this](const FGuid BagIndex, const int32 SlotsNum)
 		{
-			InventoryWidget->InitNewBag(BagData);
-		});
-
-		InventoryComponent->OnBagRemoved.BindLambda([this](const FBagData& BagData)
-		{
-			InventoryWidget->RemoveBag(BagData);
+			InventoryWidget->InitNewBag(BagIndex, SlotsNum);
 		});
 
 		InventoryComponent->OnEquipSlotChange.BindLambda([this](const FEquipSlotData& ItemData)
@@ -53,7 +48,7 @@ void UProjectN_InventoryController::BindCallbacksToResponce()
 			EquipmentWidget->ClearEquipmentSlot(ItemData.EquipSlot);
 		});
 
-		InventoryComponent->OnInventorySlotChange.BindLambda([this, ProjectN_AbilitySystemComponent](const int32 BagIndex, const int32 SlotIndex, const FInventorySlotData& ItemData)
+		InventoryComponent->OnInventorySlotChange.BindLambda([this, ProjectN_AbilitySystemComponent](const FGuid BagIndex, const int32 SlotIndex, const FInventorySlotData& ItemData)
 		{
 			if (UProjectN_InventorySlot* InventorySlot = InventoryWidget->FindInventorySlot(BagIndex, SlotIndex))
 			{
@@ -85,7 +80,7 @@ void UProjectN_InventoryController::BindCallbacksToResponce()
 			}
 		});
 		
-		InventoryComponent->OnInventorySlotRemoved.BindLambda([this](const int32 BagIndex, const int32 SlotIndex, const FInventorySlotData& ItemData)
+		InventoryComponent->OnInventorySlotRemoved.BindLambda([this](const FGuid BagIndex, const int32 SlotIndex, const FInventorySlotData& ItemData)
 		{
 			InventoryWidget->ClearInventorySlot(BagIndex, SlotIndex);
 		});
@@ -98,11 +93,7 @@ void UProjectN_InventoryController::BroadcastInitialValues()
 
 	if (InventoryComponent)
 	{
-		// TODO: Init inventory items
-		for (int32 i = 0; i < InventoryComponent->GetBags().Num(); i++)
-		{
-			InventoryWidget->InitNewBag(InventoryComponent->GetBags()[i]);
-		}
+		InventoryComponent->ServerInitBags();
 	}
 }
 
@@ -124,12 +115,12 @@ void UProjectN_InventoryController::TryAddItem(const FName ItemID, const int32 Q
 	InventoryComponent->ServerTryAddItem(ItemID, Quantity);
 }
 
-void UProjectN_InventoryController::TryAddItemToSlot(const int32 BagIndex, const int32 SlotIndex, const FName& ItemID, const int32 Quantity) const
+void UProjectN_InventoryController::TryAddItemToSlot(const FGuid BagIndex, const int32 SlotIndex, const FName& ItemID, const int32 Quantity) const
 {
 	InventoryComponent->ServerTryAddItemToSlot(BagIndex, SlotIndex, ItemID, Quantity);
 }
 
-void UProjectN_InventoryController::StackItems(const FName ItemID, const int32 FromBagIndex, const int32 ToBagIndex, const int32 FromSlotIndex, const int32 ToSlotIndex, const int32 QuantityToAdd)
+void UProjectN_InventoryController::StackItems(const FName ItemID, const FGuid FromBagIndex, const FGuid ToBagIndex, const int32 FromSlotIndex, const int32 ToSlotIndex, const int32 QuantityToAdd)
 {
 	const FEntriesDefinition* EntriesDefinition = GetEntryManifest(ItemID);
 	const FStackFragment* StackFragment = GetFragment<FStackFragment>(*EntriesDefinition->FragmentManifest, ProjectNGameplayTags::Fragment_Stack);
@@ -137,12 +128,12 @@ void UProjectN_InventoryController::StackItems(const FName ItemID, const int32 F
 	InventoryComponent->ServerStackItems(FromBagIndex, ToBagIndex, FromSlotIndex, ToSlotIndex, QuantityToAdd, StackFragment->GetMaxStack());
 }
 
-void UProjectN_InventoryController::ReplaceItemsInBag(const int32 FromBagIndex, const int32 ToBagIndex,	const int32 FromSlotIndex, const int32 ToSlotIndex) const
+void UProjectN_InventoryController::ReplaceItemsInBag(const FGuid FromBagIndex, const FGuid ToBagIndex,	const int32 FromSlotIndex, const int32 ToSlotIndex) const
 {
 	InventoryComponent->ServerReplaceItemInBag(FromBagIndex, ToBagIndex, FromSlotIndex, ToSlotIndex);
 }
 
-void UProjectN_InventoryController::RemoveItem(const int32 FromBagIndex, const int32 FromSlotIndex) const
+void UProjectN_InventoryController::RemoveItem(const FGuid FromBagIndex, const int32 FromSlotIndex) const
 {
 	InventoryComponent->ServerRemoveItem(FromBagIndex, FromSlotIndex);
 }

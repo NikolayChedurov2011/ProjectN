@@ -36,8 +36,8 @@ struct TStructOpsTypeTraits<FEquippedItemsList> : public TStructOpsTypeTraitsBas
 	enum { WithNetDeltaSerializer = true };
 };
 
-DECLARE_DELEGATE_OneParam(FOnBagChangedSignature, const FBagData& /*BagData*/);
-DECLARE_DELEGATE_ThreeParams(FOnSlotChangeSignature, const int32 /*BagIndex*/, const int32 /*SlotIndex*/, const FInventorySlotData& /*ItemData*/);
+DECLARE_DELEGATE_TwoParams(FOnBagChangedSignature, const FGuid /*BagIndex*/, const int32 /*SlotsNum*/);
+DECLARE_DELEGATE_ThreeParams(FOnSlotChangeSignature, const FGuid /*BagIndex*/, const int32 /*SlotIndex*/, const FInventorySlotData& /*ItemData*/);
 DECLARE_DELEGATE_OneParam(FOnEquipSlotChangeSignature, const FEquipSlotData& /*SlotData*/);
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
@@ -61,8 +61,8 @@ public:
 	/*********************************
 	 *  Getters
 	 *********************************/
-	UFUNCTION(BlueprintCallable)
-	FORCEINLINE TArray<FBagData> GetBags() const { return BagList.Bags; }
+	//UFUNCTION(BlueprintCallable)
+	FORCEINLINE TArray<FInventorySlotData> GetBags() const { return BagList.Slots; }
 	
 	UFUNCTION(BlueprintCallable, BlueprintPure)
 	AProjectN_WeaponActor* GetEquippedWeaponActorBySlot(const EEquipSlot InItemSlot);
@@ -75,8 +75,8 @@ public:
 
 	FVector FindWeaponSocketLocationForProjectileBySlot(const EEquipSlot ItemSlot) const;
 
-	FBagData* FindBagForSlot(const int32 BagIndexToFind);
-	FInventorySlotData* GetBagSlot(const int32 BagIndex, const int32 SlotIndex);
+	//FBagData* FindBagForSlot(const int32 BagIndexToFind);
+	FInventorySlotData* GetBagSlot(const FGuid BagIndex, const int32 SlotIndex);
 	FInventorySlotData* FindItemInBag(const FName ItemID);
 
 	UFUNCTION(BlueprintCallable, BlueprintPure)
@@ -91,8 +91,8 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void AddBag(const FName InBagItemID);
 	
-	UFUNCTION(BlueprintCallable)
-	void RemoveBag(const int32 BagIndex);
+	//UFUNCTION(BlueprintCallable)
+	//void RemoveBag(const int32 BagIndex);
 
 	
 	/*********************************
@@ -102,16 +102,16 @@ public:
 	void ServerTryAddItem(const FName& ItemID, const int32 Quantity);
 	
 	UFUNCTION(Server, Reliable)
-	void ServerTryAddItemToSlot(const int32 BagIndex, const int32 SlotIndex, const FName& ItemID, const int32 Quantity);
+	void ServerTryAddItemToSlot(const FGuid BagIndex, const int32 SlotIndex, const FName& ItemID, const int32 Quantity);
 
 	UFUNCTION(Server, Reliable)
-	void ServerStackItems(const int32 FromBagIndex, const int32 ToBagIndex, const int32 FromSlotIndex, const int32 ToSlotIndex, const int32 QuantityToAdd, const int32 MaxStack);
+	void ServerStackItems(const FGuid FromBagIndex, const FGuid ToBagIndex, const int32 FromSlotIndex, const int32 ToSlotIndex, const int32 QuantityToAdd, const int32 MaxStack);
 	
 	UFUNCTION(Server, Reliable)
-	void ServerRemoveItem(const int32 FromBagIndex, const int32 FromSlotIndex);
+	void ServerRemoveItem(const FGuid FromBagIndex, const int32 FromSlotIndex);
 	
 	UFUNCTION(Server, Reliable)
-	void ServerReplaceItemInBag(const int32 FromBagIndex, const int32 ToBagIndex, const int32 FromSlotIndex, const int32 ToSlotIndex);
+	void ServerReplaceItemInBag(const FGuid FromBagIndex, const FGuid ToBagIndex, const int32 FromSlotIndex, const int32 ToSlotIndex);
 
 	UFUNCTION(Server, Reliable)
 	void ServerTryUseItem(const FName& ItemID);
@@ -127,6 +127,12 @@ public:
 	void ServerUnEquipSlot(const EEquipSlot Slot);
 	void UnEquipSlotAndReturnWeapon(const EEquipSlot Slot);
 
+
+	/*********************************
+	 *  Bag manage
+	 *********************************/
+	UFUNCTION(Server, Reliable)
+	void ServerInitBags();
 	
 	/*********************************
 	 *  Abilities and stats managing
@@ -158,10 +164,6 @@ protected:
 
 	FORCEINLINE void SetCurrentTwoHandedPosture(UAnimSequence* TwoHandedPosture) { CurrentTwoHandedPosture = TwoHandedPosture; }
 
-	/*********************************
-	 *  Bag manage
-	 *********************************/
-	void InitBags();
 
 	/*********************************
 	 *  Items manage
@@ -191,13 +193,7 @@ protected:
 	 *  Broadcast to widget controller
 	 ***********************************/
 	UFUNCTION(Client, Reliable)
-	void BroadcastBagChange(const FBagData& BagData);
-	UFUNCTION(Client, Reliable)
-	void BroadcastBagRemoved(const FBagData& BagData);
-	UFUNCTION(Client, Reliable)
-	void BroadcastSlotChange(const int32 BagIndex, const int32 SlotIndex, const FInventorySlotData& ItemData);
-	UFUNCTION(Client, Reliable)
-	void BroadcastSlotRemove(const int32 BagIndex, const int32 SlotIndex, const FInventorySlotData& ItemData);
+	void BroadcastBagChange(const FGuid BagIndex, const int32 SlotsNum);
 	UFUNCTION(Client, Reliable)
 	void BroadcastEquipSlotChange(const FEquipSlotData& EquipSlotData);
 	UFUNCTION(Client, Reliable)
