@@ -13,8 +13,12 @@ float UMMC_AbilityCost::CalculateBaseMagnitude_Implementation(const FGameplayEff
 	const FEntriesDefinition* EntriesDefinition = GetEntryManifest(Cast<UProjectN_GameplayAbilityBase>(Spec.GetContext().GetAbility())->GetItemId());
 	const FAbilityFragment* AbilityFragment = GetFragment<FAbilityFragment>(*EntriesDefinition->FragmentManifest, ProjectNGameplayTags::Fragment_Ability);
 	
-	
-	return AbilityFragment->GetCostValue();
+	if (AbilityFragment->GetCost().IsValid())
+	{
+		return AbilityFragment->GetCost().Get<FLabeledFragment>().GetValue();
+	}
+
+	return 0.0f;
 }
 
 FEntriesDefinition* UMMC_AbilityCost::GetEntryManifest(const FName& EntryID) const

@@ -16,17 +16,6 @@ void UProjectN_OverlayWidgetController::BroadcastInitialValues()
 		return;
 	}
 	const UProjectN_AttributeSet* ProjectN_AttributeSet = CastChecked<UProjectN_AttributeSet>(AttributeSet);
-
-	//OnMaxHealthChanged.Broadcast(ProjectN_AttributeSet->GetMaxHealth(), ProjectN_AttributeSet->GetMaxHealth());
-	//OnHealthChanged.Broadcast(ProjectN_AttributeSet->GetHealth(), ProjectN_AttributeSet->GetHealth());
-	//OnMaxManaChanged.Broadcast(ProjectN_AttributeSet->GetMaxMana(), ProjectN_AttributeSet->GetMaxMana());
-	//OnManaChanged.Broadcast(ProjectN_AttributeSet->GetMana(), ProjectN_AttributeSet->GetMana());
-	//OnMaxStaminaChanged.Broadcast(ProjectN_AttributeSet->GetMaxStamina(), ProjectN_AttributeSet->GetMaxStamina());
-	//OnStaminaChanged.Broadcast(ProjectN_AttributeSet->GetStamina(), ProjectN_AttributeSet->GetStamina());
-	
-	//const AProjectN_PlayerState* ProjectNPlayerState = CastChecked<AProjectN_PlayerState>(PlayerState);
-	//ProcessXP(ProjectNPlayerState->GetXP());
-	//OnLevelChanged.Broadcast(ProjectNPlayerState->GetCharacterLevel_Internal());
 }
 
 void UProjectN_OverlayWidgetController::BindCallbacksToResponce()
@@ -42,8 +31,6 @@ void UProjectN_OverlayWidgetController::BindCallbacksToResponce()
 	BindGameplayAttributeValueChange(ProjectN_AttributeSet->GetMaxHealthAttribute(), OnMaxHealthChanged);
 	BindGameplayAttributeValueChange(ProjectN_AttributeSet->GetManaAttribute(), OnManaChanged);
 	BindGameplayAttributeValueChange(ProjectN_AttributeSet->GetMaxManaAttribute(), OnMaxManaChanged);
-	//BindGameplayAttributeValueChange(ProjectN_AttributeSet->GetStaminaAttribute(), OnStaminaChanged);
-	//BindGameplayAttributeValueChange(ProjectN_AttributeSet->GetMaxStaminaAttribute(), OnMaxStaminaChanged);
 
 	if (UProjectN_AbilitySystemComponent* ProjectN_AbilitySystemComponent = Cast<UProjectN_AbilitySystemComponent>(AbilitySystemComponent))
 	{
@@ -76,14 +63,6 @@ void UProjectN_OverlayWidgetController::BindCallbacksToResponce()
 				CooldownChange.Broadcast(CooldownTag, CooldownRemaining);
 			}
 		});
-
-		/*FForEachAbilitySignature ForEachAbility;
-		ForEachAbility.BindLambda([this](const FGameplayAbilitySpec& GameplayAbilitySpec)
-		{
-			FActionSlotData Data;
-			OnAbilityInfo.Broadcast(Data);
-		});
-		ProjectN_AbilitySystemComponent->ForEachAbility(ForEachAbility);*/
 	}
 
 	AProjectN_PlayerState* ProjectNPlayerState = CastChecked<AProjectN_PlayerState>(PlayerState);
@@ -153,4 +132,25 @@ void UProjectN_OverlayWidgetController::OnInitializeAbility(UProjectN_AbilitySys
 	});
 
 	ProjectN_AbilitySystemComponent->ForEachAbility(BroadcastDelegate);*/
+}
+
+UItemManifest* UProjectN_OverlayWidgetController::FindManifest(const FName& EntryID) const
+{
+	return GetEntryManifest(EntryID)? GetEntryManifest(EntryID)->FragmentManifest : nullptr;
+}
+
+/*******************
+*   Getters
+********************/
+FEntriesDefinition* UProjectN_OverlayWidgetController::GetEntryManifest(const FName& ItemID) const
+{
+	if (!Entries) return nullptr;
+	
+	const FString Context = FString(TEXT("UProjectN_InventoryController::FindEntryFromDataTable"));
+	
+	if (FEntriesDefinition* EntriesDefinition = Entries.LoadSynchronous()->FindRow<FEntriesDefinition>(ItemID, Context, false))
+	{
+		return EntriesDefinition;
+	}
+	return nullptr;
 }

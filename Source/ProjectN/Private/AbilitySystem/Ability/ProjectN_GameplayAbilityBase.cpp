@@ -15,7 +15,7 @@ void UProjectN_GameplayAbilityBase::ApplyCooldown(const FGameplayAbilitySpecHand
 		return;
 	}
 
-	const FEntriesDefinition* EntriesDefinition = GetEntryManifest(ItemID);
+	const FEntriesDefinition* EntriesDefinition = GetEntryManifest(AbilityID);
 	const FAbilityFragment* AbilityFragment = GetFragment<FAbilityFragment>(*EntriesDefinition->FragmentManifest, ProjectNGameplayTags::Fragment_Ability);
 	
 	FGameplayTagContainer TagContainer;

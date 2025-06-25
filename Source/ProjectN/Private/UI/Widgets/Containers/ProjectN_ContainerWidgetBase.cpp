@@ -3,21 +3,29 @@
 
 #include "UI/Widgets/Containers/ProjectN_ContainerWidgetBase.h"
 
+#include "AbilitySystem/ProjectN_AbilitySystemLibrary.h"
 #include "Blueprint/SlateBlueprintLibrary.h"
 #include "Blueprint/WidgetLayoutLibrary.h"
 #include "Components/CanvasPanel.h"
 #include "Components/CanvasPanelSlot.h"
+#include "ProjectN/ProjectNTypes.h"
+#include "UI/WidgetController/ProjectN_OverlayWidgetController.h"
 #include "UI/Widgets/Description/ProjectN_EntryDescription.h"
+#include "UI/Widgets/Slots/ProjectN_EntrySlotBase.h"
 
 void UProjectN_ContainerWidgetBase::OnSlotHovered(UProjectN_EntrySlotBase* HoveredWidget)
 {
 	GetItemDescription()->SetVisibility(ESlateVisibility::Collapsed);
+	GetItemDescription()->Collapse();
 
 	GetOwningPlayer()->GetWorldTimerManager().ClearTimer(DescriptionTimerHandle);
 	
 	FTimerDelegate TimerDelegate;
 	TimerDelegate.BindLambda([this, HoveredWidget]()
 	{
+		UItemManifest* Manifest = UProjectN_AbilitySystemLibrary::GetOverlayWidgetController(this)->FindManifest(HoveredWidget->GetEntryID());
+		Manifest->AssimilateInventoryFragments(GetItemDescription());
+		
 		GetItemDescription()->SetVisibility(ESlateVisibility::HitTestInvisible);
 		SetDescriptionSizeAndPosition(HoveredWidget);
 	});
@@ -29,6 +37,7 @@ void UProjectN_ContainerWidgetBase::OnSlotUnhovered()
 {
 	GetOwningPlayer()->GetWorldTimerManager().ClearTimer(DescriptionTimerHandle);
 	GetItemDescription()->SetVisibility(ESlateVisibility::Collapsed);
+	GetItemDescription()->Collapse();
 }
 
 UProjectN_EntryDescription* UProjectN_ContainerWidgetBase::GetItemDescription()

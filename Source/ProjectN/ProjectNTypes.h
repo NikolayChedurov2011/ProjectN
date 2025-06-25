@@ -317,12 +317,12 @@ struct FConsumableItemDefinition : public FItemDefinition
 	
 	UPROPERTY(EditDefaultsOnly)
 	TSubclassOf<UGameplayAbility> UseItemAbility = nullptr;
-	
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	FTagValueData CooldownData;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	FTagValueData CostData;
+	FTagValueData CooldownData = FTagValueData();
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	FTagValueData CostData = FTagValueData();
 };
 
 USTRUCT(BlueprintType, Blueprintable)
@@ -391,10 +391,10 @@ struct FAbilityDefinition : public FEntryDefinition
 	TSubclassOf<UGameplayAbility> Ability = nullptr;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	FTagValueData CooldownData;
+	FTagValueData CooldownData = FTagValueData();
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	FTagValueData CostData;
+	FTagValueData CostData = FTagValueData();
 };
 
 USTRUCT(BlueprintType, Blueprintable)
@@ -569,6 +569,72 @@ private:
 };
 
 USTRUCT(BlueprintType, Blueprintable)
+struct FInventoryFragment : public FFragmentData
+{
+	GENERATED_BODY()
+
+	virtual void Assimilate(UProjectN_CompositeBase* Composite) const;
+
+protected:
+	bool MatchesWidgetTag(const UProjectN_CompositeBase* Composite) const;
+};
+
+USTRUCT(BlueprintType, Blueprintable)
+struct FTextFragment : public FInventoryFragment
+{
+	GENERATED_BODY()
+
+	FORCEINLINE FText GetText() const { return TextFragment; }
+	FORCEINLINE void SetText(const FText& Text) { TextFragment = Text; }
+	virtual void Assimilate(UProjectN_CompositeBase* Composite) const override;
+
+private:
+
+	UPROPERTY(EditAnywhere, Category="Default Params")
+	FText TextFragment;
+};
+
+USTRUCT(BlueprintType, Blueprintable)
+struct FLabeledFragment : public FInventoryFragment
+{
+	GENERATED_BODY()
+
+	virtual void Assimilate(UProjectN_CompositeBase* Composite) const override;
+	
+	FORCEINLINE FText GetText() const { return LabelText; }
+	FORCEINLINE void SetText(const FText& NewText) { LabelText = NewText; }
+	FORCEINLINE float GetValue() const { return Value; }
+	FORCEINLINE void SetValue(const float NewValue) { Value = NewValue; }
+	FORCEINLINE FGameplayTag GetTag() const { return ModifierTag; }
+
+private:
+
+	UPROPERTY(EditAnywhere, Category="Label Params")
+	FText LabelText;
+
+	UPROPERTY(EditAnywhere, Category="Label Params")
+	float Value = 0.f;
+
+	UPROPERTY(EditAnywhere, Category="Label Params")
+	FGameplayTag ModifierTag = FGameplayTag();
+};
+
+USTRUCT(BlueprintType, Blueprintable)
+struct FModifierFragment : public FInventoryFragment
+{
+	GENERATED_BODY()
+
+	virtual void Assimilate(UProjectN_CompositeBase* Composite) const override;
+
+	FORCEINLINE TArray<TInstancedStruct<FLabeledFragment>> GetModifiers() const { return Modifiers; }
+
+private:
+
+	UPROPERTY(EditAnywhere, Category="Default Params")
+	TArray<TInstancedStruct<FLabeledFragment>> Modifiers;
+};
+
+USTRUCT(BlueprintType, Blueprintable)
 struct FBagFragment : public FFragmentData
 {
 	GENERATED_BODY()
@@ -592,25 +658,6 @@ private:
 	
 	UPROPERTY(EditDefaultsOnly)
 	EEntryType EntryType = EEntryType::None;
-};
-
-USTRUCT(BlueprintType, Blueprintable)
-struct FDescriptionFragment : public FFragmentData
-{
-	GENERATED_BODY()
-
-	FORCEINLINE FName GetItemName() const { return ItemName; }
-	FORCEINLINE void SetItemName(const FName& Name) { ItemName = Name; }
-	FORCEINLINE FString GetItemDescription() const { return ItemDescription; }
-	FORCEINLINE void SetItemDescription(const FString& Description) { ItemDescription = Description; }
-	
-private:
-
-	UPROPERTY(EditDefaultsOnly)
-	FName ItemName = NAME_None;
-
-	UPROPERTY(EditDefaultsOnly)
-	FString ItemDescription = FString();
 };
 
 USTRUCT(BlueprintType, Blueprintable)
@@ -647,7 +694,7 @@ private:
 };
 
 USTRUCT(BlueprintType, Blueprintable)
-struct FConsumableFragment : public FFragmentData
+struct FConsumableFragment : public FInventoryFragment
 {
 	GENERATED_BODY()
 
@@ -661,45 +708,45 @@ private:
 };
 
 USTRUCT(BlueprintType, Blueprintable)
-struct FAbilityFragment : public FFragmentData
+struct FAbilityFragment : public FInventoryFragment
 {
 	GENERATED_BODY()
 
+	virtual void Assimilate(UProjectN_CompositeBase* Composite) const override;
+
 	FORCEINLINE TSubclassOf<UGameplayAbility> GetAbilityClass() const { return Ability; }
-	FORCEINLINE void SetAbilityClass(const TSubclassOf<UGameplayAbility>& AbilityClass) { Ability = AbilityClass; }
-	FORCEINLINE FGameplayTag GetCooldownTag() const { return CooldownTag; }
-	FORCEINLINE void SetCooldownTag(const FGameplayTag& Tag) { CooldownTag = Tag; }
-	FORCEINLINE float GetCooldownValue() const { return CooldownValue; }
-	FORCEINLINE void SetCooldownValue(const float Value) { CooldownValue = Value; }
-	FORCEINLINE float GetCostValue() const { return CostValue; }
-	FORCEINLINE void SetCostValue(const float Value) { CostValue = Value; }
+	FORCEINLINE FGameplayTag GetCooldownTag() const { return Cooldown.Get<FLabeledFragment>().GetTag(); }
+	FORCEINLINE float GetCooldownValue() const { return Cooldown.Get<FLabeledFragment>().GetValue(); }
+	FORCEINLINE TInstancedStruct<FLabeledFragment> GetCost() const { return Cost; }
+	FORCEINLINE TInstancedStruct<FLabeledFragment> GetAbilityValue() const { return Value; }
 
 private:
 
 	UPROPERTY(EditDefaultsOnly)
 	TSubclassOf<UGameplayAbility> Ability = nullptr;
 
-	UPROPERTY(EditDefaultsOnly)
-	FGameplayTag CooldownTag = FGameplayTag();
+	UPROPERTY(EditAnywhere, Category="Ability Params")
+	TInstancedStruct<FLabeledFragment> Cooldown;
 
-	UPROPERTY(EditDefaultsOnly)
-	float CooldownValue = 0.f;
+	UPROPERTY(EditAnywhere, Category="Ability Params")
+	TInstancedStruct<FLabeledFragment> Cost;
 
-	UPROPERTY(EditDefaultsOnly)
-	float CostValue = 0.f;
+	UPROPERTY(EditAnywhere, Category="Ability Params")
+	TInstancedStruct<FLabeledFragment> Value;
 };
 
 USTRUCT(BlueprintType, Blueprintable)
-struct FEquippingFragment : public FFragmentData
+struct FEquippingFragment : public FInventoryFragment
 {
 	GENERATED_BODY()
+
+	virtual void Assimilate(UProjectN_CompositeBase* Composite) const override;
 
 	FORCEINLINE TMap<EEquipSlot, FName> GetSocketToAttach() const { return SocketToAttach; }
 	FORCEINLINE void SetSocketToAttach(const TMap<EEquipSlot, FName>& NewSocketToAttach) { SocketToAttach = NewSocketToAttach; }
 	FORCEINLINE TArray<EEquipSlot> GetAllowedSlots() const { return AllowedSlots; }
 	FORCEINLINE void SetAllowedSlots(const TArray<EEquipSlot>& NewAllowedSlots) { AllowedSlots = NewAllowedSlots; }
-	FORCEINLINE TMap<FGameplayTag, float> GetItemBonusAttributes() const { return ItemBonusAttributes; }
-	FORCEINLINE void SetItemBonusAttributes(const TMap<FGameplayTag, float>& NewItemBonusAttributes) { ItemBonusAttributes = NewItemBonusAttributes; }
+	FORCEINLINE TArray<TInstancedStruct<FLabeledFragment>> GetItemBonusAttributes() const { return BonusModifiers.Get<FModifierFragment>().GetModifiers(); }
 	FORCEINLINE TSubclassOf<AProjectN_ItemActor_Base> GetItemActorClass() const { return ItemActorClass; }
 	FORCEINLINE void SetItemActorClass(const TSubclassOf<AProjectN_ItemActor_Base>& NewItemActorClass) { ItemActorClass = NewItemActorClass; }
 
@@ -710,25 +757,26 @@ private:
 
 	UPROPERTY(EditDefaultsOnly)
 	TArray<EEquipSlot> AllowedSlots;
-	
-	UPROPERTY(EditDefaultsOnly)
-	TMap<FGameplayTag, float> ItemBonusAttributes;
+
+	UPROPERTY(EditAnywhere, Category="Ability Params")
+	TInstancedStruct<FModifierFragment> BonusModifiers;
 	
 	UPROPERTY(EditDefaultsOnly)
 	TSubclassOf<AProjectN_ItemActor_Base> ItemActorClass = nullptr;
 };
 
 USTRUCT(BlueprintType, Blueprintable)
-struct FWeaponFragment : public FFragmentData
+struct FWeaponFragment : public FInventoryFragment
 {
 	GENERATED_BODY()
+
+	virtual void Assimilate(UProjectN_CompositeBase* Composite) const override;
 	
 	FORCEINLINE TMap<EWeaponMode, FWeaponAbilitiesInfo> GetWeaponAbilitiesInfo() const { return WeaponAbilitiesInfo; }
 	FORCEINLINE void SetWeaponAbilitiesInfo(const TMap<EWeaponMode, FWeaponAbilitiesInfo>& NewWeaponAbilitiesInfo) { WeaponAbilitiesInfo = NewWeaponAbilitiesInfo; }
 	FORCEINLINE FGameplayTag GetWeaponTypeTag() const { return WeaponTypeTag; }
 	FORCEINLINE void SetWeaponTypeTag(const FGameplayTag& NewWeaponTypeTag) { WeaponTypeTag = NewWeaponTypeTag; }
-	FORCEINLINE TMap<FGameplayTag, float> GetWeaponDamageTypes() const { return WeaponDamageTypes; }
-	FORCEINLINE void SetWeaponDamageTypes(const TMap<FGameplayTag, float>& NewWeaponDamageTypes) { WeaponDamageTypes = NewWeaponDamageTypes; }
+	FORCEINLINE TInstancedStruct<FLabeledFragment> GetWeaponDamageTypes() const { return WeaponDamageModifiers; }
 	FORCEINLINE TObjectPtr<UAnimSequence> GetTwoHandedPosture() const { return TwoHandedPosture; }
 	FORCEINLINE void SetTwoHandedPosture(const TObjectPtr<UAnimSequence>& NewTwoHandedPosture) { TwoHandedPosture = NewTwoHandedPosture; }
 
@@ -739,23 +787,12 @@ private:
 
 	UPROPERTY(EditDefaultsOnly)
 	FGameplayTag WeaponTypeTag;
-
+	
 	UPROPERTY(EditDefaultsOnly)
-	TMap<FGameplayTag, float> WeaponDamageTypes;
-
+	TInstancedStruct<FLabeledFragment> WeaponDamageModifiers;
+	
 	UPROPERTY(EditDefaultsOnly)
 	TObjectPtr<UAnimSequence> TwoHandedPosture = nullptr;
-};
-
-USTRUCT(BlueprintType, Blueprintable)
-struct FInventoryFragment : public FFragmentData
-{
-	GENERATED_BODY()
-
-	virtual void Assimilate(UProjectN_CompositeBase* Composite) const;
-
-protected:
-	bool MatchesWidgetTag(const UProjectN_CompositeBase* Composite) const;
 };
 
 

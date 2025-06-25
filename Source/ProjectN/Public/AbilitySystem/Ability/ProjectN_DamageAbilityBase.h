@@ -14,19 +14,13 @@ class PROJECTN_API UProjectN_DamageAbilityBase : public UProjectN_GameplayAbilit
 
 protected:
 
-	void AssignDamageTypes(const FGameplayEffectSpecHandle& EffectSpecHandle, TMap<FGameplayTag, float> SourceDamageTypes) const;
+	void AssignDamageTypes(const FGameplayEffectSpecHandle& EffectSpecHandle) const;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Ability Defaults")
 	TSubclassOf<UGameplayEffect> DamageEffect = nullptr;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Ability Defaults")
-	TMap<FGameplayTag, float> DamageTypes;
-	
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Ability Defaults")
 	bool bUseWeaponDamageTypes = false;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Ability Defaults")
-	bool bHaveCooldown = false;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Ability Defaults")
 	float PhysicalDamageMultiplier = 1.f;

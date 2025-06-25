@@ -17,8 +17,8 @@ class PROJECTN_API UProjectN_DragDropItem : public UUserWidget
 public:
 	virtual void NativeOnInitialized() override;
 	
-	FORCEINLINE void SetItemIcon(const FSlateBrush& IconBrush) const;
-	FORCEINLINE void SetStackCount(const int32 NewStackCount) const;
+	void SetItemIcon(const FSlateBrush& IconBrush) const;
+	void SetStackCount(const int32 NewStackCount) const;
 
 private:
 

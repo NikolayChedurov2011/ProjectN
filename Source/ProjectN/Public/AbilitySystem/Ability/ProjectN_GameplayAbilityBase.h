@@ -18,7 +18,7 @@ class PROJECTN_API UProjectN_GameplayAbilityBase : public UGameplayAbility
 public:
 
 	FORCEINLINE const FGameplayTag& GetStartupTag() const { return StartupTag; }
-	FORCEINLINE FName GetItemId() const { return ItemID; }
+	FORCEINLINE FName GetItemId() const { return AbilityID; }
 
 protected:
 
@@ -30,17 +30,11 @@ protected:
 	TSoftObjectPtr<UDataTable> Entries;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Ability Data Table")
-	FName ItemID = NAME_None;
+	FName AbilityID = NAME_None;
 	
 	UPROPERTY(EditDefaultsOnly, Category = "Input")
 	FGameplayTag StartupTag;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Slot")
 	EEquipSlot RequiredSlot;
-
-	/*UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Cooldown")
-	FGameplayTagContainer CooldownTags;
-	
-	UPROPERTY(Transient)
-	FGameplayTagContainer TempCooldownTags;*/
 };

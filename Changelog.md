@@ -1,8 +1,17 @@
-Iteration for composite pattern.
-Iteration for bag slots. Refactor item slots structure.
-Remove broadcasts from inventory component, use PostReplicatedChange of Fast Array Serializer function. 
+Pop up iteration.
+Update abilities and effects. Update get ability value.
 
 TODO: 
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+We have damage ability. Inside need to set up "bUse Weapon Damage", "Physical Damage Multiplier", "AbilityID" - if use ability and "Required slot" - if "bUse Weapon Damage" is true.
+This ability get all damage value itself.
+Next from this ability we get damage projectile ability - from weapon socket or any other socket.
+
+
+Next need ability for consumable or buff - different heal potion or buff attribute.
+It will be instant potion for heal/mana and buff duration potion for all attributes. Its mean we will have 2 effect and an use only one ability
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 maybe concept not "item weight" but the item that slowdown the player's movement" to remove weight?
 

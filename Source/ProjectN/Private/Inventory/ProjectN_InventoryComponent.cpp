@@ -117,7 +117,12 @@ FGameplayTag UProjectN_InventoryComponent::GetWeaponTypeBySlot(const EEquipSlot 
 
 TMap<FGameplayTag, float> UProjectN_InventoryComponent::GetWeaponDamageTypesForSlot(const EEquipSlot InItemSlot) const
 {
-	return GetEquippedWeaponFragment(InItemSlot)->GetWeaponDamageTypes();
+	TInstancedStruct<FLabeledFragment> DamageTypes = GetEquippedWeaponFragment(InItemSlot)->GetWeaponDamageTypes();
+	
+	TMap<FGameplayTag, float> ReturnDamageTypes;
+	ReturnDamageTypes.Add(DamageTypes.Get<FLabeledFragment>().GetTag(), DamageTypes.Get<FLabeledFragment>().GetValue());
+	
+	return ReturnDamageTypes;
 }
 
 bool UProjectN_InventoryComponent::IsSlotEquipped(const EEquipSlot Slot)
@@ -665,9 +670,9 @@ void UProjectN_InventoryComponent::ApplyItemStats(const FEquippingFragment& Equi
 
 	UProjectN_AbilitySystemComponent* ASC = Cast<UProjectN_AbilitySystemComponent>(ASCInterface->GetAbilitySystemComponent());
 	// Apply item attributes
-	for (const TTuple<FGameplayTag, float>& Attribute : EquippingFragment.GetItemBonusAttributes())
+	for (const auto& Attribute : EquippingFragment.GetItemBonusAttributes())
 	{
-		ASC->ServerAddToAttributeByTag(Attribute.Key, Attribute.Value);
+		ASC->ServerAddToAttributeByTag(Attribute.Get<FLabeledFragment>().GetTag(), Attribute.Get<FLabeledFragment>().GetValue());
 	}
 }
 
@@ -696,9 +701,9 @@ void UProjectN_InventoryComponent::RemoveItemStats(const FName& ItemID) const
 
 	UProjectN_AbilitySystemComponent* ASC = Cast<UProjectN_AbilitySystemComponent>(ASCInterface->GetAbilitySystemComponent());
 	// Apply item attributes
-	for (const TTuple<FGameplayTag, float>& Attribute : EquippingFragment->GetItemBonusAttributes())
+	for (const auto& Attribute : EquippingFragment->GetItemBonusAttributes())
 	{
-		ASC->ServerAddToAttributeByTag(Attribute.Key, -Attribute.Value);
+		ASC->ServerAddToAttributeByTag(Attribute.Get<FLabeledFragment>().GetTag(), -Attribute.Get<FLabeledFragment>().GetValue());
 	}
 }
 

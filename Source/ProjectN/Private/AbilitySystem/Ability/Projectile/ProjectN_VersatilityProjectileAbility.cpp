@@ -11,7 +11,6 @@
 void UProjectN_VersatilityProjectileAbility::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData)
 {
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
-	
 }
 
 void UProjectN_VersatilityProjectileAbility::SpawnProjectile() const
@@ -42,7 +41,7 @@ void UProjectN_VersatilityProjectileAbility::SpawnProjectile() const
 			
 			const FGameplayEffectSpecHandle SpecHandle = SourceASC->MakeOutgoingSpec(DamageEffect, GetAbilityLevel(), ContextHandle);
 			
-			AssignDamageTypes(SpecHandle, DamageTypes);
+			AssignDamageTypes(SpecHandle);
 			
 			SpawnedProjectile->SetDamageEffectHandle(SpecHandle);
 		}

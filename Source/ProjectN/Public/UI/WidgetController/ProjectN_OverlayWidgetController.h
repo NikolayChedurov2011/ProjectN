@@ -7,6 +7,8 @@
 #include "UI/WidgetController/ProjectN_WidgetControllerBase.h"
 #include "ProjectN_OverlayWidgetController.generated.h"
 
+struct FEntriesDefinition;
+class UItemManifest;
 struct FActionSlotData;
 struct FGameplayAttribute;
 struct FOnAttributeChangeData;
@@ -78,6 +80,8 @@ public:
 	virtual void BroadcastInitialValues() override;
 	virtual void BindCallbacksToResponce() override;
 
+	UItemManifest* FindManifest(const FName& EntryID) const;
+
 	UFUNCTION(BlueprintCallable)
 	float CheckCooldownRemainig(const FGameplayTag& CooldownTag) const;
 
@@ -96,6 +100,11 @@ protected:
 	
 	template <typename T>
 	T* GetTableRowByTag(UDataTable* DataTable, FGameplayTag GameplayTag);
+
+	FEntriesDefinition* GetEntryManifest(const FName& ItemID) const;
+	
+	UPROPERTY(EditDefaultsOnly, Category="Items Data Table")
+	TSoftObjectPtr<UDataTable> Entries;
 };
 
 template <typename T>

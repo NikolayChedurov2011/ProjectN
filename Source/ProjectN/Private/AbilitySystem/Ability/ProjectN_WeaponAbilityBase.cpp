@@ -31,7 +31,7 @@ void UProjectN_WeaponAbilityBase::StartWeaponHit(const EEquipSlot InSlot) const
 		
 		const FGameplayEffectSpecHandle SpecHandle = SourceASC->MakeOutgoingSpec(DamageEffect, GetAbilityLevel(), ContextHandle);
 
-		AssignDamageTypes(SpecHandle, IInventoryInterface::Execute_GetWeaponDamageTypes(GetOwningActorFromActorInfo(), InSlot));
+		AssignDamageTypes(SpecHandle);
 
 		Weapon->SetDamageEffectHandle(SpecHandle);
 

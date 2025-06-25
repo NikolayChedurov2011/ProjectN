@@ -155,13 +155,21 @@ namespace ProjectNGameplayTags
 	UE_DEFINE_GAMEPLAY_TAG(Fragment,										"Fragment")
 	UE_DEFINE_GAMEPLAY_TAG(Fragment_Bag,									"Fragment.Bag")
 	UE_DEFINE_GAMEPLAY_TAG(Fragment_Type,									"Fragment.Type")
+	UE_DEFINE_GAMEPLAY_TAG(Fragment_Name,									"Fragment.Name")
 	UE_DEFINE_GAMEPLAY_TAG(Fragment_Description,							"Fragment.Description")
 	UE_DEFINE_GAMEPLAY_TAG(Fragment_Icon,									"Fragment.Icon")
 	UE_DEFINE_GAMEPLAY_TAG(Fragment_Stack,									"Fragment.Stack")
 	UE_DEFINE_GAMEPLAY_TAG(Fragment_Consumable,								"Fragment.Consumable")
+	UE_DEFINE_GAMEPLAY_TAG(Fragment_Modifier,								"Fragment.Modifier")
 	UE_DEFINE_GAMEPLAY_TAG(Fragment_Ability,								"Fragment.Ability")
+	UE_DEFINE_GAMEPLAY_TAG(Fragment_Ability_Cooldown,						"Fragment.Ability.Cooldown")
+	UE_DEFINE_GAMEPLAY_TAG(Fragment_Ability_Cost,							"Fragment.Ability.Cost")
+	UE_DEFINE_GAMEPLAY_TAG(Fragment_Ability_Value,							"Fragment.Ability.Value")
 	UE_DEFINE_GAMEPLAY_TAG(Fragment_Equipment,								"Fragment.Equip")
 	UE_DEFINE_GAMEPLAY_TAG(Fragment_Weapon,									"Fragment.Weapon")
+	UE_DEFINE_GAMEPLAY_TAG(Fragment_Weapon_Damage,							"Fragment.Weapon.Damage")
+	UE_DEFINE_GAMEPLAY_TAG(Fragment_Weapon_Damage_Physical,					"Fragment.Weapon.Damage.Physical")
+	UE_DEFINE_GAMEPLAY_TAG(Fragment_Weapon_Damage_Magical,					"Fragment.Weapon.Damage.Magical")
 }
 
 FProjectNGameplayTagsStruct FProjectNGameplayTagsStruct::ProjectNGameplayTagsInstance;
