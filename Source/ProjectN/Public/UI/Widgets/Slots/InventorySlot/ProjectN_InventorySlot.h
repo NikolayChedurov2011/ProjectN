@@ -26,7 +26,7 @@ public:
 	virtual bool NativeOnDrop(const FGeometry& InGeometry, const FDragDropEvent& InDragDropEvent, UDragDropOperation* InOperation) override;
 	
 	FORCEINLINE FSlateBrush GetIconBrush() const { return ItemIcon->GetBrush(); }
-	FORCEINLINE void SetItemIcon(const FSlateBrush& IconBrush) const;
+	void SetItemIcon(const FSlateBrush& IconBrush) const;
 
 	FORCEINLINE FGuid GetBagIndex() const { return BagIndex; }
 	FORCEINLINE void SetBagIndex(const FGuid InBagID) { BagIndex = InBagID; }
@@ -38,7 +38,7 @@ public:
 	FORCEINLINE void SetItemID(const FName& NewItemID) { ItemID = NewItemID; }
 	
 	FORCEINLINE int32 GetStackCount() const { return Stack; }
-	FORCEINLINE void SetStackCountText(const int32 NewStackCountText) const;
+	void SetStackCountText(const int32 NewStackCountText) const;
 	FORCEINLINE void SetStackCount(const int32 NewStackCount) { Stack =  NewStackCount; SetStackCountText(Stack); }
 
 	FORCEINLINE void SetCooldownTag(const FGameplayTag& NewCooldownTag) { CooldownTag = NewCooldownTag; }

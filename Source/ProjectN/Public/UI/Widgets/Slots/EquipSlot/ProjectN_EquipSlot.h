@@ -25,7 +25,7 @@ public:
 	virtual bool NativeOnDrop(const FGeometry& InGeometry, const FDragDropEvent& InDragDropEvent, UDragDropOperation* InOperation) override;
 	
 	FORCEINLINE FSlateBrush GetIconBrush() const { return ItemIcon->GetBrush(); }
-	FORCEINLINE void SetItemIcon(const FSlateBrush& IconBrush) const;
+	void SetItemIcon(const FSlateBrush& IconBrush) const;
 
 	FORCEINLINE EEquipSlot GetEquipSlot() const { return EquipSlot; }
 	

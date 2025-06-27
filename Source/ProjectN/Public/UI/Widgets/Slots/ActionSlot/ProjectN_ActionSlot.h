@@ -30,9 +30,9 @@ public:
 	FORCEINLINE FGameplayTag GetInputTag() const { return InputTag; }
 	
 	FORCEINLINE FSlateBrush GetIconBrush() const { return ActionSlotImage->GetBrush(); }
-	FORCEINLINE void SetItemIcon(const FSlateBrush& IconBrush) const;
+	void SetItemIcon(const FSlateBrush& IconBrush) const;
 
-	FORCEINLINE void SetCostText(const int32 CostValue) const;
+	void SetCostText(const int32 CostValue) const;
 	
 	FORCEINLINE FName GetItemID() const { return ItemID; }
 	FORCEINLINE void SetItemID(const FName& NewItemID) { ItemID = NewItemID; }

@@ -57,7 +57,7 @@ FEntriesDefinition* UProjectN_AbilityBookController::GetEntryManifest(const FNam
 	
 	const FString Context = FString(TEXT("UProjectN_AbilityBookController::FindEntryFromDataTable"));
 	
-	if (FEntriesDefinition* EntriesDefinition = Entries.LoadSynchronous()->FindRow<FEntriesDefinition>(ItemID, Context, false))
+	if (FEntriesDefinition* EntriesDefinition = Entries->FindRow<FEntriesDefinition>(ItemID, Context, false))
 	{
 		return EntriesDefinition;
 	}

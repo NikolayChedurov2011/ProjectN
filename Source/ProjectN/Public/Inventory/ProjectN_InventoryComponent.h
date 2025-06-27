@@ -219,7 +219,7 @@ private:
 	TArray<FName> BagsDefaultID;
 
 	UPROPERTY(EditDefaultsOnly, meta=(AllowPrivateAccess), Category="Items Data Table")
-	TSoftObjectPtr<UDataTable> Entries;
+	TObjectPtr<UDataTable> Entries;
 
 	UPROPERTY(Replicated)
 	TObjectPtr<UAnimSequence> CurrentTwoHandedPosture = nullptr;

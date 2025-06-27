@@ -27,7 +27,7 @@ FEntriesDefinition* UMMC_AbilityCost::GetEntryManifest(const FName& EntryID) con
 	
 	const FString Context = FString(TEXT("UMMC_AbilityCost::FindEntryFromDataTable"));
 	
-	if (FEntriesDefinition* EntriesDefinition = Entries.LoadSynchronous()->FindRow<FEntriesDefinition>(EntryID, Context, false))
+	if (FEntriesDefinition* EntriesDefinition = Entries->FindRow<FEntriesDefinition>(EntryID, Context, false))
 	{
 		return EntriesDefinition;
 	}

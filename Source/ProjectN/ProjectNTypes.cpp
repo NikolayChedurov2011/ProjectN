@@ -55,6 +55,11 @@ void UItemManifest::AssimilateInventoryFragments(UProjectN_CompositeBase* Compos
 	const auto& InventoryFragments = GetAllFragmentsOfType<FInventoryFragment>();
 	for (const auto& Fragment : InventoryFragments)
 	{
+		if (!Fragment)
+		{
+			return;
+		}
+		
 		Composite->ApplyFunction([Fragment](UProjectN_CompositeBase* Widget)
 		{
 			Fragment->Assimilate(Widget);

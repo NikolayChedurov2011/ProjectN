@@ -7,7 +7,7 @@
 
 AProjectN_ItemActor_Base::AProjectN_ItemActor_Base()
 {
-	PrimaryActorTick.bCanEverTick = true;
+	PrimaryActorTick.bCanEverTick = false;
 	bReplicates = true;
 	AActor::SetReplicateMovement(true);
 }

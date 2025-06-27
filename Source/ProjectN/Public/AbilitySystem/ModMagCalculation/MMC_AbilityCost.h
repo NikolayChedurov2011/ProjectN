@@ -22,5 +22,5 @@ protected:
 	FEntriesDefinition* GetEntryManifest(const FName& EntryID) const;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Ability Data Table")
-	TSoftObjectPtr<UDataTable> Entries;
+	TObjectPtr<UDataTable> Entries;
 };

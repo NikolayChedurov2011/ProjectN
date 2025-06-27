@@ -67,7 +67,6 @@ void UProjectN_InventoryController::BindCallbacksToResponce()
 				InventorySlot->SetStackCount(ItemData.Quantity);
 				InventorySlot->SetItemID(ItemData.ItemID);
 
-				FTimerHandle TimerHandle;
 				GetWorld()->GetTimerManager().SetTimer(TimerHandle, FTimerDelegate::CreateLambda([this, AbilityFragment, InventorySlot, ProjectN_AbilitySystemComponent]()
 				{
 					if (AbilityFragment)
@@ -160,7 +159,7 @@ FEntriesDefinition* UProjectN_InventoryController::GetEntryManifest(const FName&
 	
 	const FString Context = FString(TEXT("UProjectN_InventoryController::FindEntryFromDataTable"));
 	
-	if (FEntriesDefinition* EntriesDefinition = Entries.LoadSynchronous()->FindRow<FEntriesDefinition>(ItemID, Context, false))
+	if (FEntriesDefinition* EntriesDefinition = Entries->FindRow<FEntriesDefinition>(ItemID, Context, false))
 	{
 		return EntriesDefinition;
 	}

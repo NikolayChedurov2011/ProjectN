@@ -47,7 +47,7 @@ void UProjectN_ActionBarController::BindCallbacksToResponce()
 		{
 			const FAbilityFragment* AbilityFragment = GetFragment<FAbilityFragment>(*EntriesDefinition->FragmentManifest, ProjectNGameplayTags::Fragment_Ability);
 			
-			ProjectN_AbilitySystemComponent->ServerTryActivateActionBarAbility(AbilityFragment->GetAbilityClass(), AbilityFragment->GetCooldownTag());
+			ProjectN_AbilitySystemComponent->ServerTryActivateActionBarAbility(AbilityFragment->GetAbilityClass(), AbilityFragment->GetCooldownTag(), ActionSlot->GetItemID());
 		}
 		else
 		{
@@ -176,7 +176,7 @@ FEntriesDefinition* UProjectN_ActionBarController::GetEntryManifest(const FName&
 	
 	const FString Context = FString(TEXT("UProjectN_ActionBarController::FindEntryFromDataTable"));
 	
-	if (FEntriesDefinition* EntriesDefinition = Entries.LoadSynchronous()->FindRow<FEntriesDefinition>(ItemID, Context, false))
+	if (FEntriesDefinition* EntriesDefinition = Entries->FindRow<FEntriesDefinition>(ItemID, Context, false))
 	{
 		return EntriesDefinition;
 	}

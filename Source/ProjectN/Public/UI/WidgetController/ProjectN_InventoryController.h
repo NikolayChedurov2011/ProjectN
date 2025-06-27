@@ -75,7 +75,7 @@ protected:
 	FEntriesDefinition* GetEntryManifest(const FName& ItemID) const;
 	
 	UPROPERTY(EditDefaultsOnly, Category="Items Data Table")
-	TSoftObjectPtr<UDataTable> Entries;
+	TObjectPtr<UDataTable> Entries;
 
 private:
 
@@ -85,4 +85,7 @@ private:
 	TObjectPtr<UProjectN_InventoryWidget> InventoryWidget;
 	UPROPERTY()
 	TObjectPtr<UProjectN_EquipmentWidget> EquipmentWidget;
+	
+	UPROPERTY()
+	FTimerHandle TimerHandle;
 };

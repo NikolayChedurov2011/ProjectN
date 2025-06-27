@@ -32,7 +32,7 @@ public:
 	FEntriesDefinition* GetEntryManifest(const FName& ItemID) const;
 	
 	UPROPERTY(EditDefaultsOnly, Category="Items Data Table")
-	TSoftObjectPtr<UDataTable> Entries;
+	TObjectPtr<UDataTable> Entries;
 
 private:
 

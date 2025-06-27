@@ -90,9 +90,6 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Widget Data")
 	TObjectPtr<UDataTable> MessageWidgetDataTable;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Widget Data")
-	TObjectPtr<UAbilityInfo> AbilityInfoDataAsset;
-
 	void BindGameplayAttributeValueChange(const FGameplayAttribute& AttributeData, const FOnAttributeChangedSignature& OnAttributeChangedDelegate) const;
 
 	void ProcessXP(const int32 Value) const;
@@ -104,7 +101,7 @@ protected:
 	FEntriesDefinition* GetEntryManifest(const FName& ItemID) const;
 	
 	UPROPERTY(EditDefaultsOnly, Category="Items Data Table")
-	TSoftObjectPtr<UDataTable> Entries;
+	TObjectPtr<UDataTable> Entries;
 };
 
 template <typename T>

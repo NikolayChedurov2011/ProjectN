@@ -50,8 +50,8 @@ public:
 	void OnActionReleased(const FGameplayTag& InputTag);
 
 	UFUNCTION(Server, Reliable)
-	void ServerTryActivateActionBarAbility(TSubclassOf<UGameplayAbility> UseItemAbility, const FGameplayTag& CooldownTag);
-	bool TryActivateActionBarAbility(TSubclassOf<UGameplayAbility> UseItemAbility, const FGameplayTag& CooldownTag);
+	void ServerTryActivateActionBarAbility(TSubclassOf<UGameplayAbility> UseItemAbility, const FGameplayTag& CooldownTag, const FName& AbilityIDToActivate);
+	bool TryActivateActionBarAbility(TSubclassOf<UGameplayAbility> UseItemAbility, const FGameplayTag& CooldownTag, const FName& AbilityIDToActivate);
 
 	UFUNCTION(Server, Reliable)
 	void ServerAddToAttributeByTag(const FGameplayTag& AttributeTag, const float Value);

@@ -111,27 +111,7 @@ void UProjectN_OverlayWidgetController::BindGameplayAttributeValueChange(const F
 
 void UProjectN_OverlayWidgetController::OnInitializeAbility(UProjectN_AbilitySystemComponent* ProjectN_AbilitySystemComponent) const
 {
-	/*if (!ProjectN_AbilitySystemComponent->bIsAbilityAdded)
-	{
-		return;
-	}
 
-	FForEachAbilitySignature BroadcastDelegate;
-	BroadcastDelegate.BindLambda([this, ProjectN_AbilitySystemComponent] (const FGameplayAbilitySpec& AbilitySpec)
-	{
-		FProjectNActionSlotInfo* AbilityInfo = &AbilityInfoDataAsset->GetAbilityInfoByIndex();
-		if (AbilityInfo != nullptr)
-		{
-			AbilityInfo->InputTag = ProjectN_AbilitySystemComponent->GetInputTagFromSpec(AbilitySpec);
-
-			if (OnAbilityInfo.IsBound())
-			{
-				OnAbilityInfo.Broadcast(*AbilityInfo);
-			}
-		}
-	});
-
-	ProjectN_AbilitySystemComponent->ForEachAbility(BroadcastDelegate);*/
 }
 
 UItemManifest* UProjectN_OverlayWidgetController::FindManifest(const FName& EntryID) const
@@ -148,7 +128,7 @@ FEntriesDefinition* UProjectN_OverlayWidgetController::GetEntryManifest(const FN
 	
 	const FString Context = FString(TEXT("UProjectN_InventoryController::FindEntryFromDataTable"));
 	
-	if (FEntriesDefinition* EntriesDefinition = Entries.LoadSynchronous()->FindRow<FEntriesDefinition>(ItemID, Context, false))
+	if (FEntriesDefinition* EntriesDefinition = Entries->FindRow<FEntriesDefinition>(ItemID, Context, false))
 	{
 		return EntriesDefinition;
 	}

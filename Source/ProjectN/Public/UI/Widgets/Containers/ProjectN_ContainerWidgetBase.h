@@ -38,6 +38,7 @@ protected:
 	UPROPERTY()
 	TObjectPtr<UProjectN_EntryDescription> DescriptionWidget = nullptr;
 
+	UPROPERTY()
 	FTimerHandle DescriptionTimerHandle;
 	float DescriptionTimerShowAt = 0.1;
 };

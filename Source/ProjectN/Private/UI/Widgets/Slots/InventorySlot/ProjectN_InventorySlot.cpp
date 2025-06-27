@@ -92,6 +92,7 @@ bool UProjectN_InventorySlot::NativeOnDrop(const FGeometry& InGeometry, const FD
 		{
 			const float TempStack = Stack;
 			const FName TempID = ItemID;
+			Cast<UProjectN_InventoryController>(WidgetController)->UnEquipSlot(EquipmentSlotDragOperation->MyPayload.EquipSlot);
 			Cast<UProjectN_InventoryController>(WidgetController)->RemoveItem(BagIndex, BagSlotIndex);
 			Cast<UProjectN_InventoryController>(WidgetController)->TryAddItemToSlot(BagIndex, BagSlotIndex, EquipmentSlotDragOperation->MyPayload.ItemID, 1);
 			Cast<UProjectN_InventoryController>(WidgetController)->EquipItemToSlot(TempID, EquipmentSlotDragOperation->MyPayload.EquipSlot, TempStack);
@@ -99,6 +100,7 @@ bool UProjectN_InventorySlot::NativeOnDrop(const FGeometry& InGeometry, const FD
 			return true;
 		}
 
+		Cast<UProjectN_InventoryController>(WidgetController)->UnEquipSlot(EquipmentSlotDragOperation->MyPayload.EquipSlot);
 		Cast<UProjectN_InventoryController>(WidgetController)->TryAddItemToSlot(BagIndex, BagSlotIndex, EquipmentSlotDragOperation->MyPayload.ItemID, 1);
 	
 		return true;

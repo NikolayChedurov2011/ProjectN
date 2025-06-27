@@ -37,7 +37,7 @@ FEntriesDefinition* UProjectN_GameplayAbilityBase::GetEntryManifest(const FName&
 	
 	const FString Context = FString(TEXT("UProjectN_GameplayAbilityBase::FindEntryFromDataTable"));
 	
-	if (FEntriesDefinition* EntriesDefinition = Entries.LoadSynchronous()->FindRow<FEntriesDefinition>(EntryID, Context, false))
+	if (FEntriesDefinition* EntriesDefinition = Entries->FindRow<FEntriesDefinition>(EntryID, Context, false))
 	{
 		return EntriesDefinition;
 	}

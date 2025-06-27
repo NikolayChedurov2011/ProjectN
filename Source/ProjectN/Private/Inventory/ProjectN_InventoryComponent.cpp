@@ -18,7 +18,7 @@
  ***************/
 UProjectN_InventoryComponent::UProjectN_InventoryComponent()
 {
-	PrimaryComponentTick.bCanEverTick = true;
+	PrimaryComponentTick.bCanEverTick = false;
 	bWantsInitializeComponent = true;
 	SetIsReplicatedByDefault(true);
 }
@@ -174,7 +174,11 @@ FEntriesDefinition* UProjectN_InventoryComponent::GetEntryManifest(const FName& 
 
 	if (!Entries) return nullptr;
 		
-	if (FEntriesDefinition* EntriesDefinition = Entries.LoadSynchronous()->FindRow<FEntriesDefinition>(ItemID, Context, false))
+	/*if (FEntriesDefinition* EntriesDefinition = Entries.LoadSynchronous()->FindRow<FEntriesDefinition>(ItemID, Context, false))
+	{
+		return EntriesDefinition;
+	}*/
+	if (FEntriesDefinition* EntriesDefinition = Entries->FindRow<FEntriesDefinition>(ItemID, Context, false))
 	{
 		return EntriesDefinition;
 	}
@@ -457,7 +461,7 @@ void UProjectN_InventoryComponent::ServerTryUseItem_Implementation(const FName& 
 	bool bSuccess = false;
 	if (IsValid(AbilityFragment->GetAbilityClass()))
 	{
-		bSuccess = Cast<UProjectN_AbilitySystemComponent>(ASCInterface->GetAbilitySystemComponent())->TryActivateActionBarAbility(AbilityFragment->GetAbilityClass(), AbilityFragment->GetCooldownTag());
+		bSuccess = Cast<UProjectN_AbilitySystemComponent>(ASCInterface->GetAbilitySystemComponent())->TryActivateActionBarAbility(AbilityFragment->GetAbilityClass(), AbilityFragment->GetCooldownTag(), ItemID);
 	}
 	
 	if (ConsumableFragment->IsShouldDestroyAfterUse() && bSuccess)
@@ -508,13 +512,15 @@ void UProjectN_InventoryComponent::ServerEquipItemToSlot_Implementation(const FN
 		return;
 	}
 
+	// Check if item has allowed slot
 	if (!EquippingFragment->GetAllowedSlots().Contains(ToSlot))
 	{
 		// Just return item back to bag
 		ServerTryAddItem(ItemID, ItemStack);
 		return;
 	}
-		
+
+	// Check if slot already equipped
 	if (IsSlotEquipped(ToSlot))
 	{
 		// Un equip old item
@@ -670,9 +676,12 @@ void UProjectN_InventoryComponent::ApplyItemStats(const FEquippingFragment& Equi
 
 	UProjectN_AbilitySystemComponent* ASC = Cast<UProjectN_AbilitySystemComponent>(ASCInterface->GetAbilitySystemComponent());
 	// Apply item attributes
-	for (const auto& Attribute : EquippingFragment.GetItemBonusAttributes())
+	if (EquippingFragment.GetItemBonusAttributes().IsValid())
 	{
-		ASC->ServerAddToAttributeByTag(Attribute.Get<FLabeledFragment>().GetTag(), Attribute.Get<FLabeledFragment>().GetValue());
+		for (const auto& Attribute : EquippingFragment.GetItemBonusAttributes().Get<FModifierFragment>().GetModifiers())
+		{
+			ASC->ServerAddToAttributeByTag(Attribute.Get<FLabeledFragment>().GetTag(), Attribute.Get<FLabeledFragment>().GetValue());
+		}
 	}
 }
 
@@ -701,9 +710,12 @@ void UProjectN_InventoryComponent::RemoveItemStats(const FName& ItemID) const
 
 	UProjectN_AbilitySystemComponent* ASC = Cast<UProjectN_AbilitySystemComponent>(ASCInterface->GetAbilitySystemComponent());
 	// Apply item attributes
-	for (const auto& Attribute : EquippingFragment->GetItemBonusAttributes())
+	if (EquippingFragment->GetItemBonusAttributes().IsValid())
 	{
-		ASC->ServerAddToAttributeByTag(Attribute.Get<FLabeledFragment>().GetTag(), -Attribute.Get<FLabeledFragment>().GetValue());
+		for (const auto& Attribute : EquippingFragment->GetItemBonusAttributes().Get<FModifierFragment>().GetModifiers())
+		{
+			ASC->ServerAddToAttributeByTag(Attribute.Get<FLabeledFragment>().GetTag(), -Attribute.Get<FLabeledFragment>().GetValue());
+		}
 	}
 }
 

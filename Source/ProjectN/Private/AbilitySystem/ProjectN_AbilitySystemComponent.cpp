@@ -166,12 +166,16 @@ void UProjectN_AbilitySystemComponent::OnActionReleased(const FGameplayTag& Inpu
 	}
 }
 
-bool UProjectN_AbilitySystemComponent::TryActivateActionBarAbility(TSubclassOf<UGameplayAbility> UseItemAbility, const FGameplayTag& CooldownTag)
+bool UProjectN_AbilitySystemComponent::TryActivateActionBarAbility(TSubclassOf<UGameplayAbility> UseItemAbility, const FGameplayTag& CooldownTag, const FName& AbilityIDToActivate)
 {
 	FGameplayAbilitySpec AbilitySpec = FGameplayAbilitySpec(UseItemAbility, 1.f);
+	if (UProjectN_GameplayAbilityBase* Ability = Cast<UProjectN_GameplayAbilityBase>(AbilitySpec.Ability))
+	{
+		Ability->SetItemId(AbilityIDToActivate);
+	}
 	
 	if (GiveAbilityAndActivateOnce(AbilitySpec).IsValid())
-	{		
+	{
 		const float CooldownRemaining = FindCooldownRemaining(CooldownTag);
 		ClientBroadcastCooldown(CooldownTag, CooldownRemaining);
 
@@ -181,9 +185,9 @@ bool UProjectN_AbilitySystemComponent::TryActivateActionBarAbility(TSubclassOf<U
 	return false;
 }
 
-void UProjectN_AbilitySystemComponent::ServerTryActivateActionBarAbility_Implementation(TSubclassOf<UGameplayAbility> UseItemAbility, const FGameplayTag& CooldownTag)
+void UProjectN_AbilitySystemComponent::ServerTryActivateActionBarAbility_Implementation(TSubclassOf<UGameplayAbility> UseItemAbility, const FGameplayTag& CooldownTag, const FName& AbilityIDToActivate)
 {
-	TryActivateActionBarAbility(UseItemAbility, CooldownTag);
+	TryActivateActionBarAbility(UseItemAbility, CooldownTag, AbilityIDToActivate);
 }
 
 void UProjectN_AbilitySystemComponent::ClientBroadcastCooldown_Implementation(const FGameplayTag CooldownTag, const float CooldownRemaining)

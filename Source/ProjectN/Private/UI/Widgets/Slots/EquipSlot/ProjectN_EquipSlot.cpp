@@ -49,7 +49,7 @@ void UProjectN_EquipSlot::NativeOnDragDetected(const FGeometry& InGeometry, cons
 
 	OutOperation = EquipmentSlotDragOperation;
 
-	Cast<UProjectN_InventoryController>(WidgetController)->UnEquipSlot(EquipSlot);
+	//Cast<UProjectN_InventoryController>(WidgetController)->UnEquipSlot(EquipSlot);
 	
 	OnSlotUnhovered.Broadcast();
 }
@@ -63,6 +63,7 @@ bool UProjectN_EquipSlot::NativeOnDrop(const FGeometry& InGeometry, const FDragD
 			return false;
 		}
 
+		Cast<UProjectN_InventoryController>(WidgetController)->UnEquipSlot(EquipmentSlotDragOperation->MyPayload.EquipSlot);
 		Cast<UProjectN_InventoryController>(WidgetController)->EquipItemToSlot(EquipmentSlotDragOperation->MyPayload.ItemID, EquipSlot);
 	
 		return true;

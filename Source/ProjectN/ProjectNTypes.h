@@ -296,10 +296,10 @@ struct FTagValueData
 	GENERATED_BODY()
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	FGameplayTag Tag;
+	FGameplayTag Tag = FGameplayTag();
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	float Value;
+	float Value = 0.f;
 };
 
 USTRUCT(BlueprintType, Blueprintable)
@@ -746,7 +746,7 @@ struct FEquippingFragment : public FInventoryFragment
 	FORCEINLINE void SetSocketToAttach(const TMap<EEquipSlot, FName>& NewSocketToAttach) { SocketToAttach = NewSocketToAttach; }
 	FORCEINLINE TArray<EEquipSlot> GetAllowedSlots() const { return AllowedSlots; }
 	FORCEINLINE void SetAllowedSlots(const TArray<EEquipSlot>& NewAllowedSlots) { AllowedSlots = NewAllowedSlots; }
-	FORCEINLINE TArray<TInstancedStruct<FLabeledFragment>> GetItemBonusAttributes() const { return BonusModifiers.Get<FModifierFragment>().GetModifiers(); }
+	FORCEINLINE TInstancedStruct<FModifierFragment> GetItemBonusAttributes() const { return BonusModifiers; }
 	FORCEINLINE TSubclassOf<AProjectN_ItemActor_Base> GetItemActorClass() const { return ItemActorClass; }
 	FORCEINLINE void SetItemActorClass(const TSubclassOf<AProjectN_ItemActor_Base>& NewItemActorClass) { ItemActorClass = NewItemActorClass; }
 

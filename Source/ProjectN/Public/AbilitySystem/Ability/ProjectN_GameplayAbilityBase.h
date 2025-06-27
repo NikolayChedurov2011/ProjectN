@@ -19,6 +19,7 @@ public:
 
 	FORCEINLINE const FGameplayTag& GetStartupTag() const { return StartupTag; }
 	FORCEINLINE FName GetItemId() const { return AbilityID; }
+	FORCEINLINE void SetItemId(const FName& AbilityIDToActivate) { AbilityID = AbilityIDToActivate; }
 
 protected:
 
@@ -27,9 +28,9 @@ protected:
 	FEntriesDefinition* GetEntryManifest(const FName& EntryID) const;
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Ability Data Table")
-	TSoftObjectPtr<UDataTable> Entries;
+	TObjectPtr<UDataTable> Entries;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Ability Data Table")
+	UPROPERTY(/*EditDefaultsOnly, BlueprintReadOnly, Category="Ability Data Table"*/)
 	FName AbilityID = NAME_None;
 	
 	UPROPERTY(EditDefaultsOnly, Category = "Input")

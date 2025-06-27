@@ -21,7 +21,7 @@ public:
 	virtual void NativeOnDragDetected(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent, UDragDropOperation*& OutOperation) override;
 
 	FORCEINLINE FSlateBrush GetIconBrush() const { return AbilityIcon->GetBrush(); }
-	FORCEINLINE void SetAbilityIcon(const FSlateBrush& IconBrush) const;
+	void SetAbilityIcon(const FSlateBrush& IconBrush) const;
 
 	FORCEINLINE FName GetItemID() const { return ItemID; }
 	FORCEINLINE void SetItemID(const FName& NewItemID) { ItemID = NewItemID; }
