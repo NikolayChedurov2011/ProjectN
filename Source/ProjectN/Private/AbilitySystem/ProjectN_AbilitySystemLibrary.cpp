@@ -4,8 +4,6 @@
 #include "AbilitySystem/ProjectN_AbilitySystemLibrary.h"
 
 #include "AbilitySystemComponent.h"
-//#include "ProjectN_PlayerCharacter.h"
-#include "ProjectN_PlayerState.h"
 #include "Kismet/GameplayStatics.h"
 #include "UI/HUD/ProjectN_HUD.h"
 #include "UI/WidgetController/ProjectN_ActionBarController.h"

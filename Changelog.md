@@ -1,4 +1,4 @@
-Successful server and client build and test
+Iteration for procedural character walk animation
 
 
 
