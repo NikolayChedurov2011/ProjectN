@@ -193,8 +193,8 @@ void AProjectN_PlayerController::Input_MovementMode(const FInputActionValue& Act
 {
 	if (CurrentMovementMode == EMovementState::Run)
 	{
-		SetMovementData(EMovementState::Crouch);
-		ServerSetMovementData(EMovementState::Crouch);
+		SetMovementData(EMovementState::Walk);
+		ServerSetMovementData(EMovementState::Walk);
 		return;
 	}
 	

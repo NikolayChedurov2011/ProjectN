@@ -534,12 +534,14 @@ void UProjectN_InventoryComponent::ServerEquipItemToSlot_Implementation(const FN
 		UnEquipSlotAndReturnWeapon(EEquipSlot::AuxiliaryArm);
 
 		UseNewTwoHandedPosture(ItemID);
+		bIsTwoHandedEquip = true;
 	}
 	else
 	{
 		UnEquipSlotAndReturnWeapon(EEquipSlot::TwoHand);
 
 		ResetCurrentTwoHandedPosture();
+		bIsTwoHandedEquip = false;
 	}
 	
 	AActor* ItemActor = SpawnItemActor(*EquippingFragment, ToSlot, BaseCharacter);

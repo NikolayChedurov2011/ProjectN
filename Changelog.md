@@ -1,8 +1,12 @@
-Iteration for procedural character walk animation
+Finish for procedural character walk animation. Thoughts for the best animation solution..
 
 
 
 TODO:
+
+
+
+On destroy - destroy all spawned items
 
 
 
