@@ -5,6 +5,7 @@
 
 #include "ProjectN_GameplayTags.h"
 #include "AbilitySystem/ProjectN_AbilitySystemComponent.h"
+#include "AbilitySystem/Ability/ProjectN_GameplayAbilityBase.h"
 #include "GameFramework/PlayerState.h"
 #include "Inventory/ProjectN_InventoryComponent.h"
 #include "UI/Widgets/Containers/ProjectN_ActionBartWidget.h"
@@ -43,15 +44,9 @@ void UProjectN_ActionBarController::BindCallbacksToResponce()
 			
 		const FTypeFragment* TypeFragment = GetFragment<FTypeFragment>(*EntriesDefinition->FragmentManifest, ProjectNGameplayTags::Fragment_Type);
 		
-		if (TypeFragment->GetEntryType() == EEntryType::Ability)
+		if (TypeFragment->GetEntryType() != EEntryType::Ability)
 		{
-			const FAbilityFragment* AbilityFragment = GetFragment<FAbilityFragment>(*EntriesDefinition->FragmentManifest, ProjectNGameplayTags::Fragment_Ability);
-			
-			ProjectN_AbilitySystemComponent->ServerTryActivateActionBarAbility(AbilityFragment->GetAbilityClass(), AbilityFragment->GetCooldownTag(), ActionSlot->GetItemID());
-		}
-		else
-		{
-			InventoryComponent->ServerTryUseItem(ActionSlot->GetItemID());
+			InventoryComponent->ServerTryUseItem(ActionSlot->GetItemID(), InputTag);
 		}
 	});
 }
@@ -65,6 +60,11 @@ void UProjectN_ActionBarController::BroadcastInitialValues()
 void UProjectN_ActionBarController::SetActionBarWidgetRef(UProjectN_ActionBartWidget* NewActionBarWidget)
 {
 	ActionBarWidget = NewActionBarWidget;
+
+	for (UProjectN_ActionSlot* Slot : ActionBarWidget->GetActionSlots())
+	{
+		Slot->OnClearActionSlot.BindUFunction(this, "ClearAbilityFromSlot");
+	}
 }
 
 void UProjectN_ActionBarController::UpdateActionSlot(const int32 ActionSlotIndex, const FName& IncomingItemID) const
@@ -99,12 +99,20 @@ void UProjectN_ActionBarController::UpdateActionSlot(const int32 ActionSlotIndex
 		
 
 		ActionSlot->SetCooldownValueRemaining(ProjectN_AbilitySystemComponent->FindCooldownRemaining(AbilityFragment->GetCooldownTag()));
+		
+		ProjectN_AbilitySystemComponent->ServerTryAddAbility(AbilityFragment->GetAbilityClass(), ActionSlot->GetInputTag(), AbilityFragment->GetCooldownTag());
 	}
 }
 
 void UProjectN_ActionBarController::ClearActionSlot(const int32 ActionSlotIndex) const
 {
 	ActionBarWidget->ActionSlot(ActionSlotIndex)->ClearSlot();
+}
+
+void UProjectN_ActionBarController::ClearAbilityFromSlot(const FGameplayTag InputTag) const
+{
+	UProjectN_AbilitySystemComponent* ProjectN_AbilitySystemComponent = Cast<UProjectN_AbilitySystemComponent>(AbilitySystemComponent);
+	ProjectN_AbilitySystemComponent->ServerTryClearAbility(InputTag);
 }
 
 void UProjectN_ActionBarController::SwapActionSlots(const int32 ToSlotIndex, const int32 FromSlotIndex, const FName& IncomingItemID) const

@@ -114,7 +114,7 @@ public:
 	void ServerReplaceItemInBag(const FGuid FromBagIndex, const FGuid ToBagIndex, const int32 FromSlotIndex, const int32 ToSlotIndex);
 
 	UFUNCTION(Server, Reliable)
-	void ServerTryUseItem(const FName& ItemID);
+	void ServerTryUseItem(const FName& ItemID, const FGameplayTag InputTag);
 
 	
 	/*********************************

@@ -23,6 +23,7 @@ class PROJECTN_API UProjectN_AbilitySystemComponent : public UAbilitySystemCompo
 
 public:
 
+	UProjectN_AbilitySystemComponent();
 	void AbilityActorInfoSet();
 
 	FEffectAssetTagsSignature EffectAssetTags;
@@ -51,6 +52,10 @@ public:
 
 	UFUNCTION(Server, Reliable)
 	void ServerTryActivateActionBarAbility(TSubclassOf<UGameplayAbility> UseItemAbility, const FGameplayTag& CooldownTag, const FName& AbilityIDToActivate);
+	UFUNCTION(Server, Reliable)
+	void ServerTryAddAbility(TSubclassOf<UGameplayAbility> Ability, const FGameplayTag& ActionInputTag, const FGameplayTag& CooldownTag);
+	UFUNCTION(Server, Reliable)
+	void ServerTryClearAbility(const FGameplayTag& ActionInputTag);
 	bool TryActivateActionBarAbility(TSubclassOf<UGameplayAbility> UseItemAbility, const FGameplayTag& CooldownTag, const FName& AbilityIDToActivate);
 
 	UFUNCTION(Server, Reliable)
@@ -71,7 +76,6 @@ protected:
 	void OnRep_ActivateAbilities() override;
 
 private:
-	bool bFindAbility = false;
 
 	TMap<FGameplayTag, FGameplayTag> CooldownTags;
 };

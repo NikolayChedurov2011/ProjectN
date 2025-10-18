@@ -8,7 +8,7 @@
 #include "ProjectN_GameplayTags.h"
 #include "ProjectN/ProjectNTypes.h"
 
-FGameplayEffectSpecHandle UProjectN_SupportValueAbility_Base::ApplyValue() const
+FGameplayEffectSpecHandle UProjectN_SupportValueAbility_Base::ApplyValue(const FName ItemId) const
 {
 	if (!GetOwningActorFromActorInfo()->HasAuthority())
 	{
@@ -23,16 +23,16 @@ FGameplayEffectSpecHandle UProjectN_SupportValueAbility_Base::ApplyValue() const
 
 		const FGameplayEffectSpecHandle SpecHandle = SourceASC->MakeOutgoingSpec(Effect, GetAbilityLevel(), ContextHandle);
 
-		AssignValue(SpecHandle);
+		AssignValue(SpecHandle, ItemId);
 
 		return SpecHandle;
 	}
 	return nullptr;
 }
 
-void UProjectN_SupportValueAbility_Base::AssignValue(const FGameplayEffectSpecHandle& EffectSpecHandle) const
+void UProjectN_SupportValueAbility_Base::AssignValue(const FGameplayEffectSpecHandle& EffectSpecHandle, const FName ItemId) const
 {
-	const FAbilityFragment* AbilityFragment = GetFragment<FAbilityFragment>(*GetEntryManifest(GetItemId())->FragmentManifest, ProjectNGameplayTags::Fragment_Ability);
+	const FAbilityFragment* AbilityFragment = GetFragment<FAbilityFragment>(*GetEntryManifest(ItemId)->FragmentManifest, ProjectNGameplayTags::Fragment_Ability);
 	const FGameplayTag Tag = AbilityFragment->GetAbilityValue().Get<FLabeledFragment>().GetTag();
 	const float Value = AbilityFragment->GetAbilityValue().Get<FLabeledFragment>().GetValue();
 		

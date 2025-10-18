@@ -14,9 +14,9 @@ class PROJECTN_API UProjectN_SupportValueAbility_Base : public UProjectN_Gamepla
 protected:
 
 	UFUNCTION(BlueprintCallable)
-	FGameplayEffectSpecHandle ApplyValue() const;
+	FGameplayEffectSpecHandle ApplyValue(const FName ItemId) const;
 	
-	void AssignValue(const FGameplayEffectSpecHandle& EffectSpecHandle) const;
+	void AssignValue(const FGameplayEffectSpecHandle& EffectSpecHandle, const FName ItemId) const;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Ability Defaults")
 	TSubclassOf<UGameplayEffect> Effect = nullptr;

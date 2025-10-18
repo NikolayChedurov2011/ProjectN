@@ -13,12 +13,16 @@ class UTextBlock;
 class UProjectN_DragDropItem;
 class UProjectN_ActionSlot;
 
+DECLARE_DYNAMIC_DELEGATE_OneParam(FOnClearActionSlot, const FGameplayTag, InputTag);
+
 UCLASS()
 class PROJECTN_API UProjectN_ActionSlot : public UProjectN_EntrySlotBase
 {
 	GENERATED_BODY()
 	
-public:	
+public:
+	FOnClearActionSlot OnClearActionSlot;
+	
 	UProjectN_ActionSlot() {}
 
 	virtual void NativeOnInitialized() override;

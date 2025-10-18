@@ -439,7 +439,7 @@ void UProjectN_InventoryComponent::ServerReplaceItemInBag_Implementation(const F
 	BagList.MarkItemDirty(FromSlotData);
 }
 
-void UProjectN_InventoryComponent::ServerTryUseItem_Implementation(const FName& ItemID)
+void UProjectN_InventoryComponent::ServerTryUseItem_Implementation(const FName& ItemID, const FGameplayTag InputTag)
 {
 	const IAbilitySystemInterface* ASCInterface = Cast<IAbilitySystemInterface>(GetOwner());
 
@@ -461,16 +461,17 @@ void UProjectN_InventoryComponent::ServerTryUseItem_Implementation(const FName& 
 	bool bSuccess = false;
 	if (IsValid(AbilityFragment->GetAbilityClass()))
 	{
-		bSuccess = Cast<UProjectN_AbilitySystemComponent>(ASCInterface->GetAbilitySystemComponent())->TryActivateActionBarAbility(AbilityFragment->GetAbilityClass(), AbilityFragment->GetCooldownTag(), ItemID);
+		//bSuccess = Cast<UProjectN_AbilitySystemComponent>(ASCInterface->GetAbilitySystemComponent())->TryActivateActionBarAbility(AbilityFragment->GetAbilityClass(), AbilityFragment->GetCooldownTag(), ItemID);
 	}
 	
-	if (ConsumableFragment->IsShouldDestroyAfterUse() && bSuccess)
+	if (ConsumableFragment->IsShouldDestroyAfterUse()/* && bSuccess*/)
 	{
 		FInventorySlotData* InventorySlot = FindItemInBag(ItemID);
 		InventorySlot->Quantity--;
 		if (!InventorySlot->Quantity)
 		{
 			ServerRemoveItem(InventorySlot->BagIndex, InventorySlot->SlotIndex);
+			Cast<UProjectN_AbilitySystemComponent>(ASCInterface->GetAbilitySystemComponent())->ServerTryClearAbility(InputTag);
 		}
 	}
 	

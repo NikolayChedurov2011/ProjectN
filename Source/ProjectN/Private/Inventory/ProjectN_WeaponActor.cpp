@@ -5,7 +5,7 @@
 
 #include "AbilitySystemBlueprintLibrary.h"
 #include "AbilitySystemComponent.h"
-#include "Components/CapsuleComponent.h"
+//#include "Components/CapsuleComponent.h"
 
 /*void AProjectN_WeaponActor::BeginPlay()
 {
@@ -38,10 +38,10 @@
 
 AProjectN_WeaponActor::AProjectN_WeaponActor() : Super()
 {
-	CapsuleComponent = CreateDefaultSubobject<UCapsuleComponent>(TEXT("Capsule Component"));
-	CapsuleComponent->SetupAttachment(GetRootComponent());
-	CapsuleComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-	CapsuleComponent->OnComponentBeginOverlap.AddDynamic(this, &AProjectN_WeaponActor::OnWeaponOverlap);
+	//CapsuleComponent = CreateDefaultSubobject<UCapsuleComponent>(TEXT("Capsule Component"));
+	//CapsuleComponent->SetupAttachment(GetRootComponent());
+	//CapsuleComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	//CapsuleComponent->OnComponentBeginOverlap.AddDynamic(this, &AProjectN_WeaponActor::OnWeaponOverlap);
 }
 
 void AProjectN_WeaponActor::OnWeaponOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)

@@ -160,4 +160,6 @@ void UProjectN_ActionSlot::ClearSlot()
 	SetCooldownValueRemaining(0.f);
 	SetCostText(0);
 	UpdateCooldownProgressBar(CooldownValueRemaining);
+
+	OnClearActionSlot.ExecuteIfBound(GetInputTag());
 }

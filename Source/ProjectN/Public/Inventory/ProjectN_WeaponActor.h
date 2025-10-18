@@ -29,8 +29,8 @@ private:
 
 	void SpawnImpactSoundAndEffect() const;
 	
-	UPROPERTY(VisibleAnywhere)
-	TObjectPtr<UCapsuleComponent> CapsuleComponent;
+	//UPROPERTY(VisibleAnywhere)
+	//TObjectPtr<UCapsuleComponent> CapsuleComponent;
 
 	FGameplayEffectSpecHandle DamageEffectHandle;
 };

@@ -2,6 +2,7 @@
 
 
 #include "Inventory/ProjectN_ItemActor_Base.h"
+#include "Components/SceneComponent.h"
 #include "Net/UnrealNetwork.h"
 #include "Kismet/KismetSystemLibrary.h"
 
@@ -10,6 +11,9 @@ AProjectN_ItemActor_Base::AProjectN_ItemActor_Base()
 	PrimaryActorTick.bCanEverTick = false;
 	bReplicates = true;
 	AActor::SetReplicateMovement(true);
+
+	SceneComponent = CreateDefaultSubobject<USceneComponent>(TEXT("Root"));
+	SceneComponent->SetupAttachment(GetRootComponent());
 }
 
 void AProjectN_ItemActor_Base::GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const

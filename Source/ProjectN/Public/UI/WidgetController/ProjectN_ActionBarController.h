@@ -30,6 +30,9 @@ public:
 	void UpdateActionSlot(const int32 ActionSlotIndex, const FName& IncomingItemID) const;
 	void ClearActionSlot(const int32 ActionSlotIndex) const;
 	
+	UFUNCTION()
+	void ClearAbilityFromSlot(const FGameplayTag InputTag) const;
+	
 	/*UFUNCTION(BlueprintCallable)
 	void ClearSlot(const int32 SlotIndex);
 	

@@ -7,6 +7,21 @@
 #include "AbilitySystem/Ability/ProjectN_GameplayAbilityBase.h"
 #include "AbilitySystem/Attribute/ProjectN_AttributeSet.h"
 
+UProjectN_AbilitySystemComponent::UProjectN_AbilitySystemComponent()
+{
+	AbilityCommittedCallbacks.AddLambda([this](const UGameplayAbility* Ability)
+	{
+		FGameplayTag DynamicTag = Ability->GetCurrentAbilitySpec()->GetDynamicSpecSourceTags().First();
+		if (DynamicTag.IsValid())
+		{
+			if (CooldownTags.Find(DynamicTag))
+			{
+				ServerBroadcastCooldown(*CooldownTags.Find(DynamicTag));
+			}
+		}
+	});
+}
+
 void UProjectN_AbilitySystemComponent::AbilityActorInfoSet()
 {
 	OnGameplayEffectAppliedDelegateToSelf.AddUObject(this, &UProjectN_AbilitySystemComponent::OnEffectApply);
@@ -27,7 +42,7 @@ FGameplayAbilitySpecHandle UProjectN_AbilitySystemComponent::AddAbility(const TS
 		FGameplayAbilitySpec AbilitySpec = FGameplayAbilitySpec(DefaultAbility, 1.f);
 		if (const UProjectN_GameplayAbilityBase* ProjectN_Ability = Cast<UProjectN_GameplayAbilityBase>(AbilitySpec.Ability))
 		{
-			AbilitySpec.DynamicAbilityTags.AddTag(InputTag.IsValid()? InputTag : ProjectN_Ability->GetStartupTag());
+			AbilitySpec.GetDynamicSpecSourceTags().AddTag(InputTag.IsValid()? InputTag : ProjectN_Ability->GetStartupTag());
 			return GiveAbility(AbilitySpec);
 		}
 		return GiveAbility(AbilitySpec);
@@ -49,7 +64,7 @@ void UProjectN_AbilitySystemComponent::ServerRemoveAbility_Implementation(const 
 	
 	for (const FGameplayAbilitySpec& AbilitySpec : GetActivatableAbilities())
 	{
-		if (AbilitySpec.DynamicAbilityTags.HasTagExact(InputTag))
+		if (AbilitySpec.GetDynamicSpecSourceTags().HasTagExact(InputTag))
 		{
 			ClearAbility(AbilitySpec.Handle);
 			ClientRemoveCooldownTag(InputTag);			
@@ -97,21 +112,16 @@ void UProjectN_AbilitySystemComponent::OnActionPressed(const FGameplayTag& Input
 	
 	for (FGameplayAbilitySpec& AbilitySpec : GetActivatableAbilities())
 	{
-		if (AbilitySpec.DynamicAbilityTags.HasTagExact(InputTag))
+		if (AbilitySpec.GetDynamicSpecSourceTags().HasTagExact(InputTag))
 		{
 			AbilitySpecInputPressed(AbilitySpec);
 			if (AbilitySpec.IsActive())
 			{
 				InvokeReplicatedEvent(EAbilityGenericReplicatedEvent::InputPressed, AbilitySpec.Handle, AbilitySpec.ActivationInfo.GetActivationPredictionKey());
+				InputTagTriggered.ExecuteIfBound(InputTag);
 			}
-			bFindAbility = true;
 		}
 	}
-	if (!bFindAbility)
-	{
-		InputTagTriggered.ExecuteIfBound(InputTag);
-	}
-	bFindAbility = false;
 }
 
 void UProjectN_AbilitySystemComponent::OnActionHeld(const FGameplayTag& InputTag)
@@ -123,20 +133,21 @@ void UProjectN_AbilitySystemComponent::OnActionHeld(const FGameplayTag& InputTag
 	
 	for (FGameplayAbilitySpec& AbilitySpec : GetActivatableAbilities())
 	{
-		if (AbilitySpec.DynamicAbilityTags.HasTagExact(InputTag))
+		if (AbilitySpec.GetDynamicSpecSourceTags().HasTagExact(InputTag))
 		{
 			AbilitySpecInputPressed(AbilitySpec);
 			if (!AbilitySpec.IsActive())
 			{
 				if (TryActivateAbility(AbilitySpec.Handle))
 				{
-					for (TTuple<FGameplayTag, FGameplayTag>& Tag : CooldownTags)
+					InputTagTriggered.ExecuteIfBound(InputTag);
+					/*for (TTuple<FGameplayTag, FGameplayTag>& Tag : CooldownTags)
 					{
 						if (Tag.Key == InputTag)
 						{
 							ServerBroadcastCooldown(*CooldownTags.Find(InputTag));
 						}
-					}
+					}*/
 				}
 			}
 		}
@@ -158,7 +169,7 @@ void UProjectN_AbilitySystemComponent::OnActionReleased(const FGameplayTag& Inpu
 
 	for (FGameplayAbilitySpec& AbilitySpec : GetActivatableAbilities())
 	{
-		if (AbilitySpec.DynamicAbilityTags.HasTagExact(InputTag) && AbilitySpec.IsActive())
+		if (AbilitySpec.GetDynamicSpecSourceTags().HasTagExact(InputTag) && AbilitySpec.IsActive())
 		{
 			AbilitySpecInputReleased(AbilitySpec);
 			InvokeReplicatedEvent(EAbilityGenericReplicatedEvent::InputReleased, AbilitySpec.Handle, AbilitySpec.ActivationInfo.GetActivationPredictionKey());
@@ -188,6 +199,28 @@ bool UProjectN_AbilitySystemComponent::TryActivateActionBarAbility(TSubclassOf<U
 void UProjectN_AbilitySystemComponent::ServerTryActivateActionBarAbility_Implementation(TSubclassOf<UGameplayAbility> UseItemAbility, const FGameplayTag& CooldownTag, const FName& AbilityIDToActivate)
 {
 	TryActivateActionBarAbility(UseItemAbility, CooldownTag, AbilityIDToActivate);
+}
+
+void UProjectN_AbilitySystemComponent::ServerTryAddAbility_Implementation(TSubclassOf<UGameplayAbility> Ability, const FGameplayTag& ActionInputTag, const FGameplayTag& CooldownTag)
+{
+	FGameplayAbilitySpec AbilitySpec = FGameplayAbilitySpec(Ability, 1.f);
+	AbilitySpec.GetDynamicSpecSourceTags().AddTag(ActionInputTag);
+		
+	GiveAbility(AbilitySpec);
+
+	ClientAddCooldownTag(ActionInputTag, CooldownTag);
+}
+
+void UProjectN_AbilitySystemComponent::ServerTryClearAbility_Implementation(const FGameplayTag& ActionInputTag)
+{
+	for (FGameplayAbilitySpec& AbilitySpec : GetActivatableAbilities())
+	{
+		if (AbilitySpec.GetDynamicSpecSourceTags().HasTagExact(ActionInputTag))
+		{
+			ClearAbility(AbilitySpec.Handle);
+			ClientRemoveCooldownTag(ActionInputTag);	
+		}
+	}
 }
 
 void UProjectN_AbilitySystemComponent::ClientBroadcastCooldown_Implementation(const FGameplayTag CooldownTag, const float CooldownRemaining)

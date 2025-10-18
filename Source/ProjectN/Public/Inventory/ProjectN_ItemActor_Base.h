@@ -8,6 +8,7 @@
 #include "ProjectN_ItemActor_Base.generated.h"
 
 class USphereComponent;
+class USceneComponent;
 class UProjectN_ItemInstance;
 
 UCLASS()
@@ -34,4 +35,7 @@ protected:
 	
 	UFUNCTION()
 	void OnRep_ItemState();
+
+	UPROPERTY(VisibleAnywhere)
+	TObjectPtr<USceneComponent> SceneComponent;
 };
