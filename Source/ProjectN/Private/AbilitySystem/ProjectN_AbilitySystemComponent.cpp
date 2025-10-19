@@ -92,6 +92,7 @@ FActiveGameplayEffectHandle UProjectN_AbilitySystemComponent::ApplyGamePlayEffec
 		return EmptyGameplayEffectHandle;
 	}
 
+	FScopedAbilityListLock ActiveScopeLoc(*this);
 	const FGameplayEffectSpecHandle SpecHandle = MakeOutgoingSpec(Effect, Level, InEffectContext);
 	if (SpecHandle.IsValid())
 	{
@@ -110,15 +111,22 @@ void UProjectN_AbilitySystemComponent::OnActionPressed(const FGameplayTag& Input
 		return;
 	}
 	
+	FScopedAbilityListLock ActiveScopeLoc(*this);
 	for (FGameplayAbilitySpec& AbilitySpec : GetActivatableAbilities())
 	{
 		if (AbilitySpec.GetDynamicSpecSourceTags().HasTagExact(InputTag))
-		{
+		{			
 			AbilitySpecInputPressed(AbilitySpec);
 			if (AbilitySpec.IsActive())
 			{
 				InvokeReplicatedEvent(EAbilityGenericReplicatedEvent::InputPressed, AbilitySpec.Handle, AbilitySpec.ActivationInfo.GetActivationPredictionKey());
-				InputTagTriggered.ExecuteIfBound(InputTag);
+			}
+			else
+			{
+				if (TryActivateAbility(AbilitySpec.Handle))
+				{
+					InputTagTriggered.ExecuteIfBound(InputTag);
+				}
 			}
 		}
 	}
@@ -130,7 +138,8 @@ void UProjectN_AbilitySystemComponent::OnActionHeld(const FGameplayTag& InputTag
 	{
 		return;
 	}
-	
+
+	FScopedAbilityListLock ActiveScopeLoc(*this);
 	for (FGameplayAbilitySpec& AbilitySpec : GetActivatableAbilities())
 	{
 		if (AbilitySpec.GetDynamicSpecSourceTags().HasTagExact(InputTag))
@@ -138,9 +147,8 @@ void UProjectN_AbilitySystemComponent::OnActionHeld(const FGameplayTag& InputTag
 			AbilitySpecInputPressed(AbilitySpec);
 			if (!AbilitySpec.IsActive())
 			{
-				if (TryActivateAbility(AbilitySpec.Handle))
+				//if (TryActivateAbility(AbilitySpec.Handle))
 				{
-					InputTagTriggered.ExecuteIfBound(InputTag);
 					/*for (TTuple<FGameplayTag, FGameplayTag>& Tag : CooldownTags)
 					{
 						if (Tag.Key == InputTag)
@@ -217,10 +225,15 @@ void UProjectN_AbilitySystemComponent::ServerTryClearAbility_Implementation(cons
 	{
 		if (AbilitySpec.GetDynamicSpecSourceTags().HasTagExact(ActionInputTag))
 		{
-			ClearAbility(AbilitySpec.Handle);
-			ClientRemoveCooldownTag(ActionInputTag);	
+			AbilitiesToRemove.Add(AbilitySpec.Handle);
 		}
 	}
+	for (FGameplayAbilitySpecHandle& AbilityToRemove : AbilitiesToRemove)
+	{
+		ClearAbility(AbilityToRemove);
+		ClientRemoveCooldownTag(ActionInputTag);	
+	}
+	AbilitiesToRemove.Empty();
 }
 
 void UProjectN_AbilitySystemComponent::ClientBroadcastCooldown_Implementation(const FGameplayTag CooldownTag, const float CooldownRemaining)

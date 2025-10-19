@@ -67,7 +67,13 @@ void UProjectN_InventoryController::BindCallbacksToResponce()
 				InventorySlot->SetStackCount(ItemData.Quantity);
 				InventorySlot->SetItemID(ItemData.ItemID);
 
-				GetWorld()->GetTimerManager().SetTimer(TimerHandle, FTimerDelegate::CreateLambda([this, AbilityFragment, InventorySlot, ProjectN_AbilitySystemComponent]()
+				if (AbilityFragment)
+				{
+					InventorySlot->SetCooldownTag(AbilityFragment->GetCooldownTag());
+					InventorySlot->SetCooldownBaseValue(AbilityFragment->GetCooldownValue());
+					InventorySlot->SetCooldownValueRemaining(ProjectN_AbilitySystemComponent->FindCooldownRemaining(AbilityFragment->GetCooldownTag()));
+				}
+				/*GetWorld()->GetTimerManager().SetTimer(TimerHandle, FTimerDelegate::CreateLambda([this, AbilityFragment, InventorySlot, ProjectN_AbilitySystemComponent]()
 				{
 					if (AbilityFragment)
 					{
@@ -75,7 +81,7 @@ void UProjectN_InventoryController::BindCallbacksToResponce()
 						InventorySlot->SetCooldownBaseValue(AbilityFragment->GetCooldownValue());
 						InventorySlot->SetCooldownValueRemaining(ProjectN_AbilitySystemComponent->FindCooldownRemaining(AbilityFragment->GetCooldownTag()));
 					}
-				}), 0.3f,false);
+				}), 0.3f,false);*/
 			}
 		});
 		

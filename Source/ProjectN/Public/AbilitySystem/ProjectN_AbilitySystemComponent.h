@@ -57,6 +57,7 @@ public:
 	UFUNCTION(Server, Reliable)
 	void ServerTryClearAbility(const FGameplayTag& ActionInputTag);
 	bool TryActivateActionBarAbility(TSubclassOf<UGameplayAbility> UseItemAbility, const FGameplayTag& CooldownTag, const FName& AbilityIDToActivate);
+	bool OnAbilityActivated(const FGameplayTag& CooldownTag);
 
 	UFUNCTION(Server, Reliable)
 	void ServerAddToAttributeByTag(const FGameplayTag& AttributeTag, const float Value);
@@ -77,5 +78,6 @@ protected:
 
 private:
 
-	TMap<FGameplayTag, FGameplayTag> CooldownTags;
+	TMap<FGameplayTag, FGameplayTag> CooldownTags{};
+	TArray<FGameplayAbilitySpecHandle> AbilitiesToRemove{};
 };

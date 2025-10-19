@@ -461,6 +461,7 @@ void UProjectN_InventoryComponent::ServerTryUseItem_Implementation(const FName& 
 	bool bSuccess = false;
 	if (IsValid(AbilityFragment->GetAbilityClass()))
 	{
+		//Cast<UProjectN_AbilitySystemComponent>(ASCInterface->GetAbilitySystemComponent())->OnAbilityActivated(AbilityFragment->GetCooldownTag());
 		//bSuccess = Cast<UProjectN_AbilitySystemComponent>(ASCInterface->GetAbilitySystemComponent())->TryActivateActionBarAbility(AbilityFragment->GetAbilityClass(), AbilityFragment->GetCooldownTag(), ItemID);
 	}
 	
