@@ -468,6 +468,7 @@ void UProjectN_InventoryComponent::ServerTryUseItem_Implementation(const FName& 
 	{
 		FInventorySlotData* InventorySlot = FindItemInBag(ItemID);
 		InventorySlot->Quantity--;
+		BagList.MarkItemDirty(*InventorySlot);
 		if (!InventorySlot->Quantity)
 		{
 			ServerRemoveItem(InventorySlot->BagIndex, InventorySlot->SlotIndex);

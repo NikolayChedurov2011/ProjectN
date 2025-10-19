@@ -52,6 +52,8 @@ UProjectN_EntryDescription* UProjectN_ContainerWidgetBase::GetItemDescription()
 
 void UProjectN_ContainerWidgetBase::SetDescriptionSizeAndPosition(UProjectN_EntrySlotBase* HoveredWidget)
 {
+	GetItemDescription()->ForceLayoutPrepass();
+	
 	UCanvasPanelSlot* CanvasPanelSlot = UWidgetLayoutLibrary::SlotAsCanvasSlot(DescriptionWidget);
 	const FVector2D DescriptionSize = DescriptionWidget->GetBoxSize();
 	

@@ -21,7 +21,7 @@ void UProjectN_ActionBarController::BindCallbacksToResponce()
 		return;
 	}
 	
-	ProjectN_AbilitySystemComponent->InputTagTriggered.BindLambda([this, InventoryComponent, ProjectN_AbilitySystemComponent](const FGameplayTag InputTag)
+	ProjectN_AbilitySystemComponent->InputTagTriggered.BindLambda([this, InventoryComponent](const FGameplayTag InputTag)
 	{
 		const UProjectN_ActionSlot* ActionSlot = ActionBarWidget->ActionSlot(InputTag);
 
